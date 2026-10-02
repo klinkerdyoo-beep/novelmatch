@@ -1,0 +1,34 @@
+/* ---------- Global ---------- */
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap');
+
+html,
+body {
+    font-family: "Inter", sans-serif;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+[data-testid="stHeader"] {
+    display: none;
+}
+
+.block-container {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+}
+
+.st-emotion-cache-1ndxyp5 {
+    gap: 0 !important;
+}
+
+.how-title,
+.hero-title,
+.hero-description,
+.how-hero-description ,
+.step-number,
+.step-title,
+.step-title-big,
+.footer-title  {
+    font-family: "Barlow", sans-serif;
+}

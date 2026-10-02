@@ -1,0 +1,116 @@
+
+.footer {
+    min-height: 480px;
+
+    padding: 70px 60px 30px;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    color: white;
+
+    position: relative;
+    overflow: hidden;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+}
+
+.footer-title {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer-title h1 {
+    margin: 0;
+
+    font-size: 96px;
+    font-weight: 300;
+    line-height: 0.85;
+}
+
+.footer-label {
+    margin-bottom: 25px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+    opacity: 0.75;
+}
+
+.footer-title p {
+    margin-top: 35px;
+
+    max-width: 280px;
+
+    font-size: 15px;
+    line-height: 1.4;
+
+    opacity: 0.75;
+}
+
+
+/* ---------- Members ---------- */
+
+.footer-members {
+    display: flex;
+    flex-direction: column;
+}
+
+.member {
+    display: grid;
+    grid-template-columns: 45px 1fr;
+
+    align-items: start;
+
+    padding: 20px 0;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.member:first-child {
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.member-number {
+    font-size: 14px;
+    opacity: 0.55;
+}
+
+.member-name {
+    font-size: 20px;
+    font-weight: 500;
+
+    line-height: 1.2;
+}
+
+.member-id {
+    margin-top: 6px;
+
+    font-size: 14px;
+
+    opacity: 0.6;
+}
+
+.footer-bottom {
+    margin-top: 60px;
+
+    padding-top: 20px;
+
+    display: flex;
+    justify-content: space-between;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
+
+    font-size: 13px;
+
+    opacity: 0.65;
+}

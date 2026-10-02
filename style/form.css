@@ -1,0 +1,200 @@
+/* =========================================================
+   Preferences
+   ========================================================= */
+
+.st-key-preferences-card,
+.st-key-novel-card,
+.st-key-preview-card {
+    width: 100%;
+    max-width: 1000px;
+
+    margin: 0 auto;
+    margin-top: 10px;
+
+    padding: 42px;
+
+    box-sizing: border-box;
+
+    border-radius: 32px;
+
+    /* Glass */
+    background: rgba(255, 255, 255, 0.644);
+
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+
+    /* Glass border */
+    border: 1px solid rgba(255, 255, 255, 0.65);
+
+    /* Soft glass depth */
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.8),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.15),
+        0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+.st-key-preferences-content,
+.st-key-novel-content,
+.st-key-preview-content {
+    padding-top: 100px;
+    padding-left: 40px;
+}
+
+.st-key-preferences-content h1,
+.st-key-novel-content h1,
+.st-key-preview-content h1 {
+    font-family: "Barlow", sans-serif;
+    font-size: 64px;
+    font-weight: 400;
+    color: white;
+}
+
+.preferences-description,
+.novel-description,
+.preview-description {
+    font-family: "Barlow", sans-serif;
+    font-weight: 200;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.747);
+}
+
+.preferences-step,.novel-step {
+    font-family: "Barlow", sans-serif;
+    font-size: 36px;
+    font-weight: 300;
+    color: aliceblue;
+}
+
+/* =========================================================
+   Header
+   ========================================================= */
+
+.st-key-preferences-card h3,
+.st-key-novel-card h3,
+.st-key-preview-card h3 {
+    font-family: "Barlow", sans-serif;
+
+    font-size: 36px;
+    font-weight: 400;
+}
+
+.st-key-preview-card h4 {
+    font-family: "Barlow", sans-serif;
+    font-size: 24px;
+    font-weight: 400;
+}
+
+
+/* =========================================================
+   Sections
+   ========================================================= */
+
+.st-key-preferences-card h3 + div,.st-key-novel-card h3 + div {
+    margin-bottom: 8px;
+}
+
+
+/* =========================================================
+   Shared Buttons
+   ========================================================= */
+
+.stButton > button {
+    min-height: 48px;
+
+    padding: 0 24px;
+
+    border-radius: 999px;
+
+    font-family: "Barlow", sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+
+    border: 1px solid rgba(255, 255, 255, 0.65);
+
+    background: rgba(255, 255, 255, 0.55);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.8),
+        0 6px 18px rgba(0, 0, 0, 0.08);
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* Hover */
+
+.stButton > button:hover {
+    background: rgba(255, 255, 255, 0.75);
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.9),
+        0 10px 24px rgba(0, 0, 0, 0.12);
+}
+
+
+/* Active */
+
+.stButton > button:active {
+    transform: scale(0.97);
+}
+
+
+/* =========================================================
+   Primary Button
+   ========================================================= */
+
+.stButton > button[kind="primary"] {
+    color: white;
+
+    border: 1px solid rgba(255, 255, 255, 0.35);
+
+    background: linear-gradient(
+        120deg,
+        #32A3A8,
+        #5DBD99
+    );
+
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.35),
+        0 8px 20px rgba(50, 163, 168, 0.25);
+}
+
+
+/* Primary Hover */
+
+.stButton > button[kind="primary"]:hover {
+    background: linear-gradient(
+        120deg,
+        #3AAEB3,
+        #68C6A2
+    );
+
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.45),
+        0 12px 26px rgba(50, 163, 168, 0.32);
+
+    transform: translateY(-2px);
+}
+
+/* =========================================================
+   Form Inputs
+   ========================================================= */
+
+/* Text input / Textarea / Selectbox / Multiselect */
+.st-key-preferences-card input,
+.st-key-preferences-card textarea,
+.st-key-novel-card input,
+.st-key-novel-card textarea,
+.st-key-preview-card input,
+.st-key-preview-card textarea {
+    background: rgba(255, 255, 255, 0.88) !important;
+}
+
