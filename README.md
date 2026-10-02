@@ -50,31 +50,43 @@ novelmatch/
 ```bash
 git clone https://github.com/YOUR_USERNAME/novelmatch.git
 cd novelmatch  
+```
 
 ### 2. Create a virtual environment
-
+```bash
 python -m venv .venv
+```
 
 ### 3. Activate the virtual environment
 
 Windows:
+```bash
 .venv\Scripts\activate
+```
 
 macOS / Linux:
+```bash
 source .venv/bin/activate
+```
 
 ### 4. Install dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
 ### 5. Set up the environment variables
 Create a .env file in the project root:
 
+```bash
 GEMINI_API_KEY=your_api_key_here
+```
 
 ### 6. Run the application
 
+```bash
 streamlit run main.py
+```
 
 The application will open in your browser at:
 http://localhost:8501
