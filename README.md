@@ -41,6 +41,7 @@ novelmatch/
 ├── main.py
 ├── requirements.txt
 └── README.md
+```
 
 ## Installation & Setup
 
