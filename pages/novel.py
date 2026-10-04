@@ -116,6 +116,7 @@ with st.container(key="novel-content"):
             value=st.session_state.novel_title,
             placeholder="Enter novel title...",
             key="novel_title_input",
+            label_visibility="collapsed"
         )
 
         st.session_state.novel_title = novel_title
@@ -127,6 +128,7 @@ with st.container(key="novel-content"):
             value=st.session_state.novel_author,
             placeholder="Enter author name...",
             key="novel_author_input",
+            label_visibility="collapsed"
         )
 
         st.session_state.novel_author = novel_author
@@ -137,6 +139,7 @@ with st.container(key="novel-content"):
             value=st.session_state.novel_synopsis,
             placeholder="Enter sysnosi....",
             key="novel_synopsis_input",
+            label_visibility="collapsed"
         )
 
         st.session_state.novel_synopsis = novel_synopsis

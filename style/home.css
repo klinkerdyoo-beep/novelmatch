@@ -326,6 +326,7 @@
     font-size: 20px;
     width: 100%;
     padding: 0px 200px 0px 0px;
+    color: black;
 }
 
 .how-title {
@@ -335,6 +336,7 @@
     font-size: 96px;
     font-weight: 300;
     line-height: 0.85;
+    color: black;
 }
 
 
@@ -354,7 +356,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 18px;
-    align-items: start;
+    align-items: end;
 }
 
 .step-card-big {
@@ -362,6 +364,8 @@
     box-sizing: border-box;
     border-radius: 32px;
     background: #68beb473;
+    color: black;
+    
 
     display: flex;
     flex-direction: column;

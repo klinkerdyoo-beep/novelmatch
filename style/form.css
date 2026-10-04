@@ -31,6 +31,7 @@
         inset 0 1px 1px rgba(255, 255, 255, 0.8),
         inset 0 -1px 1px rgba(255, 255, 255, 0.15),
         0 12px 35px rgba(0, 0, 0, 0.12);
+    color: black;
 }
 
 .st-key-preferences-content,
@@ -55,8 +56,24 @@
     font-family: "Barlow", sans-serif;
     font-weight: 200;
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.747);
+    color: rgba(255, 255, 255, 0.747);  
 }
+
+/* .st-key-preferences-card [data-testid="stWidgetLabel"] p,
+.st-key-novel-card  [data-testid="stWidgetLabel"] p{
+    font-family: "Barlow", sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: black ;
+}
+
+.st-key-preferences-card [data-testid="stMultiSelect"] input::placeholder,
+.st-key-preferences-card input[type="text"]::placeholder,
+.st-key-novel-card input[type="text"]::placeholder,
+.st-key-novel-card textarea::placeholder
+{
+    color: dimgray;
+} */
 
 .preferences-step,.novel-step {
     font-family: "Barlow", sans-serif;
@@ -189,6 +206,21 @@
    ========================================================= */
 
 /* Text input / Textarea / Selectbox / Multiselect */
+/* =========================================================
+   Form Inputs
+   ========================================================= */
+
+
+.st-key-preferences-card [data-testid="stWidgetLabel"] p,
+.st-key-novel-card [data-testid="stWidgetLabel"] p,
+.st-key-preview-card [data-testid="stWidgetLabel"] p {
+    font-family: "Barlow", sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: black !important;
+}
+
+/* Input background + typed text */
 .st-key-preferences-card input,
 .st-key-preferences-card textarea,
 .st-key-novel-card input,
@@ -196,5 +228,20 @@
 .st-key-preview-card input,
 .st-key-preview-card textarea {
     background: rgba(255, 255, 255, 0.88) !important;
+
+    color: #172957 !important;
+
+    font-family: "Barlow", sans-serif;
+    font-size: 16px;
 }
 
+/* Placeholder */
+.st-key-preferences-card input::placeholder,
+.st-key-preferences-card textarea::placeholder,
+.st-key-novel-card input::placeholder,
+.st-key-novel-card textarea::placeholder,
+.st-key-preview-card input::placeholder,
+.st-key-preview-card textarea::placeholder {
+    color: dimgray !important;
+    opacity: 1 !important;
+}
