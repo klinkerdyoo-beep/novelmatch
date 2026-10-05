@@ -460,12 +460,63 @@ class GeminiAIService:
             raise GeminiInvalidResponseError("Gemini returned an empty response.")
 
         try:
-            return MatchAnalysis.model_validate_json(response_text)
+            result = MatchAnalysis.model_validate_json(response_text)
+            self._validate_semantics(result, reviews)
+            return result
         except (ValidationError, ValueError, TypeError) as exc:
             raise GeminiInvalidResponseError(
                 "Gemini returned invalid JSON or data that does not match the "
                 "NovelMatch analysis schema."
             ) from exc
+
+    @staticmethod
+    def _validate_semantics(
+        result: MatchAnalysis,
+        reviews: list[dict[str, Any]],
+    ) -> None:
+        """Validate relationships that cannot be expressed by the JSON schema."""
+
+        if result.match_score is None:
+            if result.match_level is not None:
+                raise ValueError("match_level must be null when match_score is null")
+        else:
+            expected_level = (
+                "High"
+                if result.match_score >= 80
+                else "Medium"
+                if result.match_score >= 60
+                else "Low"
+            )
+            if result.match_level != expected_level:
+                raise ValueError("match_level does not match match_score")
+
+        review_by_id = {
+            review.get("review_id"): review
+            for review in reviews
+            if review.get("review_id") is not None
+        }
+
+        for match_point in [*result.matches, *result.mismatches]:
+            invalid_ids = [
+                evidence_id
+                for evidence_id in match_point.evidence_ids
+                if evidence_id not in review_by_id
+            ]
+            if invalid_ids:
+                raise ValueError(
+                    f"Unknown evidence IDs: {', '.join(invalid_ids)}"
+                )
+
+        for source in result.sources:
+            review = review_by_id.get(source.evidence_id)
+            if (
+                review is None
+                or review.get("source") != source.source
+                or review.get("url") != source.url
+            ):
+                raise ValueError(
+                    f"Source does not match review evidence: {source.evidence_id}"
+                )
 
     @staticmethod
     def _is_timeout_error(error: BaseException) -> bool:
