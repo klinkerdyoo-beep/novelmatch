@@ -10,14 +10,53 @@ class InsufficientNovelDataError(ValueError):
     """The API should return seach warnings or ask the user to refine the query."""
 
 
+def _normalize_user_preference(value: dict[str, Any]) -> dict[str, Any]:
+    fields = (
+        "liked_genres",
+        "disliked_genres",
+        "character_preferences",
+        "story_preferences",
+        "rated_novels",
+    )
+    unknown = set(value) - set(fields)
+    if unknown:
+        raise ValueError(f"Unknown user_preference fields: {', '.join(sorted(unknown))}")
+
+    normalized: dict[str, Any] = {}
+    for field in fields[:-1]:
+        items = value.get(field, [])
+        if not isinstance(items, list) or any(not isinstance(item, str) for item in items):
+            raise ValueError(f"user_preference.{field} must be a list of strings")
+        normalized[field] = list(items)
+
+    rated_novels = value.get("rated_novels", [])
+    if not isinstance(rated_novels, list):
+        raise ValueError("user_preference.rated_novels must be a list")
+    normalized["rated_novels"] = []
+    for item in rated_novels:
+        if not isinstance(item, dict) or set(item) != {"title", "author", "rating"}:
+            raise ValueError("Each rated_novel must contain only title, author, and rating")
+        if not isinstance(item["title"], str) or not isinstance(item["author"], str):
+            raise ValueError("rated_novel title and author must be strings")
+        rating = item["rating"]
+        if isinstance(rating, bool) or not isinstance(rating, (int, float)) or not 0 <= rating <= 5:
+            raise ValueError("rated_novel rating must be a number from 0 to 5")
+        normalized["rated_novels"].append(dict(item))
+    return normalized
+
+
 def build_ai_payload(result: NovelResearchResult | dict[str, Any],
                      user_preference: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(user_preference, dict):
         raise ValueError("user_preference must be an object")
+    normalized_preference = _normalize_user_preference(user_preference)
     data = result.to_dict() if isinstance(result, NovelResearchResult) else copy.deepcopy(result)
     metadata = data.get("metadata")
     if not metadata:
         raise InsufficientNovelDataError("No selected novel. Return the search warnings before requesting AI analysis.")
+    # Keep this payload limited to the agreed Gemini input schema. Search
+    # warnings and general metadata references remain on the research result;
+    # they are not novel fields in the AI contract.
     reviews = []
     ids = set()
     for item in data.get("reviews", []):
@@ -25,18 +64,29 @@ def build_ai_payload(result: NovelResearchResult | dict[str, Any],
         if not review_id or review_id in ids:
             raise ValueError("Every review must have a unique review_id")
         ids.add(review_id)
-        reviews.append({"review_id": review_id, "text": item["snippet"],
-                        "rating": None, "source": item["source_name"], "url": item["url"]})
-    novel = {"title": metadata["title"], "author": list(metadata["authors"]),
-             "genres": metadata["genres"], "description": metadata["description"],
-             "description_source": metadata["description_source"],
-             "publisher": None,
-             "published_date": str(metadata["published_year"]) if metadata["published_year"] is not None else None,
-             "rating": metadata["average_rating"], "rating_count": metadata["ratings_count"],
-             "sources": data.get("sources", []),
-             "data_limitations": data.get("warnings", []),
-             "metadata_status": "user_provided" if metadata["provider"] == "user_input" else "provider_matched"}
-    return {"user_preference": copy.deepcopy(user_preference), "novel": novel, "reviews": reviews}
+        reviews.append({
+            "review_id": review_id,
+            "text": item["snippet"],
+            # Review sources generally provide snippets, not a verified rating.
+            "rating": None,
+            "source": item["source_name"],
+            "url": item["url"],
+        })
+    novel = {
+        "title": metadata["title"],
+        "author": list(metadata.get("authors") or []),
+        "genres": list(metadata.get("genres") or []),
+        "description": metadata.get("description"),
+        "publisher": metadata.get("publisher"),
+        "published_date": (
+            str(metadata["published_year"])
+            if metadata.get("published_year") is not None
+            else None
+        ),
+        "rating": metadata.get("average_rating"),
+        "rating_count": metadata.get("ratings_count"),
+    }
+    return {"user_preference": normalized_preference, "novel": novel, "reviews": reviews}
 
 
 def validate_analysis_evidence(analysis: dict[str, Any], payload: dict[str, Any]) -> None:
@@ -55,8 +105,17 @@ def validate_analysis_evidence(analysis: dict[str, Any], payload: dict[str, Any]
                 raise ValueError("AI returned an unknown or uncited evidence_id")
 
 
-def merge_analysis_limitations(analysis: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
-    """Preserve source warnings in the API response even if the model omits them."""
+def merge_analysis_limitations(
+    analysis: dict[str, Any],
+    payload: dict[str, Any],
+    research_warnings: list[str] | None = None,
+) -> dict[str, Any]:
+    """Add sourcing warnings to the result without putting them in AI input."""
     output = copy.deepcopy(analysis)
-    output["limitations"] = list(dict.fromkeys(payload["novel"]["data_limitations"] + output.get("limitations", [])))
+    # The fallback supports older payloads while callers migrate to passing
+    # warnings separately from the strict AI input object.
+    warnings = research_warnings
+    if warnings is None:
+        warnings = payload.get("novel", {}).get("data_limitations", [])
+    output["limitations"] = list(dict.fromkeys(warnings + output.get("limitations", [])))
     return output

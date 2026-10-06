@@ -111,6 +111,7 @@ class GoogleBooksClient:
                     authors=_as_string_list(info.get("authors")),
                     description=_clean_text(info.get("description")),
                     description_source="google_books" if _clean_text(info.get("description")) else None,
+                    publisher=_clean_text(info.get("publisher")),
                     published_year=year,
                     genres=_as_string_list(info.get("categories")),
                     average_rating=_as_float(info.get("averageRating")),
@@ -127,7 +128,7 @@ class GoogleBooksClient:
 class OpenLibraryClient:
     """Open Library adapter with a small in-memory cache and polite request pacing."""
 
-    FIELDS = "key,title,author_name,first_publish_year,subject,cover_i,ratings_average,ratings_count"
+    FIELDS = "key,title,author_name,first_publish_year,publisher,subject,cover_i,ratings_average,ratings_count"
     _shared_cache: ClassVar[
         dict[tuple[str, str, int, int], tuple[float, list[NovelRecord], int]]
     ] = {}
@@ -176,6 +177,7 @@ class OpenLibraryClient:
                 NovelRecord(
                     title=book_title,
                     authors=_as_string_list(item.get("author_name")),
+                    publisher=(_as_string_list(item.get("publisher")) or [None])[0],
                     published_year=_as_int(item.get("first_publish_year")),
                     genres=_as_string_list(item.get("subject"))[:12],
                     average_rating=_as_float(item.get("ratings_average")),

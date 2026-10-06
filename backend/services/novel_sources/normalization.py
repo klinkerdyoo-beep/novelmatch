@@ -58,7 +58,7 @@ def record_sources(record: NovelRecord) -> list[SourceReference]:
     url = canonical_url(record.source_url)
     if not url:
         return []
-    fields = [name for name in ("title", "authors", "published_year", "genres",
+    fields = [name for name in ("title", "authors", "publisher", "published_year", "genres",
                                "average_rating", "ratings_count", "cover_url")
               if getattr(record, name) not in (None, "", [])]
     if record.description and record.description_source == record.provider:
@@ -96,7 +96,7 @@ def rank_and_merge(records: list[NovelRecord], title: str, author: str) -> list[
             unique.append(record)
             continue
         filled = []
-        for name in ("description", "published_year", "genres", "cover_url"):
+        for name in ("description", "publisher", "published_year", "genres", "cover_url"):
             if getattr(duplicate, name) in (None, "", []) and getattr(record, name) not in (None, "", []):
                 setattr(duplicate, name, copy.deepcopy(getattr(record, name)))
                 filled.append(name)

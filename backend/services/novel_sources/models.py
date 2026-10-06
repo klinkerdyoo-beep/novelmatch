@@ -17,6 +17,7 @@ class NovelRecord:
     authors: list[str] = field(default_factory=list)
     description: str | None = None
     description_source: str | None = None
+    publisher: str | None = None
     published_year: int | None = None
     genres: list[str] = field(default_factory=list)
     average_rating: float | None = None

@@ -92,7 +92,7 @@ class NovelResearchService:
             else:
                 warnings.append("The user-provided description has no source URL.")
         if selected is not None:
-            missing = [name for name in ("description", "genres", "published_year", "average_rating", "ratings_count")
+            missing = [name for name in ("description", "publisher", "genres", "published_year", "average_rating", "ratings_count")
                        if getattr(selected, name) in (None, "", [])]
             if missing:
                 warnings.append("Missing novel metadata: " + ", ".join(missing) + ".")
