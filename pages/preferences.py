@@ -227,9 +227,9 @@ with st.container(key="preferences-content"):
 
                 st.markdown(f"#### Favorite Novel {i + 1}")
 
-                col1, col2 = st.columns(2)
+                novel_col1, novel_col2 = st.columns(2)
 
-                with col1:
+                with novel_col1:
                     title = st.text_input(
                         "Novel Title",
                         value=st.session_state.favorite_novels[i]["title"],
@@ -237,7 +237,7 @@ with st.container(key="preferences-content"):
                         key=f"favorite_novel_title_{i}",
                     )
 
-                with col2:
+                with novel_col2:
                     author = st.text_input(
                         "Author",
                         value=st.session_state.favorite_novels[i]["author"],
@@ -245,13 +245,14 @@ with st.container(key="preferences-content"):
                         key=f"favorite_novel_author_{i}",
                     )
 
-                synopsis = st.text_area(
-                    "About This Novel (Optional)",
-                    value=st.session_state.favorite_novels[i]["synopsis"],
-                    placeholder="Briefly describe what this novel is about...",
-                    key=f"favorite_novel_synopsis_{i}",
-                    height=100,
-                )
+                with st.container():
+                    synopsis = st.text_area(
+                        "About This Novel (Optional)",
+                        value=st.session_state.favorite_novels[i]["synopsis"],
+                        placeholder="Briefly describe what this novel is about...",
+                        key=f"favorite_novel_synopsis_{i}",
+                        height=100,
+                    )
 
                 novels.append({
                     "title": title,
