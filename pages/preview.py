@@ -58,216 +58,245 @@ st.markdown(
 
 
 # =========================================================
-# Preview Header
+# Main Layout
 # =========================================================
 
 with st.container(key="preview-content"):
-
-    st.markdown(
-        """
-        <h1>
-            Preview
-        </h1>
-
-        <div class="preview-description">
-            Review your preferences and novel information
-            before continuing.
-        </div>
-        """,
-        unsafe_allow_html=True
+    col1, col2 = st.columns(
+        [0.4, 1.6],
+        gap="large"
     )
 
-    with st.container(
-        border=True,
-        key="preview-card"
-    ):
+    # =========================================================
+    # Left - Introduction
+    # =========================================================
 
-        # =================================================
-        # NOVEL INFORMATION
-        # =================================================
+    with col1:
+        st.markdown(
+            """
+            <h1>
+                Preview
+            </h1>
 
-        st.markdown("### Novel Information")
-
-        st.markdown("#### Novel Title")
-
-        st.write(
-            st.session_state.get(
-                "novel_title",
-                "—"
-            )
+            <div class="preview-description">
+                Review your preferences and novel information
+                before continuing.
+            </div>
+            """,
+            unsafe_allow_html=True
         )
 
-        st.markdown("#### Author")
+    # =====================================================
+    # Right - Preference Form
+    # =====================================================
 
-        st.write(
-            st.session_state.get(
-                "novel_author",
-                "—"
-            )
-        )
+    with col2:
+        with st.container(
+            border=True,
+            key="preview-card"
+        ):
 
-        st.markdown("#### Synopsis")
+            # =================================================
+            # NOVEL INFORMATION
+            # =================================================
 
-        synopsis = st.session_state.get(
-            "novel_synopsis",
-            ""
-        )
+            st.markdown("### Novel Information")
 
-        if synopsis:
-            st.write(synopsis)
-        else:
-            st.caption("No synopsis provided.")
+            st.markdown("#### Novel Title")
 
-
-        st.divider()
-
-
-        # =================================================
-        # READING PREFERENCES
-        # =================================================
-
-        st.markdown("### Reading Preferences")
-
-
-        st.markdown("#### Favorite Genres")
-
-        favorite_genres = st.session_state.get(
-            "favorite_genres",
-            []
-        )
-
-        if favorite_genres:
-            st.write(", ".join(favorite_genres))
-        else:
-            st.caption("None selected.")
-
-
-        st.markdown("#### Genres You Don't Like")
-
-        disliked_genres = st.session_state.get(
-            "disliked_genres",
-            []
-        )
-
-        if disliked_genres:
-            st.write(", ".join(disliked_genres))
-        else:
-            st.caption("None selected.")
-
-
-        # =================================================
-        # FAVORITE NOVELS
-        # =================================================
-
-        st.markdown("#### Favorite Novels")
-
-        favorite_novels = st.session_state.get(
-            "favorite_novels",
-            []
-        )
-
-        favorite_novels = [
-            novel
-            for novel in favorite_novels
-            if novel.strip()
-        ]
-
-        if favorite_novels:
-
-            for novel in favorite_novels:
-                st.write(f"• {novel}")
-
-        else:
-            st.caption("None provided.")
-
-
-        # =================================================
-        # CHARACTER
-        # =================================================
-
-        st.markdown("#### Characters You Like")
-
-        liked_characters = st.session_state.get(
-            "liked_characters",
-            []
-        )
-
-        if liked_characters:
-            st.write(", ".join(liked_characters))
-        else:
-            st.caption("None selected.")
-
-
-        st.markdown("#### Characters You Don't Like")
-
-        disliked_characters = st.session_state.get(
-            "disliked_characters",
-            []
-        )
-
-        if disliked_characters:
-            st.write(", ".join(disliked_characters))
-        else:
-            st.caption("None selected.")
-
-
-        # =================================================
-        # STORY
-        # =================================================
-
-        st.markdown("#### Story Elements You Like")
-
-        liked_stories = st.session_state.get(
-            "liked_stories",
-            []
-        )
-
-        if liked_stories:
-            st.write(", ".join(liked_stories))
-        else:
-            st.caption("None selected.")
-
-
-        st.markdown("#### Story Elements You Don't Like")
-
-        disliked_stories = st.session_state.get(
-            "disliked_stories",
-            []
-        )
-
-        if disliked_stories:
-            st.write(", ".join(disliked_stories))
-        else:
-            st.caption("None selected.")
-
-
-        st.divider()
-
-
-        # =================================================
-        # BUTTONS
-        # =================================================
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-
-            if st.button(
-                "← Back",
-                use_container_width=True
-            ):
-                st.switch_page(
-                    "pages/novel.py"
+            st.write(
+                st.session_state.get(
+                    "novel_title",
+                    "—"
                 )
+            )
 
+            st.markdown("#### Author")
 
-        with col2:
-
-            if st.button(
-                "Continue →",
-                type="primary",
-                use_container_width=True
-            ):
-                st.switch_page(
-                    "pages/chat.py"
+            st.write(
+                st.session_state.get(
+                    "novel_author",
+                    "—"
                 )
+            )
+
+            st.markdown("#### Synopsis")
+
+            synopsis = st.session_state.get(
+                "novel_synopsis",
+                ""
+            )
+
+            if synopsis:
+                st.write(synopsis)
+            else:
+                st.caption("No synopsis provided.")
+
+
+            st.divider()
+
+
+            # =================================================
+            # READING PREFERENCES
+            # =================================================
+
+            st.markdown("### Reading Preferences")
+
+
+            st.markdown("#### Favorite Genres")
+
+            favorite_genres = st.session_state.get(
+                "favorite_genres",
+                []
+            )
+
+            if favorite_genres:
+                st.write(", ".join(favorite_genres))
+            else:
+                st.caption("None selected.")
+
+
+            st.markdown("#### Genres You Don't Like")
+
+            disliked_genres = st.session_state.get(
+                "disliked_genres",
+                []
+            )
+
+            if disliked_genres:
+                st.write(", ".join(disliked_genres))
+            else:
+                st.caption("None selected.")
+
+
+            # =================================================
+            # FAVORITE NOVELS
+            # =================================================
+
+            st.markdown("#### Favorite Novels")
+
+            favorite_novels = st.session_state.get(
+                "favorite_novels",
+                []
+            )
+
+            favorite_novels = [
+                novel
+                for novel in favorite_novels
+                if novel.get("title", "").strip()
+            ]
+
+            if favorite_novels:
+
+                for i, novel in enumerate(favorite_novels, start=1):
+
+                    st.markdown(f"**{i}. {novel['title']}**")
+
+                    author = novel.get("author", "").strip()
+
+                    if author:
+                        st.caption(f"Author: {author}")
+                    else:
+                        st.caption("Author: Not provided")
+
+                    synopsis = novel.get("synopsis", "").strip()
+
+                    if synopsis:
+                        st.write(synopsis)
+                    else:
+                        st.caption("No synopsis provided.")
+
+            else:
+                st.caption("None provided.")
+
+
+            # =================================================
+            # CHARACTER
+            # =================================================
+
+            st.markdown("#### Characters You Like")
+
+            liked_characters = st.session_state.get(
+                "liked_characters",
+                []
+            )
+
+            if liked_characters:
+                st.write(", ".join(liked_characters))
+            else:
+                st.caption("None selected.")
+
+
+            st.markdown("#### Characters You Don't Like")
+
+            disliked_characters = st.session_state.get(
+                "disliked_characters",
+                []
+            )
+
+            if disliked_characters:
+                st.write(", ".join(disliked_characters))
+            else:
+                st.caption("None selected.")
+
+
+            # =================================================
+            # STORY
+            # =================================================
+
+            st.markdown("#### Story Elements You Like")
+
+            liked_stories = st.session_state.get(
+                "liked_stories",
+                []
+            )
+
+            if liked_stories:
+                st.write(", ".join(liked_stories))
+            else:
+                st.caption("None selected.")
+
+
+            st.markdown("#### Story Elements You Don't Like")
+
+            disliked_stories = st.session_state.get(
+                "disliked_stories",
+                []
+            )
+
+            if disliked_stories:
+                st.write(", ".join(disliked_stories))
+            else:
+                st.caption("None selected.")
+
+
+            st.divider()
+
+
+            # =================================================
+            # BUTTONS
+            # =================================================
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                if st.button(
+                    "← Back",
+                    use_container_width=True
+                ):
+                    st.switch_page(
+                        "pages/novel.py"
+                    )
+
+
+            with col2:
+
+                if st.button(
+                    "Continue →",
+                    type="primary",
+                    use_container_width=True
+                ):
+                    st.switch_page(
+                        "pages/chat.py"
+                    )

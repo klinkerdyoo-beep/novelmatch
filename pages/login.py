@@ -32,10 +32,6 @@ for css_file in css_files:
         )
 
 
-# =========================================================
-# Navbar
-# =========================================================
-
 navbar()
 
 
@@ -92,16 +88,11 @@ with st.container(key="login-content"):
         st.markdown("### Log In")
         st.caption("Enter your account details below.")
 
-        email = st.text_input(
-            "Email",
-            placeholder="Enter your email...",
-            key="login-email"
+        username_or_email = st.text_input(
+            "Username or Email",
+            placeholder="Enter your username or email...",
+            key="login-username-or-email"
         )
-
-
-        # ------------------------------------------------
-        # Password
-        # -------------------------------------------------
 
         password = st.text_input(
             "Password",
@@ -122,9 +113,9 @@ with st.container(key="login-content"):
             key="login-button"
         ):
 
-            if not email.strip():
+            if not username_or_email.strip():
 
-                st.warning("Please enter your email.")
+                st.warning("Please enter your username or email.")
 
             elif not password.strip():
 
@@ -133,7 +124,7 @@ with st.container(key="login-content"):
             else:
 
                 st.session_state.logged_in = True
-                st.session_state.user_email = email
+                st.session_state.username = username_or_email
 
                 st.switch_page(
                     "pages/preferences.py"

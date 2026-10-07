@@ -21,7 +21,7 @@
     top: 0;
 
     width: 100%;
-    height: 100vh;
+    height: 70vh;
 
     padding: 40px;
     box-sizing: border-box;
@@ -295,7 +295,6 @@
     position: relative;
 
     width: 100%;
-    min-height: 700px;
 
     padding: 90px 30px 60px;
 
@@ -360,7 +359,7 @@
 }
 
 .step-card-big {
-    padding: 28px;
+    padding: 20px;
     box-sizing: border-box;
     border-radius: 32px;
     background: #68beb473;
@@ -369,6 +368,7 @@
 
     display: flex;
     flex-direction: column;
+    
 }
 
 /* Card 01 ใหญ่กว่า */
@@ -396,6 +396,8 @@
 .step-card {
     display: flex;
     flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .step-number {
@@ -516,8 +518,8 @@
     position: relative;
     z-index: 1;
 
-    width: 58px;
-    height: 58px;
+    width: 48px;
+    height: 48px;
 
     display: flex;
     align-items: center;

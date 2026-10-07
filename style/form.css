@@ -4,9 +4,10 @@
 
 .st-key-preferences-card,
 .st-key-novel-card,
-.st-key-preview-card {
+.st-key-preview-card,
+.st-key-account-card{
     width: 100%;
-    max-width: 1000px;
+    /* max-width: 1100px; */
 
     margin: 0 auto;
     margin-top: 10px;
@@ -37,8 +38,9 @@
 .st-key-preferences-content,
 .st-key-novel-content,
 .st-key-preview-content {
-    padding-top: 100px;
-    padding-left: 40px;
+    /* padding-top: 100px; */
+    padding: 100px 40px 0 40px;
+    text-align: center;
 }
 
 .st-key-preferences-content h1,
@@ -59,21 +61,19 @@
     color: rgba(255, 255, 255, 0.747);  
 }
 
-/* .st-key-preferences-card [data-testid="stWidgetLabel"] p,
-.st-key-novel-card  [data-testid="stWidgetLabel"] p{
-    font-family: "Barlow", sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    color: black ;
-}
+/* =========================================================
+   Preference Form Scroll Area
+   ========================================================= */
 
-.st-key-preferences-card [data-testid="stMultiSelect"] input::placeholder,
-.st-key-preferences-card input[type="text"]::placeholder,
-.st-key-novel-card input[type="text"]::placeholder,
-.st-key-novel-card textarea::placeholder
-{
-    color: dimgray;
-} */
+.st-key-preferences-card,
+.st-key-preview-card {
+    max-height: calc(100vh - 120px);
+
+
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+}
 
 .preferences-step,.novel-step {
     font-family: "Barlow", sans-serif;

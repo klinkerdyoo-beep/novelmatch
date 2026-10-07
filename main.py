@@ -75,7 +75,7 @@ st.html(
 
                     <h1 class="hero-title">
                         <span>Novel..</span>
-                        <span>..Match</span>
+                        <span>..Match</span> 
                     </h1>
 
                     <div class="hero-description">

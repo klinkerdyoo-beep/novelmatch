@@ -72,7 +72,14 @@ if "disliked_genres" not in st.session_state:
     st.session_state.disliked_genres = []
 
 if "favorite_novels" not in st.session_state:
-    st.session_state.favorite_novels = [""] * 5
+    st.session_state.favorite_novels = [
+        {
+            "title": "",
+            "author": "",
+            "synopsis": "",
+        }
+        for _ in range(5)
+    ]
 
 if "liked_characters" not in st.session_state:
     st.session_state.liked_characters = []
@@ -133,160 +140,212 @@ story_preferences = [
 
 
 # =========================================================
-# Page Header
+# Main Layout
 # =========================================================
 
 with st.container(key="preferences-content"):
 
-    st.markdown(
-        """
-            <h1> Tell Us<br>About You</h1>
-            <div class="preferences-description"> "Tell us about your reading preferences so we can find novels that match you."</div>
-            <div class="preferences-step"> 1/2 Step </div>
-        """,
-        unsafe_allow_html=True
+    col1, col2 = st.columns(
+        [0.4, 1.6],
+        gap="large"
     )
-# =========================================================
-# Preference Form
-# =========================================================
 
-    with st.container(
-        border=True,
-        key="preferences-card"
-    ):
+    # =========================================================
+    # Left - Introduction
+    # =========================================================
+    with col1:
 
+        st.markdown(
+            """
+                <h1>
+                    Tell Us<br>
+                    About You
+                </h1>
 
-        # =====================================================
-        # Favorite Genres
-        # =====================================================
+                <div class="preferences-description">
+                    Tell us about your reading preferences
+                    so we can find novels that match you.
+                </div>
 
-        st.markdown("### Favorite Genres")
-
-        favorite_genres = st.multiselect(
-            "Genres You Enjoy",
-            options=genres,
-            default=st.session_state.favorite_genres,
-            placeholder="Select genres...",
+                <div class="preferences-step">
+                    1/2 Step
+                </div>
+            """,
+            unsafe_allow_html=True
         )
 
-        st.session_state.favorite_genres = favorite_genres
+    # =========================================================
+    # Right - Preference Form
+    # =========================================================
 
+    with col2:
 
-        # =====================================================
-        # Disliked Genres
-        # =====================================================
-
-        disliked_genres = st.multiselect(
-            "Genres You Don't Like",
-            options=genres,
-            default=st.session_state.disliked_genres,
-            placeholder="Select genres...",
-        )
-
-        st.session_state.disliked_genres = disliked_genres
-
-        # =====================================================
-        # Favorite Novels
-        # =====================================================
-
-        st.markdown("### Favorite Novels")
-
-        novels = []
-
-        for i in range(len(st.session_state.favorite_novels)):
-
-            novel = st.text_input(
-                f"Novel {i + 1}",
-                value=st.session_state.favorite_novels[i],
-                placeholder="Enter novel title...",
-                key=f"favorite_novel_{i}",
-            )
-
-            novels.append(novel)
-
-        st.session_state.favorite_novels = novels
-
-
-        # =====================================================
-        # Add Another Novel
-        # =====================================================
-
-        if len(st.session_state.favorite_novels) < 10:
-
-            if st.button(
-                "+ Add another novel",
-                key="add_favorite_novel",
-            ):
-                st.session_state.favorite_novels.append("")
-                st.rerun()
-
-
-        # =====================================================
-        # Character Preferences
-        # =====================================================
-
-        st.markdown("### Character Preferences")
-
-        liked_characters = st.multiselect(
-            "Characters You Like",
-            options=characters,
-            default=st.session_state.liked_characters,
-            placeholder="Select character traits...",
-        )
-
-        st.session_state.liked_characters = liked_characters
-
-
-        disliked_characters = st.multiselect(
-            "Characters You Don't Like",
-            options=characters,
-            default=st.session_state.disliked_characters,
-            placeholder="Select character traits...",
-        )
-
-        st.session_state.disliked_characters = disliked_characters
-
-
-        # =====================================================
-        # Story Preferences
-        # =====================================================
-
-        st.markdown("### Story Preferences")
-
-        liked_stories = st.multiselect(
-            "Story Elements You Like",
-            options=story_preferences,
-            default=st.session_state.liked_stories,
-            placeholder="Select story preferences...",
-        )
-
-        st.session_state.liked_stories = liked_stories
-
-
-        disliked_stories = st.multiselect(
-            "Story Elements You Don't Like",
-            options=story_preferences,
-            default=st.session_state.disliked_stories,
-            placeholder="Select story preferences...",
-        )
-
-        st.session_state.disliked_stories = disliked_stories
-
-
-        # =====================================================
-        # Complete
-        # =====================================================
-
-        st.divider()
-
-        if st.button(
-            "Complete →",
-            type="primary",
-            use_container_width=True,
+        with st.container(
+            border=True,
+            key="preferences-card"
         ):
 
-            st.session_state.preferences_completed = True
+            # =====================================================
+            # Favorite Genres
+            # =====================================================
 
-            st.switch_page(
-                "pages/novel.py"
+            st.markdown("### Favorite Genres")
+
+            favorite_genres = st.multiselect(
+                "Genres You Enjoy",
+                options=genres,
+                default=st.session_state.favorite_genres,
+                placeholder="Select genres...",
             )
+
+            st.session_state.favorite_genres = favorite_genres
+
+
+            # =====================================================
+            # Disliked Genres
+            # =====================================================
+
+            disliked_genres = st.multiselect(
+                "Genres You Don't Like",
+                options=genres,
+                default=st.session_state.disliked_genres,
+                placeholder="Select genres...",
+            )
+
+            st.session_state.disliked_genres = disliked_genres
+
+
+            # =====================================================
+            # Favorite Novels
+            # =====================================================
+
+            st.markdown("### Favorite Novels")
+
+            novels = []
+
+            for i in range(len(st.session_state.favorite_novels)):
+
+                st.markdown(f"#### Favorite Novel {i + 1}")
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    title = st.text_input(
+                        "Novel Title",
+                        value=st.session_state.favorite_novels[i]["title"],
+                        placeholder="Enter novel title...",
+                        key=f"favorite_novel_title_{i}",
+                    )
+
+                with col2:
+                    author = st.text_input(
+                        "Author",
+                        value=st.session_state.favorite_novels[i]["author"],
+                        placeholder="Enter author name...",
+                        key=f"favorite_novel_author_{i}",
+                    )
+
+                synopsis = st.text_area(
+                    "About This Novel (Optional)",
+                    value=st.session_state.favorite_novels[i]["synopsis"],
+                    placeholder="Briefly describe what this novel is about...",
+                    key=f"favorite_novel_synopsis_{i}",
+                    height=100,
+                )
+
+                novels.append({
+                    "title": title,
+                    "author": author,
+                    "synopsis": synopsis,
+                })
+
+            st.session_state.favorite_novels = novels
+
+
+            # =====================================================
+            # Add Another Novel
+            # =====================================================
+
+            if len(st.session_state.favorite_novels) < 10:
+
+                if st.button(
+                    "+ Add another novel",
+                    key="add_favorite_novel",
+                ):
+                    st.session_state.favorite_novels.append({
+                        "title": "",
+                        "author": "",
+                        "synopsis": ""
+                    })
+                    st.rerun()
+
+
+            # =====================================================
+            # Character Preferences
+            # =====================================================
+
+            st.markdown("### Character Preferences")
+
+            liked_characters = st.multiselect(
+                "Characters You Like",
+                options=characters,
+                default=st.session_state.liked_characters,
+                placeholder="Select character traits...",
+            )
+
+            st.session_state.liked_characters = liked_characters
+
+
+            disliked_characters = st.multiselect(
+                "Characters You Don't Like",
+                options=characters,
+                default=st.session_state.disliked_characters,
+                placeholder="Select character traits...",
+            )
+
+            st.session_state.disliked_characters = disliked_characters
+
+
+            # =====================================================
+            # Story Preferences
+            # =====================================================
+
+            st.markdown("### Story Preferences")
+
+            liked_stories = st.multiselect(
+                "Story Elements You Like",
+                options=story_preferences,
+                default=st.session_state.liked_stories,
+                placeholder="Select story preferences...",
+            )
+
+            st.session_state.liked_stories = liked_stories
+
+
+            disliked_stories = st.multiselect(
+                "Story Elements You Don't Like",
+                options=story_preferences,
+                default=st.session_state.disliked_stories,
+                placeholder="Select story preferences...",
+            )
+
+            st.session_state.disliked_stories = disliked_stories
+
+
+            # =====================================================
+            # Complete
+            # =====================================================
+
+            st.divider()
+
+            if st.button(
+                "Complete →",
+                type="primary",
+                use_container_width=True,
+            ):
+
+                st.session_state.preferences_completed = True
+
+                st.switch_page(
+                    "pages/novel.py"
+                )
