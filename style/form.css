@@ -1,247 +1,451 @@
 /* =========================================================
-   Preferences
+   NovelMatch — Preferences / Novel / Preview / Account
+   Refactored: remove duplicate rules and conflicting overrides
+   ========================================================= */
+
+
+/* =========================================================
+   1. Shared Glass Cards
    ========================================================= */
 
 .st-key-preferences-card,
 .st-key-novel-card,
 .st-key-preview-card,
-.st-key-account-card{
+.st-key-account-card {
     width: 100%;
-    /* max-width: 1100px; */
-
-    margin: 0 auto;
-    margin-top: 10px;
-
+    margin: 10px auto 0;
     padding: 42px;
-
     box-sizing: border-box;
 
+    border: 1px solid rgba(255, 255, 255, 0.65);
     border-radius: 32px;
-
-    /* Glass */
     background: rgba(255, 255, 255, 0.644);
 
-    backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
+    backdrop-filter: blur(22px);
 
-    /* Glass border */
-    border: 1px solid rgba(255, 255, 255, 0.65);
-
-    /* Soft glass depth */
     box-shadow:
         inset 0 1px 1px rgba(255, 255, 255, 0.8),
         inset 0 -1px 1px rgba(255, 255, 255, 0.15),
         0 12px 35px rgba(0, 0, 0, 0.12);
-    color: black;
+
+    color: #000;
 }
+
+
+/* =========================================================
+   2. Shared Page Content
+   ========================================================= */
 
 .st-key-preferences-content,
 .st-key-novel-content,
 .st-key-preview-content {
-    /* padding-top: 100px; */
-    padding: 100px 40px 0 40px;
+    min-height: 0;
+    padding: 100px 40px 0;
     text-align: center;
 }
 
 .st-key-preferences-content h1,
 .st-key-novel-content h1,
 .st-key-preview-content h1 {
+    color: #fff;
     font-family: "Barlow", sans-serif;
     font-size: 64px;
     font-weight: 400;
-    color: white;
 }
 
 .preferences-description,
 .novel-description,
 .preview-description {
+    color: rgba(255, 255, 255, 0.747);
     font-family: "Barlow", sans-serif;
-    font-weight: 200;
     font-size: 20px;
-    color: rgba(255, 255, 255, 0.747);  
+    font-weight: 200;
 }
 
+
 /* =========================================================
-   Preference Form Scroll Area
+   3. Preferences Layout
    ========================================================= */
 
-.st-key-preferences-card,
-.st-key-preview-card {
-    max-height: calc(100vh - 120px);
+.st-key-preferences-content {
+    padding: 80px 36px 40px;
+    text-align: left;
+}
 
+.st-key-preferences-card {
+    position: sticky;
+    top: 10px;
 
+    height: calc(100vh - 110px);
+    min-height: 0;
+    padding: 30px;
+    overflow: hidden;
+
+    border-color: rgba(255, 255, 255, 0.9);
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.82);
+
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+
+    box-shadow:
+        0 12px 35px rgba(23, 41, 87, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* Scroll the content inside the card */
+.st-key-preferences-card
+[data-testid="stVerticalBlockBorderWrapper"] {
+    height: 100%;
+    min-height: 0;
+    overflow-x: hidden;
     overflow-y: auto;
 
+    scrollbar-color: #bdcbd8 transparent;
     scrollbar-width: thin;
 }
 
-.preferences-step,.novel-step {
-    font-family: "Barlow", sans-serif;
-    font-size: 36px;
-    font-weight: 300;
-    color: aliceblue;
+.st-key-preferences-card
+[data-testid="stVerticalBlockBorderWrapper"]::-webkit-scrollbar {
+    width: 6px;
 }
+
+.st-key-preferences-card
+[data-testid="stVerticalBlockBorderWrapper"]::-webkit-scrollbar-thumb {
+    border-radius: 20px;
+    background: #bdcbd8;
+}
+
+/* Left introduction */
+.preferences-intro {
+    padding-top: 12px;
+}
+
+.st-key-preferences-content h1 {
+    margin-bottom: 24px;
+    font-size: clamp(42px, 4vw, 64px);
+    line-height: 1.08;
+}
+
+.preferences-eyebrow,
+.form-card-eyebrow {
+    margin-bottom: 18px;
+    font-family: "Barlow", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.preferences-eyebrow {
+    margin-bottom: 12px;
+    color: #32A3A8;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.preferences-description {
+    max-width: 340px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 18px;
+    line-height: 1.8;
+}
+
 
 /* =========================================================
-   Header
+   4. Form Card Introduction
    ========================================================= */
 
-.st-key-preferences-card h3,
-.st-key-novel-card h3,
-.st-key-preview-card h3 {
-    font-family: "Barlow", sans-serif;
-
-    font-size: 36px;
-    font-weight: 400;
+.form-card-intro {
+    padding-bottom: 22px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid #e5eaf0;
 }
 
+.form-card-eyebrow {
+    display: block;
+    margin-bottom: 8px;
+    color: #258b91;
+}
+
+.form-card-intro h2 {
+    margin: 0 0 8px;
+    color: #172957;
+    font-family: "Barlow", sans-serif;
+    font-size: 28px;
+    font-weight: 500;
+}
+
+.form-card-intro p {
+    margin: 0;
+    color: #68748a;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   5. Form Section Headings
+   ========================================================= */
+
+.st-key-preferences-card .form-section-heading {
+    margin: 28px 0 16px;
+}
+
+.st-key-preferences-card .form-section-heading h3 {
+    margin: 0 0 6px;
+    color: #172957;
+    font-family: "Barlow", sans-serif;
+    font-size: 25px;
+    font-weight: 500;
+    line-height: 1.3;
+}
+
+.st-key-preferences-card .form-section-heading p {
+    margin: 0;
+    color: #68748a;
+    font-size: 13px;
+    line-height: 1.65;
+}
+
+.st-key-preferences-card h4,
 .st-key-preview-card h4 {
+    color: #29448d;
     font-family: "Barlow", sans-serif;
-    font-size: 24px;
-    font-weight: 400;
+    font-size: 18px;
+    font-weight: 500;
 }
 
-
-/* =========================================================
-   Sections
-   ========================================================= */
-
-.st-key-preferences-card h3 + div,.st-key-novel-card h3 + div {
+.st-key-preferences-card h4 {
+    margin-top: 18px;
     margin-bottom: 8px;
 }
 
-
-/* =========================================================
-   Shared Buttons
-   ========================================================= */
-
-.stButton > button {
-    min-height: 48px;
-
-    padding: 0 24px;
-
-    border-radius: 999px;
-
+.st-key-preferences-card
+[data-testid="stWidgetLabel"] p {
+    color: #34415b !important;
     font-family: "Barlow", sans-serif;
-    font-size: 17px;
-    font-weight: 400;
-
-    border: 1px solid rgba(255, 255, 255, 0.65);
-
-    background: rgba(255, 255, 255, 0.55);
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    box-shadow:
-        inset 0 1px 1px rgba(255, 255, 255, 0.8),
-        0 6px 18px rgba(0, 0, 0, 0.08);
-
-    transition:
-        transform 0.2s ease,
-        background 0.2s ease,
-        box-shadow 0.2s ease;
-}
-
-
-/* Hover */
-
-.stButton > button:hover {
-    background: rgba(255, 255, 255, 0.75);
-
-    transform: translateY(-2px);
-
-    box-shadow:
-        inset 0 1px 1px rgba(255, 255, 255, 0.9),
-        0 10px 24px rgba(0, 0, 0, 0.12);
-}
-
-
-/* Active */
-
-.stButton > button:active {
-    transform: scale(0.97);
+    font-size: 14px;
+    font-weight: 500;
 }
 
 
 /* =========================================================
-   Primary Button
+   6. Form Inputs
    ========================================================= */
 
-.stButton > button[kind="primary"] {
-    color: white;
-
-    border: 1px solid rgba(255, 255, 255, 0.35);
-
-    background: linear-gradient(
-        120deg,
-        #32A3A8,
-        #5DBD99
-    );
-
-    box-shadow:
-        inset 0 1px 1px rgba(255, 255, 255, 0.35),
-        0 8px 20px rgba(50, 163, 168, 0.25);
-}
-
-
-/* Primary Hover */
-
-.stButton > button[kind="primary"]:hover {
-    background: linear-gradient(
-        120deg,
-        #3AAEB3,
-        #68C6A2
-    );
-
-    box-shadow:
-        inset 0 1px 1px rgba(255, 255, 255, 0.45),
-        0 12px 26px rgba(50, 163, 168, 0.32);
-
-    transform: translateY(-2px);
-}
-
-/* =========================================================
-   Form Inputs
-   ========================================================= */
-
-/* Text input / Textarea / Selectbox / Multiselect */
-/* =========================================================
-   Form Inputs
-   ========================================================= */
-
-
-.st-key-preferences-card [data-testid="stWidgetLabel"] p,
-.st-key-novel-card [data-testid="stWidgetLabel"] p,
-.st-key-preview-card [data-testid="stWidgetLabel"] p {
-    font-family: "Barlow", sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    color: black !important;
-}
-
-/* Input background + typed text */
 .st-key-preferences-card input,
-.st-key-preferences-card textarea,
-.st-key-novel-card input,
-.st-key-novel-card textarea,
-.st-key-preview-card input,
-.st-key-preview-card textarea {
-    background: rgba(255, 255, 255, 0.88) !important;
-
+.st-key-preferences-card textarea {
+    border: 1px solid #dce3ed;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.94) !important;
     color: #172957 !important;
 
     font-family: "Barlow", sans-serif;
-    font-size: 16px;
+    font-size: 14px;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
-/* Placeholder */
+.st-key-preferences-card input:focus,
+.st-key-preferences-card textarea:focus {
+    border-color: #32a3a8 !important;
+    box-shadow: 0 0 0 3px rgba(50, 163, 168, 0.12);
+}
+
 .st-key-preferences-card input::placeholder,
-.st-key-preferences-card textarea::placeholder,
-.st-key-novel-card input::placeholder,
-.st-key-novel-card textarea::placeholder,
-.st-key-preview-card input::placeholder,
-.st-key-preview-card textarea::placeholder {
-    color: dimgray !important;
+.st-key-preferences-card textarea::placeholder {
+    color: #929bad !important;
     opacity: 1 !important;
+}
+
+.st-key-preferences-card
+[data-testid="stTextArea"] textarea {
+    min-height: 100px;
+}
+
+
+/* =========================================================
+   7. Multiselect
+   ========================================================= */
+
+.st-key-preferences-card
+[data-testid="stMultiSelect"] [data-baseweb="select"] {
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.94);
+}
+
+.st-key-preferences-card
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div {
+    border-color: #dce3ed;
+    border-radius: 11px;
+}
+
+.st-key-preferences-card [data-baseweb="tag"] {
+    border-radius: 7px;
+    background: #e4f4f1;
+    color: #176d70;
+}
+
+/* =========================================================
+   9. Shared Buttons
+   Final shared style: simple white button + navy primary
+   ========================================================= */
+
+.stButton > button {
+    min-height: 44px;
+    padding: 0 22px;
+
+    border: 1px solid #dce3ed;
+    border-radius: 10px;
+    background: #fff;
+    color: #29448d;
+
+    font-family: "Barlow", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+
+    box-shadow: none;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.stButton > button:hover {
+    border-color: #b8c7df;
+    background: #f0f4fa;
+    color: #203a7b;
+
+    box-shadow: none;
+    transform: none;
+}
+
+.stButton > button:active {
+    transform: none;
+}
+
+.stButton > button[kind="primary"] {
+    border: 1px solid #29448d;
+    background: #29448d;
+    color: #fff;
+    box-shadow: none;
+}
+
+.stButton > button[kind="primary"]:hover {
+    border-color: #203a7b;
+    background: #203a7b;
+    color: #fff;
+}
+
+/* Preferences-specific buttons */
+.st-key-preferences-card .stButton > button {
+    min-height: 44px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.st-key-preferences-card
+.stButton > button:not([kind="primary"]) {
+    border-color: #dce3ed;
+    background: #fff;
+    color: #29448d;
+}
+
+.st-key-preferences-card
+.stButton > button:not([kind="primary"]):hover {
+    border-color: #b8c7df;
+    background: #f0f4fa;
+    transform: none;
+}
+
+.st-key-preferences-card
+.stButton > button[kind="primary"] {
+    border-color: #29448d;
+    background: #29448d;
+    color: #fff;
+}
+
+
+/* =========================================================
+   10. Preview
+   ========================================================= */
+
+.preview-section-title {
+    margin: 24px 0 18px;
+    padding-bottom: 12px;
+
+    border-bottom: 2px solid rgba(50, 163, 168, 0.35);
+
+    color: #172957;
+    font-size: 40px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+    line-height: 1.4;
+}
+
+
+/* =========================================================
+   11. Form Footer
+   ========================================================= */
+
+.form-footer-note {
+    padding: 16px 0;
+    margin-top: 24px;
+
+    border-top: 1px solid #e5eaf0;
+
+    color: #758198;
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+
+/* =========================================================
+   12. Mobile
+   ========================================================= */
+
+@media (max-width: 768px) {
+    .st-key-preferences-content {
+        padding: 36px 12px 24px;
+    }
+
+    .st-key-preferences-card {
+        position: relative;
+        top: auto;
+
+        height: auto;
+        min-height: 0;
+        padding: 20px 16px;
+
+        border-radius: 20px;
+    }
+
+    .st-key-preferences-card
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        height: auto;
+        overflow: visible;
+    }
+
+    .st-key-preferences-content h1 {
+        font-size: 42px;
+    }
+
+    .preferences-intro {
+        padding-bottom: 20px;
+    }
+
+    .st-key-preferences-card .form-section-heading h3 {
+        font-size: 23px;
+    }
+
+    .st-key-preferences-card .st-key-novel-entry-0,
+    .st-key-preferences-card .st-key-novel-entry-1,
+    .st-key-preferences-card .st-key-novel-entry-2,
+    .st-key-preferences-card .st-key-novel-entry-3,
+    .st-key-preferences-card .st-key-novel-entry-4 {
+        padding: 14px;
+    }
 }

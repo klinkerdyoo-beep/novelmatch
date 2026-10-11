@@ -67,15 +67,19 @@ st.markdown(
 # Session State
 # =========================================================
 
-username = st.session_state.get(
-    "username",
-    "User"
-)
+username = st.session_state.get("username", "User")
+user_email = st.session_state.get("user_email", "")
 
-user_email = st.session_state.get(
-    "user_email",
-    ""
-)
+
+# =========================================================
+# Helper: Preference Label
+# =========================================================
+
+def preference_label(text):
+    st.markdown(
+        f'<div class="preference-label">{text}</div>',
+        unsafe_allow_html=True
+    )
 
 
 # =========================================================
@@ -83,14 +87,13 @@ user_email = st.session_state.get(
 # =========================================================
 
 with st.container(key="preferences-content"):
-    
 
     # =====================================================
     # Page Header
     # =====================================================
 
     st.markdown(
-        f"""
+        """
         <h1>My<br>Account</h1>
 
         <div class="preferences-description">
@@ -100,6 +103,7 @@ with st.container(key="preferences-content"):
         unsafe_allow_html=True
     )
 
+    st.write("")
 
     # =====================================================
     # Account Card
@@ -135,6 +139,7 @@ with st.container(key="preferences-content"):
                 key="account-email"
             )
 
+        st.divider()
 
         # =================================================
         # Reading Preferences
@@ -142,35 +147,20 @@ with st.container(key="preferences-content"):
 
         st.markdown("### Reading Preferences")
 
-        favorite_genres = st.session_state.get(
-            "favorite_genres",
-            []
+
+        favorite_genres = st.session_state.get("favorite_genres", [])
+        disliked_genres = st.session_state.get("disliked_genres", [])
+
+        # Character Preferences
+        enjoy_characters = st.session_state.get("enjoy_characters", [])
+        liked_characters = st.session_state.get("liked_characters", "")
+        disliked_character_description = st.session_state.get(
+            "disliked_character_description", ""
         )
 
-        disliked_genres = st.session_state.get(
-            "disliked_genres",
-            []
-        )
-
-        liked_characters = st.session_state.get(
-            "liked_characters",
-            []
-        )
-
-        disliked_characters = st.session_state.get(
-            "disliked_characters",
-            []
-        )
-
-        liked_stories = st.session_state.get(
-            "liked_stories",
-            []
-        )
-
-        disliked_stories = st.session_state.get(
-            "disliked_stories",
-            []
-        )
+        # Story Preferences
+        liked_stories = st.session_state.get("liked_stories", [])
+        disliked_stories = st.session_state.get("disliked_stories", [])
 
 
         # =================================================
@@ -180,7 +170,7 @@ with st.container(key="preferences-content"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.markdown("**Genres You Enjoy**")
+            preference_label("Genres You Enjoy")
 
             if favorite_genres:
                 st.write(", ".join(favorite_genres))
@@ -188,12 +178,14 @@ with st.container(key="preferences-content"):
                 st.caption("None selected.")
 
         with col2:
-            st.markdown("**Genres You Don't Like**")
+            preference_label("Genres You Don't Like")
 
             if disliked_genres:
                 st.write(", ".join(disliked_genres))
             else:
                 st.caption("None selected.")
+
+        st.divider()
 
 
         # =================================================
@@ -205,20 +197,29 @@ with st.container(key="preferences-content"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.markdown("**Characters You Like**")
+            preference_label("Character Traits You Enjoy")
 
-            if liked_characters:
-                st.write(", ".join(liked_characters))
+            if enjoy_characters:
+                st.write(", ".join(enjoy_characters))
             else:
                 st.caption("None selected.")
 
         with col2:
-            st.markdown("**Characters You Don't Like**")
+            preference_label("Describe a Character You Like")
 
-            if disliked_characters:
-                st.write(", ".join(disliked_characters))
+            if liked_characters.strip():
+                st.write(liked_characters)
             else:
-                st.caption("None selected.")
+                st.caption("Not provided.")
+
+            preference_label("Describe Traits You Dislike")
+
+            if disliked_character_description.strip():
+                st.write(disliked_character_description)
+            else:
+                st.caption("Not provided.")
+
+        st.divider()
 
 
         # =================================================
@@ -230,7 +231,7 @@ with st.container(key="preferences-content"):
         col1, col2 = st.columns(2)
 
         with col1:
-            st.markdown("**Story Elements You Like**")
+            preference_label("Story Elements You Like")
 
             if liked_stories:
                 st.write(", ".join(liked_stories))
@@ -238,99 +239,34 @@ with st.container(key="preferences-content"):
                 st.caption("None selected.")
 
         with col2:
-            st.markdown("**Story Elements You Don't Like**")
+            preference_label("Story Elements You Don't Like")
 
             if disliked_stories:
                 st.write(", ".join(disliked_stories))
             else:
                 st.caption("None selected.")
 
-
-        # =================================================
-        # Favorite Novels
-        # =================================================
-
-        st.markdown("### Favorite Novels")
-
-        favorite_novels = st.session_state.get(
-            "favorite_novels",
-            []
-        )
-
-        favorite_novels = [
-            novel
-            for novel in favorite_novels
-            if novel.get("title", "").strip()
-        ]
-
-        if favorite_novels:
-
-            for i, novel in enumerate(
-                favorite_novels,
-                start=1
-            ):
-
-                title = novel.get(
-                    "title",
-                    ""
-                ).strip()
-
-                author = novel.get(
-                    "author",
-                    ""
-                ).strip()
-
-                synopsis = novel.get(
-                    "synopsis",
-                    ""
-                ).strip()
-
-                st.markdown(
-                    f"**{i}. {title}**"
-                )
-
-                if author:
-                    st.caption(
-                        f"Author: {author}"
-                    )
-
-                if synopsis:
-                    st.write(
-                        synopsis
-                    )
-
-                st.divider()
-
-        else:
-            st.caption(
-                "No favorite novels added yet."
-            )
-
+        st.divider()
 
         # =================================================
         # Actions
         # =================================================
-
-        st.divider()
-
         col1, col2 = st.columns(2)
 
         with col1:
             if st.button(
                 "Edit Preferences",
+                type="primary",
                 use_container_width=True,
                 key="account-edit-preferences"
             ):
-                st.switch_page(
-                    "pages/preferences.py"
-                )
+                st.switch_page("pages/preferences.py")
 
         with col2:
             if st.button(
                 "Back to Home",
+                type="secondary",
                 use_container_width=True,
                 key="account-back-home"
             ):
-                st.switch_page(
-                    "main.py"
-                )
+                st.switch_page("main.py")

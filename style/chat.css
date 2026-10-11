@@ -1,13 +1,10 @@
 /* =========================================================
-   Result Page
+   Result Page Header
    ========================================================= */
 
 .st-key-result-content {
-    padding-top: 100px;
-    padding-left: 40px;
-    padding-right: 40px;
-    padding-bottom: 60px;
-    box-sizing: border-box;
+    padding: 100px 40px 40px 40px;
+    text-align: center;
 }
 
 .st-key-result-content h1 {
@@ -19,45 +16,28 @@
 
 .result-description {
     font-family: "Barlow", sans-serif;
-    font-size: 20px;
     font-weight: 200;
-    color: rgba(255, 255, 255, 0.75);
-
-    margin-bottom: 40px;
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.747);
 }
 
-
 /* =========================================================
-   Result Cards
+   Main Glass Card
    ========================================================= */
 
-.st-key-match-card,
-.st-key-source-card,
-.st-key-match-reason-card,
-.st-key-warning-card,
-.st-key-breakdown-card,
-.st-key-insight-card {
-    width: 100%;
-    /* max-width: 520px; */
-
-    margin: 0 auto;
-
-    padding: 42px;
-
+.st-key-results-glass {
+    width: calc(100% - 40px);
+    margin: 20px auto;
+    padding: 28px;
     box-sizing: border-box;
-
     border-radius: 32px;
 
-    /* Glass */
     background: rgba(255, 255, 255, 0.48);
-
     backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
 
-    /* Glass border */
     border: 1px solid rgba(255, 255, 255, 0.65);
 
-    /* Soft glass depth */
     box-shadow:
         inset 0 1px 1px rgba(255, 255, 255, 0.8),
         inset 0 -1px 1px rgba(255, 255, 255, 0.15),
@@ -66,74 +46,94 @@
 
 
 /* =========================================================
-   Match Card
+   White Inner Sections
    ========================================================= */
 
-.match-title {
-    font-family: "Barlow", sans-serif;
+.st-key-novel-details-card,
+.st-key-score-card,
+.st-key-match-analysis-card,
+.st-key-review-summary-card,
+.st-key-source-card {
+    width: 100%;
+    margin: 0 0 20px;
+    padding: 28px;
+    box-sizing: border-box;
+    border-radius: 20px;
 
-    font-size: 32px;
-    line-height: 1.1;
-    font-weight: 400;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.95);
 
-    color: #222;
-}
-
-.match-author {
-    margin-top: 8px;
-
-    font-family: "Barlow", sans-serif;
-
-    font-size: 18px;
-    font-weight: 300;
-
-    color: #666;
+    box-shadow: 0 4px 14px rgba(23, 41, 87, 0.05);
 }
 
 
 /* =========================================================
-   Card Headings
+   Section Headings
    ========================================================= */
 
-.st-key-match-reason-card h3,
-.st-key-warning-card h3,
-.st-key-breakdown-card h3,
-.st-key-insight-card h3,
-.st-key-source-card h3 {
+.result-section-title {
+    color: #172957;
     font-family: "Barlow", sans-serif;
+    font-size: 26px;
+    font-weight: 600;
+    line-height: 1.4;
 
-    font-size: 28px;
-    font-weight: 400;
+    margin: 12px 0 18px;
+    padding-bottom: 12px;
 
-    color: #222;
+    border-bottom: 2px solid rgba(50, 163, 168, 0.35);
 }
 
-.st-key-insight-card h4 {
-    font-family: "Barlow", sans-serif;
-
-    font-size: 20px;
-    font-weight: 400;
-
+.st-key-results-glass h3 {
     color: #222;
+    font-family: "Barlow", sans-serif;
+    font-weight: 500;
+}
+
+
+/* =========================================================
+   Novel Details
+   ========================================================= */
+
+.result-book-title {
+    color: #172957;
+    font-family: "Barlow", sans-serif;
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.result-book-author {
+    color: #667085;
+    font-family: "Barlow", sans-serif;
+    font-size: 18px;
+    margin-top: 8px;
+}
+
+.result-genre-tag {
+    display: inline-block;
+    padding: 5px 12px;
+    margin: 12px 6px 0 0;
+
+    border-radius: 20px;
+    background: #E4F4F1;
+    color: #176D70;
+    font-size: 14px;
 }
 
 
 /* =========================================================
    Match Score
+   Original Score Circle Design
    ========================================================= */
 
 .match-score-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-
     padding: 20px 0 10px;
 }
-
-
-/* =========================================================
-   Score Circle
-   ========================================================= */
 
 .match-score-circle {
     --score: 288deg;
@@ -144,18 +144,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
     position: relative;
 
     border-radius: 50%;
 
-    background:
-        conic-gradient(
-            #32A3A8 0deg,
-            #5DBD99 var(--score),
-            rgba(255, 255, 255, 0.35) var(--score),
-            rgba(255, 255, 255, 0.35) 360deg
-        );
+    background: conic-gradient(
+        #32A3A8 0deg,
+        #5DBD99 var(--score),
+        rgba(255, 255, 255, 0.35) var(--score),
+        rgba(255, 255, 255, 0.35) 360deg
+    );
 
     box-shadow:
         0 12px 30px rgba(50, 163, 168, 0.18),
@@ -164,19 +162,12 @@
     animation: scoreAppear 0.8s ease-out both;
 }
 
-
-/* =========================================================
-   Inner Glass Circle
-   ========================================================= */
-
 .match-score-circle::before {
     content: "";
-
     position: absolute;
 
     width: 158px;
     height: 158px;
-
     border-radius: 50%;
 
     background: rgba(255, 255, 255, 0.72);
@@ -189,11 +180,6 @@
         0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-
-/* =========================================================
-   Score Content
-   ========================================================= */
-
 .match-score-inner {
     position: relative;
     z-index: 2;
@@ -202,89 +188,47 @@
     align-items: baseline;
 
     font-family: "Barlow", sans-serif;
-
     color: #222;
 }
 
 .match-score-number {
     font-size: 52px;
     font-weight: 500;
-
     line-height: 1;
 }
 
 .match-score-label {
     margin-left: 3px;
-
     font-size: 18px;
     font-weight: 300;
-
     color: #777;
 }
-
-
-/* =========================================================
-   Score Label
-   ========================================================= */
 
 .match-score-text {
     margin-top: 16px;
 
     font-family: "Barlow", sans-serif;
-
     font-size: 15px;
     font-weight: 500;
-
     letter-spacing: 2px;
 
     color: #555;
 }
 
-
-/* =========================================================
-   Match Status
-   ========================================================= */
-
 .match-status {
     width: fit-content;
-
     margin: 18px auto 12px;
-
     padding: 7px 18px;
 
     border-radius: 999px;
-
     background: rgba(50, 163, 168, 0.12);
-
     border: 1px solid rgba(50, 163, 168, 0.22);
 
     color: #23878b;
-
     font-family: "Barlow", sans-serif;
-
     font-size: 15px;
     font-weight: 500;
 }
-
-
-/* =========================================================
-   Metric
-   ========================================================= */
-
-.st-key-match-card [data-testid="stMetricValue"] {
-    font-size: 56px;
-    font-weight: 500;
-}
-
-.st-key-match-card [data-testid="stMetricLabel"] {
-    font-size: 18px;
-    letter-spacing: 1px;
-}
-
-
-/* =========================================================
-   Score Animation
-   ========================================================= */
 
 @keyframes scoreAppear {
     from {
@@ -298,20 +242,223 @@
     }
 }
 
-
 /* =========================================================
-   Card Divider
+   Match Analysis
    ========================================================= */
 
-.st-key-match-card hr,
-.st-key-source-card hr,
-.st-key-match-reason-card hr,
-.st-key-warning-card hr,
-.st-key-breakdown-card hr,
-.st-key-insight-card hr {
+.result-summary {
+    color: #465467;
+    font-family: "Barlow", sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+}
+
+.result-point-title {
+    font-size: 17px;
+    font-weight: 650;
+    margin-bottom: 8px;
+}
+
+.result-point-description {
+    color: #667085;
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+}
+
+.result-positive,
+.result-warning {
+    padding: 4px 0 4px 14px;
+    margin-bottom: 20px;
+}
+
+.result-positive {
+    border-left: 4px solid #32A3A8;
+}
+
+.result-warning {
+    border-left: 4px solid #E6B45C;
+}
+
+/* =========================================================
+   Book Cover
+   ========================================================= */
+
+.st-key-novel-details-card img {
+    width: 100%;
+    max-width: 180px;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(23, 41, 87, 0.16);
+}
+
+
+@media (max-width: 640px) {
+    .result-book-layout {
+        gap: 16px;
+    }
+
+    .result-book-cover {
+        width: 110px;
+        min-width: 110px;
+    }
+
+    .result-book-title {
+        font-size: 21px;
+    }
+
+    .result-book-author {
+        font-size: 14px;
+    }
+}
+
+/* =========================================================
+   Review Summary & Muted Text
+   ========================================================= */
+
+.result-review-heading {
+    color: #172957;
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 8px;
+}
+
+.result-muted {
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   Dividers Inside Main Glass
+   ========================================================= */
+
+.st-key-results-glass hr {
     border: none;
-
     border-top: 1px solid rgba(0, 0, 0, 0.08);
-
     margin: 24px 0;
+}
+
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 768px) {
+    .st-key-result-content {
+        padding: 48px 16px 32px;
+    }
+
+    .st-key-result-content h1 {
+        font-size: 42px;
+    }
+
+    .st-key-results-glass {
+        width: calc(100% - 40px);
+        padding: 16px;
+        border-radius: 24px;
+    }
+
+    .st-key-novel-details-card,
+    .st-key-score-card,
+    .st-key-match-analysis-card,
+    .st-key-review-summary-card,
+    .st-key-external-rating-card,
+    .st-key-source-card {
+        padding: 20px;
+        margin-bottom: 16px;
+        border-radius: 16px;
+    }
+
+    .match-score-circle {
+        width: 160px;
+        height: 160px;
+    }
+
+    .match-score-circle::before {
+        width: 132px;
+        height: 132px;
+    }
+
+    .match-score-number {
+        font-size: 44px;
+    }
+}
+
+
+/* =========================================================
+   Centered Results Page
+   ========================================================= */
+
+.st-key-result-content {
+    width: 100%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 100px 40px 0;
+    box-sizing: border-box;
+}
+
+.st-key-results-glass {
+    width: 100%;
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* Keep content inside the main glass card */
+.st-key-results-glass > div {
+    min-width: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .st-key-result-content {
+        padding: 60px 18px 0;
+    }
+
+    .st-key-results-glass {
+        width: calc(100% - 36px);
+    }
+}
+
+/* =========================================================
+   Results — Back to Home Button
+   ========================================================= */
+
+.st-key-results-glass .stButton > button {
+    min-height: 44px;
+    padding: 0 22px;
+
+    border-radius: 10px;
+    font-family: "Barlow", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+
+    background: #FFFFFF;
+    color: #29448D;
+    border: 1px solid #DCE3ED;
+
+    box-shadow: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Hover */
+
+.st-key-results-glass .stButton > button:hover {
+    background: #F0F4FA;
+    color: #203A7B;
+    border-color: #B8C7DF;
+
+    box-shadow: none;
+    transform: none;
+}
+
+/* Active */
+
+.st-key-results-glass .stButton > button:active {
+    transform: none;
 }

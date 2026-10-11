@@ -2,7 +2,7 @@ import streamlit as st
 import base64
 
 from components.navbar import navbar
-
+from components.popup.login_success_popup import login_success_popup
 
 # =========================================================
 # Page Config
@@ -114,21 +114,18 @@ with st.container(key="login-content"):
         ):
 
             if not username_or_email.strip():
-
                 st.warning("Please enter your username or email.")
 
             elif not password.strip():
-
                 st.warning("Please enter your password.")
 
             else:
-
+                # TODO: Validate username and password with the database
                 st.session_state.logged_in = True
                 st.session_state.username = username_or_email
 
-                st.switch_page(
-                    "pages/preferences.py"
-                )
+                # Show the popup after successful login
+                login_success_popup()
 
 
         # -------------------------------------------------

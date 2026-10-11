@@ -1,0 +1,99 @@
+
+/* Blur the page behind the dialog */
+div[data-testid="stAppViewBlockContainer"] {
+    transition: filter 0.2s ease;
+}
+
+/* Streamlit dialog backdrop */
+div[data-testid="stDialog"] {
+    background: transparent !important;
+}
+
+/* Dialog itself */
+div[role="dialog"] {
+    background: rgba(255, 255, 255, 0.943) !important;
+    border: 1px solid rgba(255, 255, 255, 0.85) !important;
+    border-radius: 24px !important;
+
+    box-shadow:
+        0 24px 70px rgba(23, 41, 87, 0.16),
+        0 4px 16px rgba(23, 41, 87, 0.06) !important;
+
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+}
+
+/* =========================================================
+   Log In Button — Navy
+   ========================================================= */
+
+div[role="dialog"] button[kind="primary"] {
+    background: #29448d !important;
+    background-color: #29448d !important;
+    color: #ffffff !important;
+    border: 1px solid #29448d !important;
+    border-radius: 12px !important;
+}
+
+div[role="dialog"] button[kind="primary"]:hover {
+    background: #172957 !important;
+    background-color: #172957 !important;
+    border-color: #172957 !important;
+}
+
+/* =========================================================
+   Secondary Buttons
+   ========================================================= */
+
+div[role="dialog"] button[kind="secondary"] {
+    background: rgba(255, 255, 255, 0.75) !important;
+    color: #29448d !important;
+    border: 1px solid #dce1eb !important;
+    border-radius: 12px !important;
+}
+
+div[role="dialog"] button[kind="secondary"]:hover {
+    background: #f2f5fb !important;
+    border-color: #29448d !important;
+}
+
+/* =========================================================
+   Hide Streamlit Dialog Close Button
+   ========================================================= */
+/* Target close button by Streamlit test IDs */
+[data-testid="stDialog"] [data-testid="stDialogCloseButton"],
+[data-testid="stDialog"] button[aria-label="Close"],
+[data-testid="stDialog"] button[aria-label="close"],
+[data-testid="stDialog"] button[title="Close"],
+[data-testid="stDialog"] button[title="close"],
+[role="dialog"] [data-testid="stDialogCloseButton"],
+[role="dialog"] button[aria-label="Close"],
+[role="dialog"] button[aria-label="close"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+/* =========================================================
+   Center Dialog on Screen
+   ========================================================= */
+
+/* Center the dialog container */
+div[data-testid="stDialog"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Center the dialog itself */
+div[role="dialog"] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    margin: 0 !important;
+
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+}

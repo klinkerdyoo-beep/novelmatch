@@ -1,5 +1,7 @@
+
 import streamlit as st
 import base64
+from html import escape
 
 from components.navbar import navbar
 
@@ -9,7 +11,7 @@ from components.navbar import navbar
 # =========================================================
 
 st.set_page_config(
-    page_title="Novel Match",
+    page_title="Novel Match Results",
     layout="wide"
 )
 
@@ -21,7 +23,6 @@ st.set_page_config(
 css_files = [
     "style/global.css",
     "style/navbar.css",
-    "style/form.css",
     "style/chat.css",
 ]
 
@@ -58,65 +59,124 @@ st.markdown(
         }}
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
 
 
 # =========================================================
-# Get Data
+# Get User Data
 # =========================================================
 
 novel_title = st.session_state.get(
-    "novel_title",
-    "The Seven Husbands of Evelyn Hugo"
-)
+    "novel_title", ""
+).strip()
 
 novel_author = st.session_state.get(
-    "novel_author",
-    "Taylor Jenkins Reid"
-)
+    "novel_author", ""
+).strip()
 
 novel_synopsis = st.session_state.get(
-    "novel_synopsis",
-    ""
+    "novel_synopsis", ""
+).strip()
+
+# The novel form currently collects title, author and synopsis.
+# Novel genres should come from a book API when integrated.
+novel_genres = st.session_state.get(
+    "novel_genres", []
 )
 
 favorite_genres = st.session_state.get(
-    "favorite_genres",
-    []
+    "favorite_genres", []
 )
 
 disliked_genres = st.session_state.get(
-    "disliked_genres",
-    []
+    "disliked_genres", []
 )
 
+favorite_novels = [
+    novel
+    for novel in st.session_state.get("favorite_novels", [])
+    if novel.get("title", "").strip()
+]
+
 liked_characters = st.session_state.get(
-    "liked_characters",
-    []
+    "liked_characters", []
 )
 
 disliked_characters = st.session_state.get(
-    "disliked_characters",
-    []
+    "disliked_characters", []
 )
 
+enjoy_characters = st.session_state.get(
+    "enjoy_characters", ""
+).strip()
+
+disliked_character_description = st.session_state.get(
+    "disliked_character_description", ""
+).strip()
+
 liked_stories = st.session_state.get(
-    "liked_stories",
-    []
+    "liked_stories", []
 )
 
 disliked_stories = st.session_state.get(
-    "disliked_stories",
-    []
+    "disliked_stories", []
 )
 
 
 # =========================================================
-# Demo Match Result
+# Demo Result
+# Replace with actual AI evaluation later.
 # =========================================================
 
 match_score = 86
+
+if match_score >= 80:
+    match_status = "Great Match"
+    match_status_th = "เข้ากันในระดับสูง"
+elif match_score >= 60:
+    match_status = "Good Match"
+    match_status_th = "เข้ากันในระดับปานกลาง"
+else:
+    match_status = "Low Match"
+    match_status_th = "เข้ากันในระดับต่ำ"
+
+# =========================================================
+# Helpers
+# =========================================================
+
+def show_section_title(title):
+    st.markdown(
+        f'<div class="result-section-title">{escape(title)}</div>',
+        unsafe_allow_html=True
+    )
+
+
+def show_list(title, items):
+    st.markdown(f"**{title}**")
+
+    if items:
+        st.write(", ".join(items))
+    else:
+        st.caption("No preferences provided.")
+
+
+def show_match_point(title, description, positive=True):
+    css_class = "result-positive" if positive else "result-warning"
+
+    st.markdown(
+        f"""
+        <div class="{css_class}">
+            <div class="result-point-title">
+                {escape(title)}
+            </div>
+            <div class="result-point-description">
+                {escape(description)}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 # =========================================================
@@ -124,77 +184,147 @@ match_score = 86
 # =========================================================
 
 with st.container(key="result-content"):
-
     st.markdown(
         """
-        <h1>Novel Match</h1>
-
+        <h1>Novel Match Results</h1>
         <div class="result-description">
-            Here's how well this novel matches your reading preferences.
+            Discover how well this novel aligns with your reading preferences.
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
-
-    # =====================================================
-    # Main Layout
-    # =====================================================
-
-    col_left, col_right = st.columns(
-        [1, 1],
-        gap="large"
-    )
+st.write("")
 
 
-    # =====================================================
-    # LEFT
-    # =====================================================
+# =========================================================
+# Main Glass Card
+# =========================================================
 
-    with col_left:
+with st.container(key="results-glass"):
 
-        # -------------------------------------------------
-        # Match Card
-        # -------------------------------------------------
+    # =========================================================
+    # Book Information
+    # =========================================================
 
-        with st.container(
-            border=True,
-            key="match-card"
-        ):
+    with st.container(border=False, key="novel-details-card"):
 
+        show_section_title("Novel Details")
+
+        novel_cover_url = st.session_state.get(
+            "novel_cover_url", ""
+        )
+
+        cover_col, info_col = st.columns(
+            [0.75, 1.5],
+            gap="large",
+            vertical_alignment="top",
+        )
+
+        with cover_col:
+            if novel_cover_url:
+                st.image(
+                    novel_cover_url,
+                    use_container_width=True,
+                )
+            else:
+                st.markdown(
+                    """
+                    <div style="
+                        aspect-ratio: 2 / 3;
+                        width: 100%;
+                        max-width: 180px;
+                        margin: 0 auto;
+                        border-radius: 12px;
+                        background: linear-gradient(
+                            145deg, #E4F4F1, #DCE4F5
+                        );
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        padding: 12px;
+                        box-sizing: border-box;
+                        color: #667085;
+                    ">
+                        <div style="font-size: 36px;">📚</div>
+                        <div style="
+                            font-size: 13px;
+                            margin-top: 10px;
+                        ">
+                            Book cover unavailable
+                        </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+
+        with info_col:
             st.markdown(
-                f"""
-                <div class="match-title">
-                    {novel_title}
-                </div>
-
-                <div class="match-author">
-                    {novel_author}
-                </div>
-                """,
-                unsafe_allow_html=True
+                f'<div class="result-book-title">'
+                f'{escape(novel_title or "Novel title not provided")}'
+                f'</div>',
+                unsafe_allow_html=True,
             )
 
-            st.markdown("---")
+            st.markdown(
+                f'<div class="result-book-author">'
+                f'By {escape(novel_author or "Author not provided")}'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
 
+            # Mock data for testing
+            mock_genres = ["Fantasy", "Adventure", "Romance"]
+
+            # Use real genres if available; otherwise use mock data
+            display_genres = novel_genres or mock_genres
+
+            # Display Genres
+            tags_html = "".join(
+                f'<span class="result-genre-tag">'
+                f'{escape(str(genre))}</span>'
+                for genre in display_genres
+            )
+
+            st.markdown(tags_html, unsafe_allow_html=True)
+
+            # Display Synopsis
+            if novel_synopsis:
+                st.write("")
+                st.markdown("**Synopsis**")
+                st.write(novel_synopsis)
+
+
+    # =========================================================
+    # Match Score
+    # Keep the original score circle design
+    # =========================================================
+
+    with st.container(border=False, key="score-card"):
+
+        score_col, summary_col = st.columns(
+            [0.75, 1.5],
+            gap="large",
+            vertical_alignment="center"
+        )
+
+        with score_col:
             st.html(
                 f"""
                 <div class="match-score-wrapper">
-
                     <div
                         class="match-score-circle"
                         style="--score: {match_score * 3.6}deg;"
                     >
                         <div class="match-score-inner">
-
                             <div class="match-score-number">
                                 {match_score}
                             </div>
-
                             <div class="match-score-label">
                                 / 100
                             </div>
-
                         </div>
                     </div>
 
@@ -202,167 +332,258 @@ with st.container(key="result-content"):
                         YOUR MATCH
                     </div>
 
+                    <div class="match-status">
+                        {escape(match_status)}
+                    </div>
                 </div>
                 """
             )
 
-            if match_score >= 80:
-                match_status = "Great Match"
-            elif match_score >= 60:
-                match_status = "Good Match"
-            else:
-                match_status = "Low Match"
+        with summary_col:
+            st.markdown("### Overall Match Summary")
 
             st.markdown(
-                f"""
-                <div class="match-status">
-                    {match_status}
+                """
+                <div class="result-summary">
+                    This section explains how well the novel matches
+                    your preferred genres, character traits, and
+                    storytelling styles.
                 </div>
                 """,
                 unsafe_allow_html=True
             )
 
+            st.caption(
+                "Demo score — replace with the actual evaluation result."
+            )
 
-        # -------------------------------------------------
-        # How Result Was Reached
-        # -------------------------------------------------
+    # =========================================================
+    # Match Analysis
+    # =========================================================
 
-        with st.container(
-            border=True,
-            key="source-card"
+    with st.container(border=False, key="match-analysis-card"):
+
+        show_section_title("Match Analysis")
+
+        st.markdown(
+            "Understand which aspects may fit your preferences "
+            "and which ones may not."
+        )
+
+        match_col, mismatch_col = st.columns(2, gap="large")
+
+        with match_col:
+
+            st.markdown("### ✓ Matches")
+
+            # Show preference information without claiming
+            # that it has already been verified against the novel.
+            if favorite_genres:
+                show_match_point(
+                    "Your Favorite Genres",
+                    "Your preferred genres are: "
+                    + ", ".join(favorite_genres)
+                    + ". The book's actual genres need to be verified."
+                )
+            else:
+                show_match_point(
+                    "Genre Preferences",
+                    "You have not selected any favorite genres yet."
+                )
+
+            if liked_characters or enjoy_characters:
+                character_summary = ", ".join(liked_characters)
+
+                if enjoy_characters:
+                    character_summary += (
+                        (" " if character_summary else "")
+                        + enjoy_characters
+                    )
+
+                show_match_point(
+                    "Characters You Enjoy",
+                    character_summary
+                )
+            else:
+                show_match_point(
+                    "Character Preferences",
+                    "No preferred character traits or description provided."
+                )
+
+            if liked_stories:
+                show_match_point(
+                    "Story Elements You Enjoy",
+                    ", ".join(liked_stories)
+                )
+            else:
+                show_match_point(
+                    "Story Preferences",
+                    "No preferred story elements selected."
+                )
+
+        with mismatch_col:
+
+            st.markdown("### ⚠ Mismatches")
+
+            if disliked_genres:
+                show_match_point(
+                    "Genres You Prefer to Avoid",
+                    "Check whether the novel includes: "
+                    + ", ".join(disliked_genres)
+                    + ". The novel's actual genres need to be verified.",
+                    positive=False
+                )
+            else:
+                show_match_point(
+                    "Genre Mismatches",
+                    "No disliked genres provided.",
+                    positive=False
+                )
+
+            if disliked_character_description or disliked_characters:
+                character_summary = ", ".join(disliked_characters)
+
+                if disliked_character_description:
+                    character_summary += (
+                        (" " if character_summary else "")
+                        + disliked_character_description
+                    )
+
+                show_match_point(
+                    "Character Traits You Dislike",
+                    character_summary,
+                    positive=False
+                )
+            else:
+                show_match_point(
+                    "Character Mismatches",
+                    "No disliked character traits provided.",
+                    positive=False
+                )
+
+            if disliked_stories:
+                show_match_point(
+                    "Story Elements You Prefer to Avoid",
+                    ", ".join(disliked_stories),
+                    positive=False
+                )
+            else:
+                show_match_point(
+                    "Story Mismatches",
+                    "No disliked story elements selected.",
+                    positive=False
+                )
+
+
+    # =========================================================
+    # Review Summary
+    # =========================================================
+
+    with st.container(border=False, key="review-summary-card"):
+
+        show_section_title("Review Summary")
+
+        st.markdown(
+            "### What do readers say about this novel?"
+        )
+
+        st.markdown(
+            """
+            <div class="result-muted">
+                Review summaries will appear here after review data
+                has been retrieved and analyzed.
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        st.write("")
+
+        review_col1, review_col2, review_col3 = st.columns(3, gap="medium")
+
+        with review_col1:
+            st.markdown("#### What Readers Like")
+            st.caption(
+                "Highlights from positive reader reviews will appear here."
+            )
+
+        with review_col2:
+            st.markdown("#### Criticisms")
+            st.caption(
+                "Common concerns from reader reviews will appear here."
+            )
+
+        with review_col3:
+            st.markdown("#### Mixed Opinions")
+            st.caption(
+                "Different reader perspectives will appear here."
+            )
+
+        st.info(
+            "Review data has not been connected yet. "
+            "No reader opinions are being presented as verified facts."
+        )
+
+    # =========================================================
+    # Sources and Limitations
+    # =========================================================
+
+    with st.container(border=False, key="source-card"):
+
+        with st.expander(
+            "View Sources and Limitations",
+            expanded=False
         ):
 
-            st.markdown("### How We Reached This Result")
+            st.markdown("### Data Sources")
 
-            st.write("Novel Information")
+            st.markdown(
+                """
+                - **Book information:** Google Books API / Open Library API
+                - **Reader reviews:** To be connected
+                - **Preference matching:** NovelMatch evaluation model
+                """
+            )
 
-            st.write("↗ Google Books")
-            st.write("↗ Open Library")
-            st.write("↗ Reader Reviews")
-
-
-    # =====================================================
-    # RIGHT
-    # =====================================================
-
-    with col_right:
-
-        # -------------------------------------------------
-        # Why It Matches
-        # -------------------------------------------------
-
-        with st.container(
-            border=True,
-            key="match-reason-card"
-        ):
-
-            st.markdown("### Why It Matches You")
+            st.markdown("### Review Data Overview")
 
             st.write(
-                "✓ Fantasy & Romance matches your favorite genres"
+                "Review counts, review excerpts, and source links "
+                "will be displayed after the review retrieval pipeline "
+                "has been implemented."
             )
 
-            st.write(
-                "✓ Strong Female Lead matches your character preferences"
+            st.markdown("### Limitations")
+
+            st.markdown(
+                """
+                - Book metadata may be incomplete or differ between sources.
+                - Reviews may not represent every reader's experience.
+                - The compatibility score depends on the quality and
+                availability of the retrieved information.
+                - The current score and analysis are demonstration content,
+                not a verified prediction.
+                """
             )
 
-            st.write(
-                "✓ Mysterious atmosphere matches your preferred story mood"
-            )
-
-
-        # -------------------------------------------------
-        # Things You May Not Like
-        # -------------------------------------------------
-
-        with st.container(
-            border=True,
-            key="warning-card"
-        ):
-
-            st.markdown("### Things You May Not Like")
-
-            st.write(
-                "⚠ Slow pacing — some reviews mention "
-                "that the story develops slowly."
-            )
-
-            st.write(
-                "⚠ Loss-related themes — the story contains "
-                "themes of loss."
-            )
-
-
-        # -------------------------------------------------
-        # Match Breakdown
-        # -------------------------------------------------
-
-        with st.container(
-            border=True,
-            key="breakdown-card"
-        ):
-
-            st.markdown("### Match Breakdown")
-
-            chart_data = {
-                "Category": [
-                    "Genre",
-                    "Characters",
-                    "Story",
-                    "Overall"
-                ],
-                "Match": [
-                    92,
-                    88,
-                    78,
-                    86
-                ]
-            }
-
-            st.bar_chart(
-                chart_data,
-                x="Category",
-                y="Match",
-                height=280
-            )
-
-
-        # -------------------------------------------------
-        # Reader Insights
-        # -------------------------------------------------
-
-        with st.container(
-            border=True,
-            key="insight-card"
-        ):
-
-            st.markdown("### Reader Insights")
-
-            st.markdown("#### Overall Review Summary")
-
-            st.write(
-                "Readers generally praised the characters "
-                "and atmosphere, while some mentioned "
-                "slower pacing."
-            )
-
-            st.markdown("#### Sources")
+            st.markdown("### Review Sources")
 
             st.caption(
-                "Google Books · Open Library · Reader Reviews"
+                "Individual review links will be displayed here "
+                "when real review sources are available."
             )
 
+    # =========================================================
+    # Footer / Navigation
+    # =========================================================
 
-# =========================================================
-# Footer / Action
-# =========================================================
+    st.divider()
 
-st.divider()
+    if st.button(
+        "← Back to Home",
+        use_container_width=True,
+        key="result_back_to_home"
+    ):
+        st.switch_page("main.py")
 
-if st.button(
-    "← Back to Preview",
-    use_container_width=True
-):
-    st.switch_page(
-        "pages/preview.py"
-    )
+        

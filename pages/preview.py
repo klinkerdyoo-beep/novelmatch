@@ -4,6 +4,10 @@ import base64
 from components.navbar import navbar
 
 
+# =========================================================
+# Page Config
+# =========================================================
+
 st.set_page_config(
     page_title="Preview",
     layout="wide"
@@ -58,20 +62,44 @@ st.markdown(
 
 
 # =========================================================
+# Helper Function
+# =========================================================
+
+def show_list(title, items):
+    st.markdown(f"#### {title}")
+
+    if items:
+        st.write(", ".join(items))
+    else:
+        st.caption("None selected.")
+
+
+def show_text(title, value, empty_message="Not provided."):
+    st.markdown(f"#### {title}")
+
+    if value and value.strip():
+        st.write(value)
+    else:
+        st.caption(empty_message)
+
+
+# =========================================================
 # Main Layout
 # =========================================================
 
 with st.container(key="preview-content"):
+
     col1, col2 = st.columns(
         [0.4, 1.6],
         gap="large"
     )
 
-    # =========================================================
+    # =====================================================
     # Left - Introduction
-    # =========================================================
+    # =====================================================
 
     with col1:
+
         st.markdown(
             """
             <h1>
@@ -79,224 +107,150 @@ with st.container(key="preview-content"):
             </h1>
 
             <div class="preview-description">
-                Review your preferences and novel information
-                before continuing.
+                Review your reading preferences and novel information
+                before continuing with your personalized analysis.
+            </div>
+
+            <div class="preview-step">
+                3/3 Step
             </div>
             """,
             unsafe_allow_html=True
         )
 
     # =====================================================
-    # Right - Preference Form
+    # Right - Preview Card
     # =====================================================
 
     with col2:
+
         with st.container(
             border=True,
             key="preview-card"
         ):
 
+            st.markdown(
+                '<p class="preferences-eyebrow">ALMOST THERE</p>',
+                unsafe_allow_html=True
+            )
+
+            st.markdown("### Review Your Information")
+
+            st.markdown(
+                "Check your information below before continuing."
+            )
+
             # =================================================
             # NOVEL INFORMATION
             # =================================================
 
-            st.markdown("### Novel Information")
-
-            st.markdown("#### Novel Title")
-
-            st.write(
-                st.session_state.get(
-                    "novel_title",
-                    "—"
-                )
+            st.markdown(
+                '<div class="preview-section-title">Novel Details</div>',
+                unsafe_allow_html=True
             )
 
-            st.markdown("#### Author")
-
-            st.write(
-                st.session_state.get(
-                    "novel_author",
-                    "—"
-                )
+            show_text(
+                "Novel Title",
+                st.session_state.get("novel_title", "")
             )
 
-            st.markdown("#### Synopsis")
-
-            synopsis = st.session_state.get(
-                "novel_synopsis",
-                ""
+            show_text(
+                "Author",
+                st.session_state.get("novel_author", "")
             )
 
-            if synopsis:
-                st.write(synopsis)
-            else:
-                st.caption("No synopsis provided.")
-
-
-            st.divider()
+            show_text(
+                "Synopsis",
+                st.session_state.get("novel_synopsis", ""),
+                "No synopsis provided."
+            )
 
 
             # =================================================
             # READING PREFERENCES
             # =================================================
 
-            st.markdown("### Reading Preferences")
-
-
-            st.markdown("#### Favorite Genres")
-
-            favorite_genres = st.session_state.get(
-                "favorite_genres",
-                []
+            st.markdown(
+                '<div class="preview-section-title">Your Reading Preferences</div>',
+                unsafe_allow_html=True
             )
 
-            if favorite_genres:
-                st.write(", ".join(favorite_genres))
-            else:
-                st.caption("None selected.")
+            # -------------------------------------------------
+            # Genres
+            # -------------------------------------------------
 
+            st.markdown("### Favorite Genres")
 
-            st.markdown("#### Genres You Don't Like")
-
-            disliked_genres = st.session_state.get(
-                "disliked_genres",
-                []
+            show_list(
+                "Genres You Enjoy",
+                st.session_state.get("favorite_genres", [])
             )
 
-            if disliked_genres:
-                st.write(", ".join(disliked_genres))
-            else:
-                st.caption("None selected.")
-
-
-            # =================================================
-            # FAVORITE NOVELS
-            # =================================================
-
-            st.markdown("#### Favorite Novels")
-
-            favorite_novels = st.session_state.get(
-                "favorite_novels",
-                []
+            show_list(
+                "Genres You Prefer to Avoid",
+                st.session_state.get("disliked_genres", [])
             )
 
-            favorite_novels = [
-                novel
-                for novel in favorite_novels
-                if novel.get("title", "").strip()
-            ]
+            # -------------------------------------------------
+            # Character Preferences
+            # -------------------------------------------------
 
-            if favorite_novels:
+            st.markdown("### Character Preferences")
 
-                for i, novel in enumerate(favorite_novels, start=1):
-
-                    st.markdown(f"**{i}. {novel['title']}**")
-
-                    author = novel.get("author", "").strip()
-
-                    if author:
-                        st.caption(f"Author: {author}")
-                    else:
-                        st.caption("Author: Not provided")
-
-                    synopsis = novel.get("synopsis", "").strip()
-
-                    if synopsis:
-                        st.write(synopsis)
-                    else:
-                        st.caption("No synopsis provided.")
-
-            else:
-                st.caption("None provided.")
-
-
-            # =================================================
-            # CHARACTER
-            # =================================================
-
-            st.markdown("#### Characters You Like")
-
-            liked_characters = st.session_state.get(
-                "liked_characters",
-                []
+            show_list(
+                "Character Traits You Enjoy",
+                st.session_state.get("enjoy_characters", [])
             )
 
-            if liked_characters:
-                st.write(", ".join(liked_characters))
-            else:
-                st.caption("None selected.")
-
-
-            st.markdown("#### Characters You Don't Like")
-
-            disliked_characters = st.session_state.get(
-                "disliked_characters",
-                []
+            show_text(
+                "Describe a Character You Like",
+                st.session_state.get("liked_characters", "")
             )
 
-            if disliked_characters:
-                st.write(", ".join(disliked_characters))
-            else:
-                st.caption("None selected.")
-
-
-            # =================================================
-            # STORY
-            # =================================================
-
-            st.markdown("#### Story Elements You Like")
-
-            liked_stories = st.session_state.get(
-                "liked_stories",
-                []
+            show_text(
+                "Describe Traits You Dislike",
+                st.session_state.get("disliked_character_description", "")
             )
 
-            if liked_stories:
-                st.write(", ".join(liked_stories))
-            else:
-                st.caption("None selected.")
+            # -------------------------------------------------
+            # Story Preferences
+            # -------------------------------------------------
 
+            st.markdown("### Story Preferences")
 
-            st.markdown("#### Story Elements You Don't Like")
-
-            disliked_stories = st.session_state.get(
-                "disliked_stories",
-                []
+            show_list(
+                "Story Elements You Enjoy",
+                st.session_state.get("liked_stories", [])
             )
 
-            if disliked_stories:
-                st.write(", ".join(disliked_stories))
-            else:
-                st.caption("None selected.")
-
+            show_list(
+                "Story Elements You Prefer to Avoid",
+                st.session_state.get("disliked_stories", [])
+            )
 
             st.divider()
-
 
             # =================================================
             # BUTTONS
             # =================================================
 
-            col1, col2 = st.columns(2)
+            back_col, continue_col = st.columns(2)
 
-            with col1:
+            with back_col:
 
                 if st.button(
-                    "← Back",
-                    use_container_width=True
+                    "← Back to Novel",
+                    use_container_width=True,
+                    key="preview_back"
                 ):
-                    st.switch_page(
-                        "pages/novel.py"
-                    )
+                    st.switch_page("pages/novel.py")
 
-
-            with col2:
+            with continue_col:
 
                 if st.button(
                     "Continue →",
                     type="primary",
-                    use_container_width=True
+                    use_container_width=True,
+                    key="preview_continue"
                 ):
-                    st.switch_page(
-                        "pages/chat.py"
-                    )
+                    st.switch_page("pages/chat.py")
