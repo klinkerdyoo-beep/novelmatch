@@ -99,21 +99,17 @@ favorite_novels = [
     if novel.get("title", "").strip()
 ]
 
-liked_characters = st.session_state.get(
-    "liked_characters", []
-)
-
-disliked_characters = st.session_state.get(
-    "disliked_characters", []
-)
-
 enjoy_characters = st.session_state.get(
-    "enjoy_characters", ""
-).strip()
+    "enjoy_characters", []
+)
+
+liked_characters = st.session_state.get(
+    "liked_characters", ""
+)
 
 disliked_character_description = st.session_state.get(
     "disliked_character_description", ""
-).strip()
+)
 
 liked_stories = st.session_state.get(
     "liked_stories", []
@@ -440,18 +436,10 @@ with st.container(key="results-glass"):
                     positive=False
                 )
 
-            if disliked_character_description or disliked_characters:
-                character_summary = ", ".join(disliked_characters)
-
-                if disliked_character_description:
-                    character_summary += (
-                        (" " if character_summary else "")
-                        + disliked_character_description
-                    )
-
+            if disliked_character_description.strip():
                 show_match_point(
                     "Character Traits You Dislike",
-                    character_summary,
+                    disliked_character_description,
                     positive=False
                 )
             else:
