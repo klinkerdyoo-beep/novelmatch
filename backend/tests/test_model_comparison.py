@@ -7,6 +7,7 @@ NOVELMATCH_RUN_LIVE_MODEL_COMPARISON=1 to make provider calls.
 from __future__ import annotations
 
 import json
+import asyncio
 import os
 import sys
 import time
@@ -29,6 +30,7 @@ from backend.services.gemini_service import (
     MatchAnalysis,
 )
 from backend.services.novel_sources.ai_payload import validate_analysis_evidence
+from backend.services.novel_sources.user_input import prepare_novel_analysis_input
 from backend.tests.test_gemini_service import build_test_payload, valid_response
 
 
@@ -37,10 +39,12 @@ from backend.tests.test_gemini_service import build_test_payload, valid_response
 if (
     os.getenv("NOVELMATCH_RUN_LIVE_MODEL_COMPARISON") == "1"
     or os.getenv("NOVELMATCH_RUN_LIVE_MODEL_DIAGNOSTIC") == "1"
+    or os.getenv("NOVELMATCH_RUN_LIVE_USER_INPUT_COMPARISON") == "1"
 ):
     load_dotenv(Path(__file__).resolve().parents[1] / ".env", override=False)
 LIVE_COMPARISON = os.getenv("NOVELMATCH_RUN_LIVE_MODEL_COMPARISON") == "1"
 LIVE_DIAGNOSTIC = os.getenv("NOVELMATCH_RUN_LIVE_MODEL_DIAGNOSTIC") == "1"
+LIVE_USER_INPUT_COMPARISON = os.getenv("NOVELMATCH_RUN_LIVE_USER_INPUT_COMPARISON") == "1"
 CONNECT_TIMEOUT_SECONDS = float(os.getenv("NOVELMATCH_CONNECT_TIMEOUT_SECONDS", "15"))
 READ_TIMEOUT_SECONDS = float(os.getenv("NOVELMATCH_READ_TIMEOUT_SECONDS", "45"))
 
@@ -309,9 +313,15 @@ def _error_type(exc: BaseException) -> str:
     return "unavailable_or_provider_error"
 
 
-def run_comparison(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def run_comparison(
+    payload: dict[str, Any],
+    model_names: tuple[str, ...] | None = None,
+) -> list[dict[str, Any]]:
     results = []
-    for model_name, call in PROVIDERS.items():
+    selected = PROVIDERS if model_names is None else {
+        name: PROVIDERS[name] for name in model_names
+    }
+    for model_name, call in selected.items():
         started = time.perf_counter()
         record: dict[str, Any] = {
             "model": model_name,
@@ -508,3 +518,49 @@ def test_live_provider_diagnostic():
     finally:
         print(json.dumps(results, indent=2, sort_keys=True), flush=True)
     assert len(results) == 2
+
+
+USER_INPUT_FIXTURE = {
+    "target_novel": {
+        "title": "The Hobbit",
+        "author": "J.R.R. Tolkien",
+        "synopsis": None,
+    },
+    "user_preferences": {
+        "genre_preferences": {
+            "liked_genres": ["Fantasy", "Adventure"],
+            "disliked_genres": ["Horror"],
+        },
+        "character_preferences": {
+            "liked_traits": ["Brave", "Independent"],
+            "liked_character_description": "Characters who grow through challenges.",
+            "disliked_character_description": "Cruel characters without motivation.",
+        },
+        "story_element_preferences": {
+            "liked_elements": ["Character-driven", "Unexpected twists"],
+            "disliked_elements": ["Slow-paced"],
+        },
+    },
+}
+
+
+@pytest.mark.skipif(
+    not LIVE_USER_INPUT_COMPARISON,
+    reason="set NOVELMATCH_RUN_LIVE_USER_INPUT_COMPARISON=1 to consume provider quota",
+)
+def test_live_user_input_comparison():
+    """Search once, then compare Gemini and GPT-OSS on identical evidence."""
+    prepared = asyncio.run(prepare_novel_analysis_input(USER_INPUT_FIXTURE))
+    if prepared["ai_payload"] is None:
+        pytest.fail("source search did not produce usable novel metadata: " + "; ".join(
+            prepared["research"].get("warnings", [])
+        ))
+
+    results = run_comparison(
+        prepared["ai_payload"],
+        model_names=("gemini-3.5-flash-lite", "gpt-oss-20b"),
+    )
+    print(json.dumps(results, indent=2, sort_keys=True), flush=True)
+    assert {item["model"] for item in results} == {
+        "gemini-3.5-flash-lite", "gpt-oss-20b"
+    }
