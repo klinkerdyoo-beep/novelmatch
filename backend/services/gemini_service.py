@@ -162,6 +162,12 @@ Final Score =
 + (Rated Novel Similarity * 0.15)
 + (Preference Alignment * 0.15)
 
+If a criterion cannot be evaluated from the input (for example, rated_novels is
+empty), exclude that criterion and proportionally renormalize the weights of
+the remaining evidence-supported criteria so their weights total 100%. Never
+treat a missing criterion as a score of zero. A score may be null only when
+there is not enough evidence to evaluate the remaining criteria meaningfully.
+
 Match Level:
 - High: 80-100
 - Medium: 60-79
