@@ -75,6 +75,7 @@ dependencies = [
     { name = "fastapi", extra = ["standard"] },
     { name = "google-genai" },
     { name = "greenlet" },
+    { name = "httpx" },
     { name = "python-dotenv" },
     { name = "sqlalchemy" },
 ]
@@ -90,6 +91,7 @@ requires-dist = [
     { name = "fastapi", extras = ["standard"], specifier = ">=0.142.2" },
     { name = "google-genai", specifier = ">=1.0.0" },
     { name = "greenlet", specifier = ">=3.2.4" },
+    { name = "httpx", specifier = ">=0.28.0" },
     { name = "python-dotenv", specifier = ">=1.2.4" },
     { name = "sqlalchemy", specifier = ">=2.1.3" },
 ]
