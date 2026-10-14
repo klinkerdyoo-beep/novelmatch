@@ -120,17 +120,18 @@
     color: #222;
 }
 
+
 .st-key-login-card input {
     min-height: 46px;
-
     border-radius: 14px;
 
-    background: rgba(255, 255, 255, 0.65);
+    background: rgba(255, 255, 255, 0.90) !important;
+    color: #172957 !important;
+    -webkit-text-fill-color: #172957 !important;
 
-    border: 1px solid rgba(255, 255, 255, 0.7);
+    border: 1px solid #dce3ed !important;
 
-    box-shadow:
-        inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
 
     font-family: "Barlow", sans-serif;
 
@@ -140,18 +141,16 @@
         background 0.2s ease;
 }
 
-
-/* Input Focus */
-
+/* Input focus */
 .st-key-login-card input:focus {
-    background: rgba(255, 255, 255, 0.82);
+    background: #ffffff !important;
+    color: #172957 !important;
+    -webkit-text-fill-color: #172957 !important;
 
-    border-color: rgba(50, 163, 168, 0.65);
+    border-color: #32a3a8 !important;
 
-    box-shadow:
-        0 0 0 3px rgba(50, 163, 168, 0.12);
+    box-shadow: 0 0 0 3px rgba(50, 163, 168, 0.12);
 }
-
 
 /* =========================================================
    Login Button
@@ -296,4 +295,20 @@
 
 .st-key-signup-button button:active {
     transform: scale(0.97);
+}
+
+
+/* Login validation and error messages */
+.st-key-login-card [data-testid="stCaptionContainer"],
+.st-key-login-card [data-testid="stAlert"] p,
+.st-key-login-card [data-testid="stAlert"] div {
+    color: #68748a !important;
+    -webkit-text-fill-color: #68748a !important;
+}
+
+/* Input placeholder */
+.st-key-login-card input::placeholder {
+    color: #929bad !important;
+    -webkit-text-fill-color: #929bad !important;
+    opacity: 1 !important;
 }

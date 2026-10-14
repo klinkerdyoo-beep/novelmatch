@@ -428,3 +428,115 @@
         font-size: 14px;
     }
 }
+
+/* =========================================================
+   History — Force Light Appearance
+   ========================================================= */
+
+/* History cards */
+.st-key-history-content [class*="st-key-history-card-"],
+.st-key-history-content .history-empty {
+    background: rgba(255, 255, 255, 0.82) !important;
+    color: #172957 !important;
+}
+
+/* Text inside history cards */
+.st-key-history-content [class*="st-key-history-card-"] p,
+.st-key-history-content [class*="st-key-history-card-"] span,
+.st-key-history-content [class*="st-key-history-card-"] label {
+    color: #465467;
+}
+
+/* =========================================================
+   History — View Details Expander
+   ========================================================= */
+
+.st-key-history-content [data-testid="stExpander"] {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1px solid #dce3ed !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+/* Header: closed and open */
+.st-key-history-content [data-testid="stExpander"] details > summary {
+    background: #f7f9fc !important;
+    color: #172957 !important;
+}
+
+/* Header text */
+.st-key-history-content [data-testid="stExpander"] details > summary p,
+.st-key-history-content [data-testid="stExpander"] details > summary span {
+    color: #172957 !important;
+}
+
+/* Arrow icon */
+.st-key-history-content [data-testid="stExpander"] details > summary svg {
+    color: #29448d !important;
+    fill: #29448d !important;
+}
+
+/* Expanded content */
+.st-key-history-content [data-testid="stExpander"] details > div {
+    background: #ffffff !important;
+    color: #172957 !important;
+}
+
+/* Text inside expanded content */
+.st-key-history-content [data-testid="stExpander"] details > div p,
+.st-key-history-content [data-testid="stExpander"] details > div li,
+.st-key-history-content [data-testid="stExpander"] details > div strong,
+.st-key-history-content [data-testid="stExpander"] details > div h1,
+.st-key-history-content [data-testid="stExpander"] details > div h2,
+.st-key-history-content [data-testid="stExpander"] details > div h3,
+.st-key-history-content [data-testid="stExpander"] details > div h4 {
+    color: #172957 !important;
+}
+
+/* =========================================================
+   History — Buttons
+   ========================================================= */
+
+.st-key-history-content .stButton > button {
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* =========================================================
+   History — Search by Book Title
+   ========================================================= */
+
+/* Search input background and text */
+.st-key-history-content
+[data-testid="stTextInput"] input {
+    background: rgba(255, 255, 255, 0.95) !important;
+    background-color: rgba(255, 255, 255, 0.95) !important;
+
+    color: #172957 !important;
+    -webkit-text-fill-color: #172957 !important;
+
+    border: 1px solid #dce3ed !important;
+    border-radius: 10px !important;
+
+    box-shadow: none !important;
+}
+
+/* Placeholder */
+.st-key-history-content
+[data-testid="stTextInput"] input::placeholder {
+    color: #929bad !important;
+    -webkit-text-fill-color: #929bad !important;
+    opacity: 1 !important;
+}
+
+/* Focus state */
+.st-key-history-content
+[data-testid="stTextInput"] input:focus {
+    border-color: #32a3a8 !important;
+    box-shadow: 0 0 0 3px rgba(50, 163, 168, 0.12) !important;
+}
+
+/* Search label */
+.st-key-history-content
+[data-testid="stTextInput"] [data-testid="stWidgetLabel"] p {
+    color: #34415b !important;
+}

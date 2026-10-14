@@ -462,3 +462,99 @@
 .st-key-results-glass .stButton > button:active {
     transform: none;
 }
+
+
+/* =========================================================
+   Results Page — Force Light Appearance
+   ========================================================= */
+
+/* Main glass card */
+.st-key-results-glass {
+    background: rgba(255, 255, 255, 0.48) !important;
+    color: #172957 !important;
+}
+
+/* Inner result cards */
+.st-key-results-glass .st-key-novel-details-card,
+.st-key-results-glass .st-key-score-card,
+.st-key-results-glass .st-key-match-analysis-card,
+.st-key-results-glass .st-key-review-summary-card,
+.st-key-results-glass .st-key-source-card {
+    background: rgba(255, 255, 255, 0.94) !important;
+    color: #172957 !important;
+}
+
+/* General text inside result cards */
+.st-key-results-glass .st-key-novel-details-card p,
+.st-key-results-glass .st-key-score-card p,
+.st-key-results-glass .st-key-match-analysis-card p,
+.st-key-results-glass .st-key-review-summary-card p,
+.st-key-results-glass .st-key-source-card p {
+    color: #465467 !important;
+}
+
+/* Headings inside result cards */
+.st-key-results-glass .st-key-novel-details-card h1,
+.st-key-results-glass .st-key-novel-details-card h2,
+.st-key-results-glass .st-key-novel-details-card h3,
+.st-key-results-glass .st-key-score-card h1,
+.st-key-results-glass .st-key-score-card h2,
+.st-key-results-glass .st-key-score-card h3,
+.st-key-results-glass .st-key-match-analysis-card h1,
+.st-key-results-glass .st-key-match-analysis-card h2,
+.st-key-results-glass .st-key-match-analysis-card h3,
+.st-key-results-glass .st-key-review-summary-card h1,
+.st-key-results-glass .st-key-review-summary-card h2,
+.st-key-results-glass .st-key-review-summary-card h3,
+.st-key-results-glass .st-key-source-card h1,
+.st-key-results-glass .st-key-source-card h2,
+.st-key-results-glass .st-key-source-card h3 {
+    color: #172957 !important;
+}
+
+
+/* =========================================================
+   Results — View Sources and Limitations Expander
+   ========================================================= */
+
+/* Expander container */
+.st-key-results-glass [data-testid="stExpander"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(220, 227, 237, 0.9) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+/* Expander header — both open and closed */
+.st-key-results-glass [data-testid="stExpander"] details > summary {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #172957 !important;
+}
+
+/* Header text */
+.st-key-results-glass [data-testid="stExpander"] details > summary p,
+.st-key-results-glass [data-testid="stExpander"] details > summary span {
+    color: #172957 !important;
+}
+
+/* Arrow icon */
+.st-key-results-glass [data-testid="stExpander"] details > summary svg {
+    color: #29448d !important;
+    fill: #29448d !important;
+}
+
+/* Expanded content */
+.st-key-results-glass [data-testid="stExpander"] details > div {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #172957 !important;
+}
+
+/* Text and headings inside expanded content */
+.st-key-results-glass [data-testid="stExpander"] details > div p,
+.st-key-results-glass [data-testid="stExpander"] details > div li,
+.st-key-results-glass [data-testid="stExpander"] details > div strong,
+.st-key-results-glass [data-testid="stExpander"] details > div h1,
+.st-key-results-glass [data-testid="stExpander"] details > div h2,
+.st-key-results-glass [data-testid="stExpander"] details > div h3 {
+    color: #172957 !important;
+}
