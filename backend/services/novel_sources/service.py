@@ -13,6 +13,14 @@ from .models import NovelRecord, NovelResearchResult, SourceReference
 from .normalization import (canonical_url, clean_text, identity_matches, merge_sources,
                             normalize_reviews, rank_and_merge, record_sources)
 
+DEFAULT_TAVILY_REVIEW_DOMAINS = (
+    "mebmarket.com",
+    "pantip.com",
+    "novel.dek-d.com",
+    "app.thestorygraph.com",
+    "goodreads.com",
+)
+
 
 class NovelResearchService:
     def __init__(self, *, tavily_api_key: str | None = None,
@@ -22,8 +30,14 @@ class NovelResearchService:
         self.tavily_api_key = (os.getenv("TAVILY_API_KEY", "") if tavily_api_key is None else tavily_api_key).strip()
         self.open_library_user_agent = open_library_user_agent or os.getenv(
             "OPEN_LIBRARY_USER_AGENT", "NovelMatch/0.1 (educational project)")
-        self.tavily_review_domains = tuple(domain.strip().lower() for domain in os.getenv(
-            "TAVILY_REVIEW_DOMAINS", "mebmarket.com,pantip.com,novel.dek-d.com").split(",") if domain.strip())
+        configured_domains = tuple(
+            domain.strip().lower()
+            for domain in os.getenv("TAVILY_REVIEW_DOMAINS", "").split(",")
+            if domain.strip()
+        )
+        self.tavily_review_domains = tuple(dict.fromkeys(
+            (*DEFAULT_TAVILY_REVIEW_DOMAINS, *configured_domains)
+        ))
         if not math.isfinite(timeout_seconds) or timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive and finite")
         self.timeout_seconds = timeout_seconds
@@ -61,7 +75,7 @@ class NovelResearchService:
             if self.tavily_api_key:
                 google_page, raw_reviews = await asyncio.gather(
                     _safe_call("Google Books", google.search(title, author, limit, offset), warnings, ([], 0)),
-                    _safe_call("Tavily", tavily.search(title, author, limit), warnings, []))
+                    _safe_call("Tavily", tavily.search(title, author, max(limit, 10)), warnings, []))
             else:
                 google_page = await _safe_call("Google Books", google.search(title, author, limit, offset), warnings, ([], 0))
                 raw_reviews = []
@@ -111,7 +125,7 @@ class NovelResearchService:
                         "google_books": {"total": google_total, "has_more": offset + limit < google_total},
                         "open_library": {"used_as_fallback": use_fallback, "total": library_total,
                                          "has_more": use_fallback and offset + limit < library_total},
-                        "reviews": {"limit": min(limit, 20), "has_more": False,
+                        "reviews": {"limit": min(max(limit, 10), 20), "has_more": False,
                                     "note": "Tavily reviews are not paginated; changing the metadata page repeats the review search."}})
 
 

@@ -3,12 +3,23 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
+import time
 from typing import Any
+from uuid import uuid4
 
 from google import genai
 from google.genai import errors, types
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+from .novel_sources import (
+    InsufficientNovelDataError,
+    NovelResearchService,
+    prepare_novel_analysis_input,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class GeminiServiceError(RuntimeError):
@@ -72,6 +83,7 @@ class MatchAnalysis(BaseModel):
 
     match_score: int | None = Field(default=None, ge=0, le=100)
     match_level: str | None = None
+    summary: str = ""
     matches: list[MatchPoint]
     mismatches: list[MatchPoint]
     review_summary: ReviewSummary
@@ -320,6 +332,7 @@ The output must follow this structure:
 {
   "match_score": null,
   "match_level": null,
+  "summary": "",
   "matches": [
     {
       "point": "",
@@ -366,6 +379,10 @@ The output must follow this structure:
 class GeminiAIService:
     """Generate structured NovelMatch analyses with Gemini."""
 
+    TRANSIENT_SERVER_RETRIES = 2
+    DEFAULT_MODEL = "gemini-3.8-flash"
+    DEFAULT_FALLBACK_MODELS = ("gemini-3.6-flash",)
+
     def __init__(
         self,
         *,
@@ -380,12 +397,24 @@ class GeminiAIService:
                 "GEMINI_API_KEY is required to use the Gemini AI service."
             )
 
-        self.model = model or os.getenv("GEMINI_MODEL", "gemini-3.5-flash-lite")
+        self.model = model or os.getenv("GEMINI_MODEL", self.DEFAULT_MODEL)
+        configured_fallbacks = os.getenv("GEMINI_FALLBACK_MODELS")
+        fallback_models = (
+            tuple(item.strip() for item in configured_fallbacks.split(",") if item.strip())
+            if configured_fallbacks and configured_fallbacks.strip()
+            else self.DEFAULT_FALLBACK_MODELS
+        )
+        self.fallback_models = tuple(dict.fromkeys(
+            candidate for candidate in fallback_models if candidate != self.model
+        ))
         self.timeout_seconds = self._read_timeout(timeout_seconds)
         self.client = client or genai.Client(
             api_key=configured_key,
             http_options=types.HttpOptions(
                 timeout=int(self.timeout_seconds * 1000),
+                # This service owns retry and fallback policy. Disable the SDK's
+                # default five attempts so retries don't multiply latency.
+                retry_options=types.HttpRetryOptions(attempts=1),
             ),
         )
 
@@ -415,7 +444,6 @@ class GeminiAIService:
         reviews: list[dict[str, Any]],
     ) -> MatchAnalysis:
         """Analyze inputs and return a validated structured match result."""
-
         input_payload = {
             "user_preference": user_preference,
             "novel": novel,
@@ -428,16 +456,7 @@ class GeminiAIService:
         )
 
         try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=contents,
-                config=types.GenerateContentConfig(
-                    system_instruction=MASTER_ANALYSIS_PROMPT,
-                    response_mime_type="application/json",
-                    response_json_schema=MatchAnalysis.model_json_schema(),
-                    temperature=0.2,
-                ),
-            )
+            response = self._generate_content_with_retries(contents)
         except TimeoutError as exc:
             raise GeminiTimeoutError(
                 "Gemini did not respond within the configured timeout."
@@ -474,6 +493,89 @@ class GeminiAIService:
                 "Gemini returned invalid JSON or data that does not match the "
                 "NovelMatch analysis schema."
             ) from exc
+
+    def _generate_content_with_retries(self, contents: str):
+        """Retry transient failures, then fail over to configured Gemini models."""
+        config = types.GenerateContentConfig(
+            system_instruction=MASTER_ANALYSIS_PROMPT,
+            response_mime_type="application/json",
+            response_json_schema=MatchAnalysis.model_json_schema(),
+            temperature=0.2,
+        )
+        last_transient_error: Exception | None = None
+        models = (self.model, *self.fallback_models)
+        for model_index, model in enumerate(models):
+            for attempt in range(self.TRANSIENT_SERVER_RETRIES + 1):
+                try:
+                    return self.client.models.generate_content(
+                        model=model,
+                        contents=contents,
+                        config=config,
+                    )
+                except errors.ServerError as exc:
+                    status = self._status_code(exc)
+                    if status == 503:
+                        last_transient_error = exc
+                        if attempt < self.TRANSIENT_SERVER_RETRIES:
+                            time.sleep(1.0 * (attempt + 1))
+                            continue
+                    elif status in {408, 504}:
+                        last_transient_error = exc
+                    else:
+                        raise
+                except Exception as exc:
+                    if not self._is_timeout_error(exc):
+                        raise
+                    last_transient_error = exc
+
+                if model_index < len(models) - 1:
+                    logger.warning(
+                        "Gemini model %s remained unavailable; trying fallback model %s",
+                        model,
+                        models[model_index + 1],
+                    )
+                break
+
+        if last_transient_error is not None:
+            raise last_transient_error
+        raise GeminiAPIError("No Gemini model is configured for analysis.")
+
+    async def analyze_user_input(
+        self,
+        user_input: dict[str, Any],
+        *,
+        user_id: str | None = None,
+        research_service: NovelResearchService | None = None,
+        limit: int = 5,
+        page: int = 1,
+    ) -> dict[str, Any]:
+        """Search metadata, analyze it with Gemini, and format the web response.
+
+        ``user_id`` is supplied by the API/authentication layer because it is
+        intentionally absent from the public preference form JSON.
+        """
+        if user_id is not None and not isinstance(user_id, str):
+            raise ValueError("user_id must be a string or None")
+
+        prepared = await prepare_novel_analysis_input(
+            user_input,
+            research_service=research_service,
+            limit=limit,
+            page=page,
+        )
+        payload = prepared["ai_payload"]
+        if payload is None:
+            warnings = prepared["research"].get("warnings", [])
+            detail = "; ".join(warnings) or "No provider book metadata was found."
+            raise InsufficientNovelDataError(detail)
+
+        analysis = self.analyze(**payload)
+        return _format_web_analysis(
+            analysis=analysis,
+            payload=payload,
+            research=prepared["research"],
+            user_id=user_id,
+        )
 
     @staticmethod
     def _validate_semantics(
@@ -541,3 +643,112 @@ class GeminiAIService:
     def _status_code(error: BaseException) -> int | None:
         value = getattr(error, "status_code", getattr(error, "code", None))
         return value if isinstance(value, int) else None
+
+
+def _format_web_analysis(
+    *,
+    analysis: MatchAnalysis,
+    payload: dict[str, Any],
+    research: dict[str, Any],
+    user_id: str | None,
+) -> dict[str, Any]:
+    """Adapt Gemini's validated analysis and provider records to the web schema."""
+    metadata = research["metadata"]
+    if not metadata:
+        raise InsufficientNovelDataError("No provider book metadata was found.")
+
+    provider = metadata.get("provider") or "book"
+    provider_key = {"google_books": "googlebooks"}.get(provider, provider)
+    provider_id = metadata.get("provider_id")
+    book_id = f"{provider_key}_{provider_id}" if provider_id else None
+    authors = metadata.get("authors") or []
+    reviews = {item.get("review_id"): item for item in research.get("reviews", [])}
+    cited_ids = list(dict.fromkeys(source.evidence_id for source in analysis.sources))
+    evidence_sources = []
+    for evidence_id in cited_ids:
+        review = reviews.get(evidence_id)
+        if review is None:
+            continue
+        verification = review.get("verification_status") or "heuristic_only"
+        raw_evidence_type = review.get("evidence_type") or "review_excerpt_candidate"
+        evidence_sources.append({
+            "evidence_id": evidence_id,
+            "source": review.get("source_name") or "unknown",
+            "url": review.get("url"),
+            "evidence_type": "test_fixture" if raw_evidence_type == "test_fixture" else "search_excerpt",
+            "verified_full_page": verification == "verified_full_page",
+            "test_fixture": raw_evidence_type == "test_fixture",
+        })
+
+    preferences = payload["user_preference"]
+    limitations = [
+        _limitation("score_calculation_unverified", "คะแนนเป็นผลวิเคราะห์จาก AI; สูตรคำนวณยังไม่ได้รับการตรวจสอบอิสระ")
+    ]
+    if not preferences.get("rated_novels"):
+        limitations.append(_limitation("rated_novels_missing", "ไม่มีรายการนิยายที่ให้คะแนน จึงเปรียบเทียบกับประวัติการอ่านไม่ได้"))
+    if any(source["test_fixture"] for source in evidence_sources):
+        limitations.append(_limitation("test_fixture_included", "มีข้อมูลรีวิวทดสอบปะปน จึงใช้ยืนยันความคิดเห็นจากผู้อ่านจริงไม่ได้"))
+    if any(not source["verified_full_page"] for source in evidence_sources):
+        limitations.append(_limitation("review_excerpt_incomplete", "รีวิวบางรายการเป็นข้อความบางส่วนและยังไม่ได้ตรวจสอบหน้าเต็ม"))
+    for warning in research.get("warnings", []):
+        limitations.append(_limitation("metadata_or_review_warning", warning))
+    for message in analysis.limitations:
+        limitations.append(_limitation("analysis_limitation", message))
+    unique_limitations = []
+    seen_limitations = set()
+    for item in limitations:
+        key = (item["code"], item["message"])
+        if key not in seen_limitations:
+            unique_limitations.append(item)
+            seen_limitations.add(key)
+
+    return {
+        "analysis_id": f"analysis_{uuid4().hex}",
+        "user_id": user_id,
+        "book": {
+            "id": book_id,
+            "title": metadata["title"],
+            "author": ", ".join(authors),
+            "genres": metadata.get("genres") or [],
+        },
+        "match": {
+            "score": analysis.match_score,
+            "scale": 100,
+            "level": analysis.match_level.lower() if analysis.match_level else None,
+            "summary": analysis.summary or _fallback_summary(analysis),
+            "scoring_method": None,
+            "scoring_method_verified": False,
+        },
+        "user_preferences_used": {
+            "liked_genres": preferences.get("liked_genres", []),
+            "disliked_pacing": _disliked_pacing(preferences.get("story_preferences", [])),
+            "rated_novels": preferences.get("rated_novels", []),
+        },
+        "matches": [point.model_dump(mode="json") for point in analysis.matches],
+        "mismatches": [point.model_dump(mode="json") for point in analysis.mismatches],
+        "review_summary": analysis.review_summary.model_dump(mode="json"),
+        "evidence": {"sources": evidence_sources},
+        "limitations": unique_limitations,
+    }
+
+
+def _disliked_pacing(story_preferences: list[str]) -> list[str]:
+    pacing_cues = ("slow", "slow-paced", "จังหวะเรื่องช้า", "เนือย", "ยืดเยื้อ")
+    return [
+        "slow"
+        for preference in story_preferences
+        if preference.casefold().startswith("dislikes:")
+        and any(cue in preference.casefold() for cue in pacing_cues)
+    ][:1]
+
+
+def _fallback_summary(analysis: MatchAnalysis) -> str:
+    if analysis.matches:
+        return analysis.matches[0].explanation
+    if analysis.mismatches:
+        return analysis.mismatches[0].explanation
+    return "ยังมีข้อมูลไม่เพียงพอสำหรับสรุปความเข้ากันได้"
+
+
+def _limitation(code: str, message: str) -> dict[str, str]:
+    return {"code": code, "message": message}

@@ -120,30 +120,47 @@ def rank_and_merge(records: list[NovelRecord], title: str, author: str) -> list[
 def normalize_reviews(records: list[ReviewSource], title: str, author: str):
     """Keep conservative excerpt candidates, not certified reader reviews."""
     accepted, seen_urls, seen_text = [], set(), set()
-    rejected = 0
+    rejected = {"invalid_url": 0, "title_mismatch": 0, "wrong_volume": 0,
+                "no_opinion_signal": 0, "too_short": 0, "duplicate": 0,
+                "author_unconfirmed": 0}
     opinion_cues = ("รีวิว", "อ่านแล้ว", "ชอบ", "ไม่ชอบ", "สนุก", "น่าเบื่อ", "ประทับใจ",
-                    "review", "enjoyed", "loved", "boring", "pacing", "recommend", "disappointed")
+                    "แนะนำ", "เรื่องนี้", "review", "reader review", "enjoyed", "loved",
+                    "boring", "pacing", "recommend", "disappointed", "slow", "fast-paced",
+                    "beautifully written", "couldn't put down")
+    author_unconfirmed = False
     for record in records:
         url = canonical_url(record.url)
         snippet = clean_text(record.snippet) or ""
         context = normalized(record.title + " " + snippet)
         title_key, author_key = normalized(title), normalized(author)
         text_key = normalized(snippet)
-        # Require the page heading to identify this novel, not just a passing
-        # mention in an anthology/recommendation snippet. Keep recall conservative.
-        relevant = bool(title_key and author_key and title_key in normalized(record.title)
-                        and author_key in context)
+        # Require the page heading to identify the exact title. Search snippets
+        # often omit the author even when the query included it, so author
+        # absence is retained as a limitation rather than an automatic reject.
+        title_matches = bool(title_key and title_key in normalized(record.title))
+        author_matches = bool(author_key and author_key in context)
         volume_pattern = r"(?:ภาค|เล่ม|ตอน|book|volume|vol\.?|part)\s*([0-9๐-๙]+|[ivx]+)\b"
         query_volumes = {m.casefold() for m in re.findall(volume_pattern, title, re.I)}
         page_volumes = {m.casefold() for m in re.findall(volume_pattern, record.title, re.I)}
-        if page_volumes - (query_volumes or {"1", "๑", "i"}):
-            relevant = False
+        wrong_volume = bool(page_volumes - (query_volumes or {"1", "๑", "i"}))
         opinion = any(cue in snippet.casefold() for cue in opinion_cues)
-        if not url or not relevant or not opinion or len(snippet) < 30:
-            rejected += 1
+        if not url:
+            rejected["invalid_url"] += 1
+            continue
+        if not title_matches:
+            rejected["title_mismatch"] += 1
+            continue
+        if wrong_volume:
+            rejected["wrong_volume"] += 1
+            continue
+        if not opinion:
+            rejected["no_opinion_signal"] += 1
+            continue
+        if len(snippet) < 30:
+            rejected["too_short"] += 1
             continue
         if url in seen_urls or text_key in seen_text:
-            rejected += 1
+            rejected["duplicate"] += 1
             continue
         review = copy.deepcopy(record)
         review.url, review.snippet = url, snippet[:8000]
@@ -152,11 +169,17 @@ def normalize_reviews(records: list[ReviewSource], title: str, author: str):
         review.evidence_type = "review_excerpt_candidate"
         review.verification_status = "heuristic_only"
         accepted.append(review)
+        if not author_matches:
+            author_unconfirmed = True
         seen_urls.add(url)
         seen_text.add(text_key)
     warnings = []
-    if rejected:
-        warnings.append(f"Excluded {rejected} duplicate, unrelated, or insufficient review search results.")
+    rejected_count = sum(rejected.values())
+    if rejected_count:
+        reasons = ", ".join(f"{count} {reason.replace('_', ' ')}" for reason, count in rejected.items() if count)
+        warnings.append(f"Excluded {rejected_count} review search results ({reasons}).")
+    if author_unconfirmed:
+        warnings.append("Some review excerpts matched the exact title but did not independently confirm the author.")
     if accepted:
         warnings.append("Review evidence consists of search excerpts screened by title, author and opinion keywords; "
                         "full pages and reader authorship have not been verified. Excerpts may be incomplete or promotional.")

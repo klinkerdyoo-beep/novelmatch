@@ -1,6 +1,9 @@
 import json
+import os
 import unittest
+from unittest.mock import patch
 
+from google.genai import errors
 from backend.services.gemini_service import (
     GeminiAIService,
     GeminiInvalidResponseError,
@@ -75,6 +78,47 @@ class FakeModels:
 class FakeClient:
     def __init__(self, response_text: str):
         self.models = FakeModels(FakeResponse(response_text))
+
+
+class TemporarilyUnavailableModels:
+    def __init__(self, response_text: str):
+        self.response = FakeResponse(response_text)
+        self.calls = 0
+
+    def generate_content(self, **kwargs):
+        self.calls += 1
+        if self.calls == 1:
+            raise errors.ServerError(
+                503,
+                {"error": {"message": "Model temporarily overloaded"}},
+            )
+        return self.response
+
+
+class TemporarilyUnavailableClient:
+    def __init__(self, response_text: str):
+        self.models = TemporarilyUnavailableModels(response_text)
+
+
+class PrimaryUnavailableModels:
+    def __init__(self, response_text: str):
+        self.response = FakeResponse(response_text)
+        self.models_seen = []
+
+    def generate_content(self, **kwargs):
+        model = kwargs["model"]
+        self.models_seen.append(model)
+        if model == "primary-test-model":
+            raise errors.ServerError(
+                503,
+                {"error": {"message": "Primary model temporarily overloaded"}},
+            )
+        return self.response
+
+
+class PrimaryUnavailableClient:
+    def __init__(self, response_text: str):
+        self.models = PrimaryUnavailableModels(response_text)
 
 
 def valid_response(**overrides):
@@ -173,6 +217,38 @@ class GeminiResponseValidationTests(unittest.TestCase):
 
     def test_empty_response(self):
         self.assert_invalid("   ")
+
+    def test_uses_current_stable_model_and_controls_sdk_retries(self):
+        with patch.dict(os.environ, {"GEMINI_API_KEY": "test-key"}, clear=True):
+            with patch("backend.services.gemini_service.genai.Client") as client_factory:
+                service = GeminiAIService()
+
+        self.assertEqual(service.model, "gemini-3.8-flash")
+        self.assertEqual(service.fallback_models, ("gemini-3.6-flash",))
+        options = client_factory.call_args.kwargs["http_options"]
+        self.assertEqual(options.retry_options.attempts, 1)
+
+    def test_retries_temporary_server_unavailable(self):
+        client = TemporarilyUnavailableClient(valid_response())
+        service = GeminiAIService(client=client)
+
+        with patch("backend.services.gemini_service.time.sleep"):
+            result = service.analyze(**INPUT_PAYLOAD)
+
+        self.assertEqual(result.match_level, "High")
+        self.assertEqual(client.models.calls, 2)
+
+    def test_fails_over_to_secondary_model_after_primary_503(self):
+        client = PrimaryUnavailableClient(valid_response())
+        service = GeminiAIService(client=client, model="primary-test-model")
+        service.fallback_models = ("fallback-test-model",)
+
+        with patch("backend.services.gemini_service.time.sleep"):
+            result = service.analyze(**INPUT_PAYLOAD)
+
+        self.assertEqual(result.match_level, "High")
+        self.assertEqual(client.models.models_seen.count("primary-test-model"), 3)
+        self.assertEqual(client.models.models_seen[-1], "fallback-test-model")
 
 
 if __name__ == "__main__":
