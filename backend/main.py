@@ -5,7 +5,10 @@ from typing import Any
 import httpx
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
+from postgrest.exceptions import APIError
+from supabase import Client, create_client
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -18,6 +21,12 @@ from services.novel_sources import (
 )
 
 app = FastAPI(title="NovelMatch API", version="1.0.0")
+bearer_scheme = HTTPBearer()
+
+supabase: Client = create_client(
+    os.environ["SUPABASE_URL"],
+    os.environ["SUPABASE_ANON_KEY"],
+)
 
 
 class NovelInput(BaseModel):
@@ -27,19 +36,19 @@ class NovelInput(BaseModel):
 
 
 class GenrePreferences(BaseModel):
-    liked_genres: list[str] = Field(default_factory=list)
+    enjoyed_genres: list[str] = Field(default_factory=list)
     disliked_genres: list[str] = Field(default_factory=list)
 
 
 class CharacterPreferences(BaseModel):
-    liked_traits: list[str] = Field(default_factory=list)
-    liked_character_description: str = ""
-    disliked_character_description: str = ""
+    enjoyed_character: list[str] = Field(default_factory=list)
+    liked_character: str = ""
+    disliked_character: str = ""
 
 
 class StoryPreferences(BaseModel):
-    liked_elements: list[str] = Field(default_factory=list)
-    disliked_elements: list[str] = Field(default_factory=list)
+    liked_story: list[str] = Field(default_factory=list)
+    disliked_story: list[str] = Field(default_factory=list)
 
 
 class UserPreferences(BaseModel):
@@ -98,12 +107,12 @@ async def _supabase_request(
 
 
 async def require_user(
-    authorization: str | None = Header(default=None),
+    credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme),
 ) -> dict[str, Any]:
-    if not authorization or not authorization.startswith("Bearer "):
+    if not credentials.credentials:
         raise HTTPException(status_code=401, detail="Bearer token is required.")
 
-    token = authorization.removeprefix("Bearer ").strip()
+    token = credentials.credentials
     if not token:
         raise HTTPException(status_code=401, detail="Bearer token is required.")
 
@@ -115,28 +124,8 @@ async def require_user(
         raise
     if not isinstance(user, dict) or not user.get("id"):
         raise HTTPException(status_code=401, detail="Invalid Supabase user.")
+    user["_access_token"] = token
     return user
-
-
-# def _to_ai_preferences(preferences: UserPreferences) -> dict[str, Any]:
-#     characters = preferences.character_preferences
-#     stories = preferences.story_element_preferences
-#     return {
-#         "liked_genres": preferences.genre_preferences.liked_genres,
-#         "disliked_genres": preferences.genre_preferences.disliked_genres,
-#         "character_preferences": (
-#             [f"Likes: {item}" for item in characters.liked_traits]
-#             + ([f"Likes: {characters.liked_character_description}"]
-#                if characters.liked_character_description.strip() else [])
-#             + ([f"Dislikes: {characters.disliked_character_description}"]
-#                if characters.disliked_character_description.strip() else [])
-#         ),
-#         "story_preferences": (
-#             [f"Likes: {item}" for item in stories.liked_elements]
-#             + [f"Dislikes: {item}" for item in stories.disliked_elements]
-#         ),
-#         "rated_novels": [],
-#     }
 
 
 @app.get("/")
@@ -184,22 +173,85 @@ async def logout(
 
 @app.get("/auth/me")
 async def read_current_user(user: dict[str, Any] = Depends(require_user)) -> dict[str, Any]:
-    return {"user": user}
+    return {"user": {key: value for key, value in user.items() if key != "_access_token"}}
 
-@app.post("/preferences/users")
+@app.post("/preferences/users/{user_id}")
 async def create_preferences(
+    user_id: str,
     preferences: UserPreferences,
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
-    user_id = user.get("id")
-    if not user_id:
-        raise HTTPException(status_code=400, detail="Invalid Supabase user.")
-    return await _supabase_request(
-        "POST",
-        "/rest/v1/user_preferences",
-        token=user.get("access_token"),
-        json={
-            "user_id": user_id,
-            "preferences": preferences.dict(),
-        },
-)
+    if user_id != user.get("id"):
+        raise HTTPException(status_code=403, detail="You can only update your own preferences.")
+
+    supabase.postgrest.auth(user["_access_token"])
+    try:
+        response = (
+            supabase.table("user_preferences")
+            .upsert(
+                {
+                    "user_id": user_id,
+                    "enjoyed_character": preferences.character_preferences.enjoyed_character,
+                    "disliked_character": preferences.character_preferences.disliked_character,
+                    "liked_character": preferences.character_preferences.liked_character,
+                    "enjoyed_story": preferences.story_element_preferences.liked_story,
+                    "disliked_story": preferences.story_element_preferences.disliked_story,
+                    "enjoyed_genres": preferences.genre_preferences.enjoyed_genres,
+                    "disliked_genres": preferences.genre_preferences.disliked_genres,
+                },
+                on_conflict="user_id",
+            )
+            .execute()
+        )
+    except APIError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=exc.message or "Supabase could not save user preferences.",
+        ) from exc
+    return {"data": response.data}
+
+
+@app.get("/preferences/users/{user_id}")
+async def get_preferences(
+    user_id: str,
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+    if user_id != user.get("id"):
+        raise HTTPException(status_code=403, detail="You can only read your own preferences.")
+
+    supabase.postgrest.auth(user["_access_token"])
+    try:
+        response = (
+            supabase.table("user_preferences")
+            .select(
+                "enjoyed_character,disliked_character,liked_character,"
+                "enjoyed_story,disliked_story,enjoyed_genres,disliked_genres"
+            )
+            .eq("user_id", user_id)
+            .execute()
+        )
+    except APIError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=exc.message or "Supabase could not read user preferences.",
+        ) from exc
+    if not response.data:
+        raise HTTPException(status_code=404, detail="User preferences not found.")
+    row = response.data[0]
+    return {
+        "preferences": {
+            "genre_preferences": {
+                "enjoyed_genres": row.get("enjoyed_genres", []),
+                "disliked_genres": row.get("disliked_genres", []),
+            },
+            "character_preferences": {
+                "enjoyed_character": row.get("enjoyed_character", []),
+                "liked_character": row.get("liked_character", ""),
+                "disliked_character": row.get("disliked_character", ""),
+            },
+            "story_element_preferences": {
+                "liked_story": row.get("enjoyed_story", []),
+                "disliked_story": row.get("disliked_story", []),
+            },
+        }
+    }
