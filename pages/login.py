@@ -3,6 +3,7 @@ import base64
 
 from components.navbar import navbar
 from components.popup.login_success_popup import login_success_popup
+from components.api_client import NovelMatchAPIError, login
 
 # =========================================================
 # Page Config
@@ -120,12 +121,17 @@ with st.container(key="login-content"):
                 st.warning("Please enter your password.")
 
             else:
-                # TODO: Validate username and password with the database
-                st.session_state.logged_in = True
-                st.session_state.username = username_or_email
-
-                # Show the popup after successful login
-                login_success_popup()
+                try:
+                    result = login(username_or_email.strip(), password)
+                except NovelMatchAPIError as exc:
+                    st.error(str(exc))
+                else:
+                    st.session_state.logged_in = True
+                    st.session_state.access_token = result["access_token"]
+                    st.session_state.user = result["user"]
+                    st.session_state.user_id = result["user"]["id"]
+                    st.session_state.username = username_or_email
+                    login_success_popup()
 
 
         # -------------------------------------------------

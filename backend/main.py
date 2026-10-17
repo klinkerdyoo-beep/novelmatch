@@ -86,6 +86,8 @@ async def _supabase_request(
     headers = {"apikey": key, "Content-Type": "application/json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
+    if token:
+        headers["Authorization"] = "Bearer " + token
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             response = await client.request(
@@ -315,11 +317,14 @@ async def logout(
 async def read_current_user(user: dict[str, Any] = Depends(require_user)) -> dict[str, Any]:
     return {"user": {key: value for key, value in user.items() if key != "_access_token"}}
 
-@app.get("/novels")
+@app.get("/novels/me")
 async def get_novels(
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
     supabase.postgrest.auth(user["_access_token"])
+    user_id = user.get("id")
+    if user_id != user.get("id"):
+        raise HTTPException(status_code=403, detail="You can only read your own novels.")
     try:
         response = (
             supabase.table("comparison_novels")
@@ -335,12 +340,15 @@ async def get_novels(
     return {"data": response.data}
 
 
-@app.post("/novels")
+
+@app.post("/novels/me")
 async def create_novel(
     novel: NovelInput,
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
     supabase.postgrest.auth(user["_access_token"])
+    if user.get("id") != user.get("id"):
+        raise HTTPException(status_code=403, detail="You can only create novels for your own account.")
     try:
         response = (
             supabase.table("comparison_novels")
@@ -353,12 +361,13 @@ async def create_novel(
             detail=exc.message or "Supabase could not create the novel.",
         ) from exc
     return {"data": response.data}
-@app.post("/preferences/users/{user_id}")
+
+@app.post("/preferences/me")
 async def create_preferences(
-    user_id: str,
     preferences: UserPreferences,
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
+    user_id = user.get("id")
     if user_id != user.get("id"):
         raise HTTPException(status_code=403, detail="You can only update your own preferences.")
 
@@ -389,11 +398,12 @@ async def create_preferences(
     return {"data": response.data}
 
 
-@app.get("/preferences/users/{user_id}")
+
+@app.get("/preferences/me")
 async def get_preferences(
-    user_id: str,
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
+    user_id = user.get("id")
     if user_id != user.get("id"):
         raise HTTPException(status_code=403, detail="You can only read your own preferences.")
 

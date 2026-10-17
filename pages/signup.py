@@ -2,6 +2,7 @@ import streamlit as st
 import base64
 
 from components.navbar import navbar
+from components.api_client import NovelMatchAPIError, login, signup
 
 
 # =========================================================
@@ -179,14 +180,21 @@ with st.container(key="login-content"):
                 )
 
             else:
-
-                st.session_state.logged_in = True
-                st.session_state.user_name = name
-                st.session_state.user_email = email
-
-                st.switch_page(
-                    "pages/preferences.py"
-                )
+                try:
+                    result = signup(name.strip(), email.strip(), password)
+                except NovelMatchAPIError as exc:
+                    st.error(str(exc))
+                else:
+                    if not result.get("access_token"):
+                        st.info("Account created. Check your email, then log in.")
+                    else:
+                        st.session_state.logged_in = True
+                        st.session_state.access_token = result["access_token"]
+                        st.session_state.user = result["user"]
+                        st.session_state.user_id = result["user"]["id"]
+                        st.session_state.user_name = name
+                        st.session_state.user_email = email
+                        st.switch_page("pages/preferences.py")
 
 
         # =================================================
