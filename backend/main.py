@@ -33,6 +33,8 @@ class NovelInput(BaseModel):
     title: str = Field(min_length=1, max_length=300)
     author: str = Field(min_length=1, max_length=300)
     synopsis: str | None = Field(default=None, max_length=20000)
+    book_cover: str | None = None
+    genre: list[str] = Field(default_factory=list)
 
 
 class GenrePreferences(BaseModel):
@@ -126,16 +128,10 @@ async def require_user(
         raise HTTPException(status_code=401, detail="Invalid Supabase user.")
     user["_access_token"] = token
     return user
-import os
-from typing import Any, Literal
+from typing import Literal
 
-from fastapi import FastAPI, HTTPException
 from openai import OpenAI
 from pydantic import BaseModel, Field
-from sqlalchemy import text
-from sqlalchemy.exc import SQLAlchemyError
-
-from database import engine
 from services.gemini_service import (
     GeminiAIService,
     GeminiAPIError,
@@ -163,9 +159,6 @@ from services.novel_sources import (
     normalize_user_input,
     validate_analysis_evidence,
 )
-
-app = FastAPI()
-
 
 class AnalysisRequest(BaseModel):
     # Preferred contract: the nested form schema handled by user_input.py.
@@ -279,6 +272,7 @@ def read_root() -> dict[str, str]:
     return {"message": "NovelMatch backend is running"}
 
 
+
 @app.post("/auth/signup")
 async def signup(request: SignupRequest) -> dict[str, Any]:
     return await _supabase_request(
@@ -321,6 +315,44 @@ async def logout(
 async def read_current_user(user: dict[str, Any] = Depends(require_user)) -> dict[str, Any]:
     return {"user": {key: value for key, value in user.items() if key != "_access_token"}}
 
+@app.get("/novels")
+async def get_novels(
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+    supabase.postgrest.auth(user["_access_token"])
+    try:
+        response = (
+            supabase.table("comparison_novels")
+            .select("id,title,synopsis,author,genre,book_cover")
+            .order("id", desc=True)
+            .execute()
+        )
+    except APIError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=exc.message or "Supabase could not read novels.",
+        ) from exc
+    return {"data": response.data}
+
+
+@app.post("/novels")
+async def create_novel(
+    novel: NovelInput,
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+    supabase.postgrest.auth(user["_access_token"])
+    try:
+        response = (
+            supabase.table("comparison_novels")
+            .insert(novel.model_dump())
+            .execute()
+        )
+    except APIError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=exc.message or "Supabase could not create the novel.",
+        ) from exc
+    return {"data": response.data}
 @app.post("/preferences/users/{user_id}")
 async def create_preferences(
     user_id: str,
