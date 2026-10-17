@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 from typing import Any
 
@@ -12,6 +13,14 @@ from pydantic import ValidationError
 
 from .gemini_service import MASTER_ANALYSIS_PROMPT, MatchAnalysis, GeminiAIService
 from .novel_sources.ai_payload import validate_analysis_evidence
+
+
+GPT_OSS_ANALYSIS_PROMPT = (
+    MASTER_ANALYSIS_PROMPT
+    + "\n\nGPT-OSS OUTPUT REQUIREMENT:\n"
+    + "Return match_score as an integer from 0 to 100, or null when the evidence "
+    + "is insufficient. Do not return a fractional, string, or non-finite score."
+)
 
 
 class GPTOSSServiceError(RuntimeError):
@@ -111,7 +120,7 @@ class GPTOSSService:
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=[
-                    {"role": "system", "content": MASTER_ANALYSIS_PROMPT},
+                    {"role": "system", "content": GPT_OSS_ANALYSIS_PROMPT},
                     {
                         "role": "user",
                         "content": (
@@ -144,7 +153,8 @@ class GPTOSSService:
             content = response.choices[0].message.content
             if not content:
                 raise ValueError("empty response")
-            analysis = MatchAnalysis.model_validate_json(content)
+            normalized_content = self._normalize_response_content(content)
+            analysis = MatchAnalysis.model_validate_json(normalized_content)
             GeminiAIService._validate_semantics(analysis, reviews)
             validate_analysis_evidence(analysis.model_dump(), payload)
             return analysis
@@ -152,6 +162,37 @@ class GPTOSSService:
             raise GPTOSSInvalidResponseError(
                 "GPT-OSS returned invalid NovelMatch JSON or evidence."
             ) from exc
+
+    @staticmethod
+    def _normalize_response_content(content: str) -> str:
+        """Normalize GPT-OSS numeric scores without changing the shared contract.
+
+        GPT-OSS occasionally emits a fractional score despite the integer schema.
+        Finite numeric scores in range are rounded to the nearest integer, with
+        exact halves rounded upward (for example, 77.4 -> 77 and 77.5 -> 78).
+        Invalid, non-finite, and out-of-range values are rejected rather than
+        clamped or converted from strings.
+        """
+        data = json.loads(content, parse_constant=_reject_non_finite_json)
+        if not isinstance(data, dict):
+            raise ValueError("GPT-OSS response must be a JSON object")
+
+        score = data.get("match_score")
+        if score is not None:
+            if (
+                isinstance(score, bool)
+                or not isinstance(score, (int, float))
+                or not math.isfinite(score)
+                or not 0 <= score <= 100
+            ):
+                raise ValueError("GPT-OSS match_score must be a finite number from 0 to 100")
+            data["match_score"] = math.floor(score + 0.5)
+
+        return json.dumps(data, ensure_ascii=False)
+
+
+def _reject_non_finite_json(value: str) -> None:
+    raise ValueError(f"non-finite JSON number is not allowed: {value}")
 
 
 __all__ = [

@@ -39,9 +39,36 @@ class TestGPTOSSService:
         assert request["model"] == "openai/gpt-oss-20b"
         assert request["messages"][0]["role"] == "system"
         assert "Novel Compatibility Analyzer" in request["messages"][0]["content"]
+        assert "match_score as an integer from 0 to 100" in request["messages"][0]["content"]
         user_message = request["messages"][1]["content"]
         assert json.loads(user_message.split("\n\n", 1)[1]) == INPUT_PAYLOAD
         assert request["extra_body"] == {"guided_json": MatchAnalysis.model_json_schema()}
+
+    @pytest.mark.parametrize(
+        ("score", "expected"),
+        [(77.4, 77), (77.5, 78), (77, 77), (None, None)],
+    )
+    def test_score_normalization_preserves_response_contract(self, score, expected):
+        client = self._client(
+            valid_response(
+                match_score=score,
+                match_level=None if score is None else "Medium",
+            )
+        )
+
+        result = GPTOSSService(client=client, model="test-model").analyze(**INPUT_PAYLOAD)
+
+        assert result.match_score == expected
+
+    @pytest.mark.parametrize(
+        "score",
+        [100.1, -0.1, "77.4", True, float("inf"), float("nan")],
+    )
+    def test_invalid_scores_are_rejected_without_clamping(self, score):
+        client = self._client(valid_response(match_score=score))
+
+        with pytest.raises(GPTOSSInvalidResponseError):
+            GPTOSSService(client=client, model="test-model").analyze(**INPUT_PAYLOAD)
 
     def test_empty_reviews_can_return_unknown_score_without_evidence(self):
         client = self._client(
