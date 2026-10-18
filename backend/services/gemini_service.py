@@ -42,6 +42,10 @@ class GeminiAPIError(GeminiServiceError):
     """Raised for errors returned by the Gemini API."""
 
 
+class GeminiUnavailableError(GeminiAPIError):
+    """Raised when Gemini is temporarily unavailable after model failover."""
+
+
 class GeminiInvalidResponseError(GeminiServiceError):
     """Raised when Gemini returns empty or invalid JSON."""
 
@@ -380,7 +384,7 @@ class GeminiAIService:
     """Generate structured NovelMatch analyses with Gemini."""
 
     TRANSIENT_SERVER_RETRIES = 2
-    DEFAULT_MODEL = "gemini-3.8-flash"
+    DEFAULT_MODEL = "gemini-3.5-flash-lite"
     DEFAULT_FALLBACK_MODELS = ("gemini-3.6-flash",)
 
     def __init__(
@@ -466,6 +470,10 @@ class GeminiAIService:
                 raise GeminiTimeoutError(
                     "Gemini did not respond within the configured timeout."
                 ) from exc
+            if self._status_code(exc) == 503:
+                raise GeminiUnavailableError(
+                    "Gemini is temporarily unavailable (503 UNAVAILABLE) after trying configured models."
+                ) from exc
             raise GeminiAPIError(f"Gemini API server error: {exc}") from exc
         except errors.ClientError as exc:
             if self._is_rate_limit_error(exc):
@@ -501,6 +509,11 @@ class GeminiAIService:
             response_mime_type="application/json",
             response_json_schema=MatchAnalysis.model_json_schema(),
             temperature=0.2,
+            # This request uses structured JSON output, not callable tools.
+            # Explicitly disable SDK AFC to avoid its default warning/loop.
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                disable=True,
+            ),
         )
         last_transient_error: Exception | None = None
         models = (self.model, *self.fallback_models)
