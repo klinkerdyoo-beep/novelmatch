@@ -110,3 +110,36 @@
     box-shadow: none;
     transform: none;
 }
+
+/* =========================================================
+   Account — Disabled Input Appearance
+   ========================================================= */
+
+/* Input background */
+.st-key-account-card input:disabled,
+.st-key-account-card textarea:disabled {
+    background: rgba(255, 255, 255, 0.72) !important;
+    background-color: rgba(255, 255, 255, 0.72) !important;
+
+    color: #172957 !important;
+    -webkit-text-fill-color: #172957 !important;
+
+    opacity: 1 !important;
+    border: 1px solid #dce3ed !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+}
+
+/* Username and Email labels */
+.st-key-account-card
+[data-testid="stWidgetLabel"] p {
+    color: #34415b !important;
+    opacity: 1 !important;
+}
+
+/* Disabled input placeholder / displayed text */
+.st-key-account-card input:disabled::placeholder {
+    color: #68748a !important;
+    -webkit-text-fill-color: #68748a !important;
+    opacity: 1 !important;
+}

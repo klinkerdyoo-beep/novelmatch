@@ -15,7 +15,6 @@ st.set_page_config(
     layout="wide"
 )
 
-
 # =========================================================
 # CSS
 # =========================================================
@@ -287,11 +286,22 @@ with st.container(key="results-glass"):
             st.markdown(tags_html, unsafe_allow_html=True)
 
             # Display Synopsis
-            if novel_synopsis:
-                st.write("")
-                st.markdown("**Synopsis**")
-                st.write(novel_synopsis)
+            display_synopsis = (
+                novel_synopsis
+                or "A fantasy adventure about a hidden kingdom and the people who seek to protect it."
+            )
 
+            st.markdown(
+                '<div class="result-synopsis-title">Synopsis</div>',
+                unsafe_allow_html=True,
+            )
+
+            st.markdown(
+                f'<div class="result-synopsis-text">'
+                f'{escape(display_synopsis)}'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
 
     # =========================================================
     # Match Score
@@ -573,5 +583,3 @@ with st.container(key="results-glass"):
         key="result_back_to_home"
     ):
         st.switch_page("main.py")
-
-        

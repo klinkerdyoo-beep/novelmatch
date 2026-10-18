@@ -271,23 +271,57 @@
    7. Multiselect
    ========================================================= */
 
-.st-key-preferences-card
-[data-testid="stMultiSelect"] [data-baseweb="select"] {
-    border-radius: 11px;
-    background: rgba(255, 255, 255, 0.94);
+
+/* =========================================================
+   7. Multiselect — Force Light Appearance
+   ========================================================= */
+
+/* Outer select container */
+.st-key-preferences-card [data-testid="stMultiSelect"] [data-baseweb="select"] {
+    background-color: #ffffff !important;
+    border-radius: 11px !important;
 }
 
-.st-key-preferences-card
-[data-testid="stMultiSelect"] [data-baseweb="select"] > div {
-    border-color: #dce3ed;
-    border-radius: 11px;
+/* BaseWeb control wrapper */
+.st-key-preferences-card [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
+    background-color: #ffffff !important;
+    border: 1px solid #dce3ed !important;
+    border-radius: 11px !important;
+    box-shadow: none !important;
 }
 
+/* Inner input area */
+.st-key-preferences-card [data-testid="stMultiSelect"] [data-baseweb="select"] input {
+    background-color: #ffffff !important;
+    color: #172957 !important;
+}
+
+/* Placeholder and input text */
+.st-key-preferences-card [data-testid="stMultiSelect"] input,
+.st-key-preferences-card [data-testid="stMultiSelect"] input::placeholder {
+    color: #68748a !important;
+    -webkit-text-fill-color: #68748a !important;
+    opacity: 1 !important;
+}
+
+/* Selected items */
 .st-key-preferences-card [data-baseweb="tag"] {
-    border-radius: 7px;
-    background: #e4f4f1;
-    color: #176d70;
+    background-color: #e4f4f1 !important;
+    color: #176d70 !important;
 }
+
+/* Selected item text */
+.st-key-preferences-card [data-baseweb="tag"] span {
+    color: #176d70 !important;
+    -webkit-text-fill-color: #176d70 !important;
+}
+
+/* Dropdown arrow */
+.st-key-preferences-card [data-testid="stMultiSelect"] svg {
+    color: #68748a !important;
+    fill: #68748a !important;
+}
+
 
 /* =========================================================
    9. Shared Buttons
@@ -448,4 +482,41 @@
     .st-key-preferences-card .st-key-novel-entry-4 {
         padding: 14px;
     }
+}
+
+
+/* =========================================================
+   Novel Form — Force Light Input Colors
+   ========================================================= */
+
+/* Text input and text area */
+.st-key-novel-card input,
+.st-key-novel-card textarea {
+    background-color: #ffffff !important;
+    color: #172957 !important;
+    -webkit-text-fill-color: #172957 !important;
+
+    border: 1px solid #dce3ed !important;
+    border-radius: 11px !important;
+
+    caret-color: #172957 !important;
+}
+
+/* Placeholder */
+.st-key-novel-card input::placeholder,
+.st-key-novel-card textarea::placeholder {
+    color: #929bad !important;
+    -webkit-text-fill-color: #929bad !important;
+    opacity: 1 !important;
+}
+
+/* Focus */
+.st-key-novel-card input:focus,
+.st-key-novel-card textarea:focus {
+    background-color: #ffffff !important;
+    color: #172957 !important;
+    -webkit-text-fill-color: #172957 !important;
+
+    border-color: #32a3a8 !important;
+    box-shadow: 0 0 0 3px rgba(50, 163, 168, 0.12) !important;
 }
