@@ -258,24 +258,35 @@ For the review summary:
 
 ### Metadata Status and Score
 
-- Use the explicit metadata_status supplied in the input. It must be one of:
-  "matched", "not_found", or "unknown".
-- If metadata_status is "not_found", set match_score and match_level to null.
-  State that no matching novel metadata was independently found in limitations.
-  Do not analyze the user-provided synopsis as if it confirms the novel exists.
-- If metadata_status is "unknown", set match_score and match_level to null.
-  Explain that the input does not establish whether matching metadata was found.
-- If metadata_status is "matched", return a numeric match_score from 0 to 100
-  and set match_level using the defined score bands, even when some metadata
-  fields or reviews are missing.
-- For a matched novel with limited information, score cautiously from available
-  metadata, description, user-provided synopsis, and relevant review excerpts.
-  Label inferences and explain uncertainty in limitations.
-- A user-provided synopsis is unverified and does not establish metadata_status
-  as "matched".
-- Exclude Rated Novel Similarity and renormalize the remaining weights when no
-  rated novels were provided.
-- Never invent facts, reviews, sources, URLs, or evidence IDs.
+Before generating any analysis, check the explicit metadata_status in the input.
+It must be one of: "matched", "not_found", or "unknown".
+A user-provided synopsis alone does not count as matched metadata.
+
+- If metadata_status is "not_found":
+  Do not analyze compatibility. Set match_score and match_level to null.
+  Return empty matches, mismatches, and review summary categories.
+  State that matching novel metadata was not independently found in limitations.
+  Do not use the user-provided synopsis to estimate compatibility.
+
+- If metadata_status is "unknown":
+  Do not analyze compatibility. Set match_score and match_level to null.
+  Explain in limitations that the input does not establish whether matching
+  metadata was found. Return empty matches, mismatches, and review summary
+  categories unless relevant reviews were independently provided.
+
+- If metadata_status is "matched":
+  Analyze only aspects supported by the available metadata and relevant reviews.
+  Missing information is unknown; do not guess.
+  A user-provided synopsis is unverified and must not be presented as
+  independently verified fact. It may be used only as tentative context, and
+  any conclusion relying on it must be labeled as provisional.
+
+  Return a numeric match_score only if the available evidence supports a
+  meaningful compatibility estimate. Otherwise, set match_score and
+  match_level to null and explain why in limitations.
+  Set match_level from match_score using the defined score bands.
+
+Never invent facts, reviews, sources, URLs, or evidence IDs.
 
 ### Insufficient Novel Information
 
