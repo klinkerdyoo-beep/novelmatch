@@ -117,7 +117,7 @@ def rank_and_merge(records: list[NovelRecord], title: str, author: str) -> list[
     return unique
 
 
-def normalize_reviews(records: list[ReviewSource], title: str, author: str):
+def normalize_reviews(records: list[ReviewSource], title: str, author: str, *, return_diagnostics: bool = False):
     """Keep conservative excerpt candidates, not certified reader reviews."""
     accepted, seen_urls, seen_text = [], set(), set()
     rejected = {"invalid_url": 0, "title_mismatch": 0, "wrong_volume": 0,
@@ -131,17 +131,25 @@ def normalize_reviews(records: list[ReviewSource], title: str, author: str):
     for record in records:
         url = canonical_url(record.url)
         snippet = clean_text(record.snippet) or ""
-        context = normalized(record.title + " " + snippet)
+        url_path = ""
+        if url:
+            # URL paths can carry a useful title/author slug, while query
+            # strings are too ambiguous to use as identity evidence.
+            url_path = re.sub(r"[-_/]+", " ", unquote(urlsplit(url).path))
+        context = normalized(record.title + " " + url_path + " " + snippet)
         title_key, author_key = normalized(title), normalized(author)
         text_key = normalized(snippet)
         # Require the page heading to identify the exact title. Search snippets
         # often omit the author even when the query included it, so author
         # absence is retained as a limitation rather than an automatic reject.
+        # Require the result title to identify the exact title. URL paths and
+        # snippets can corroborate author/volume context but are not title
+        # identity evidence on their own.
         title_matches = bool(title_key and title_key in normalized(record.title))
         author_matches = bool(author_key and author_key in context)
         volume_pattern = r"(?:ภาค|เล่ม|ตอน|book|volume|vol\.?|part)\s*([0-9๐-๙]+|[ivx]+)\b"
         query_volumes = {m.casefold() for m in re.findall(volume_pattern, title, re.I)}
-        page_volumes = {m.casefold() for m in re.findall(volume_pattern, record.title, re.I)}
+        page_volumes = {m.casefold() for m in re.findall(volume_pattern, record.title + " " + url_path, re.I)}
         wrong_volume = bool(page_volumes - (query_volumes or {"1", "๑", "i"}))
         opinion = any(cue in snippet.casefold() for cue in opinion_cues)
         if not url:
@@ -181,6 +189,15 @@ def normalize_reviews(records: list[ReviewSource], title: str, author: str):
     if author_unconfirmed:
         warnings.append("Some review excerpts matched the exact title but did not independently confirm the author.")
     if accepted:
-        warnings.append("Review evidence consists of search excerpts screened by title, author and opinion keywords; "
-                        "full pages and reader authorship have not been verified. Excerpts may be incomplete or promotional.")
+        warnings.append("Review evidence consists of fetched review text or search excerpts screened by title, author and opinion keywords; "
+                        "reader authorship has not been verified. Text may be incomplete or promotional.")
+    diagnostics = {
+        "discovered": len(records),
+        "accepted": len(accepted),
+        "deduplicated": rejected["duplicate"],
+        "rejected": rejected_count,
+        "rejection_reasons": {reason: count for reason, count in rejected.items() if count},
+    }
+    if return_diagnostics:
+        return accepted, warnings, diagnostics
     return accepted, warnings

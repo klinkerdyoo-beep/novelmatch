@@ -21,13 +21,16 @@ def normalize_user_input(value: dict[str, Any]) -> tuple[dict[str, str], dict[st
         raise ValueError("input must contain only target_novel and user_preferences")
 
     target = value["target_novel"]
-    if not isinstance(target, dict) or set(target) - {"title", "author", "synopsis"}:
-        raise ValueError("target_novel must contain title, author, and optional synopsis")
+    if not isinstance(target, dict) or set(target) - {"title", "author", "synopsis", "source_url"}:
+        raise ValueError("target_novel must contain title, author, and optional synopsis/source_url")
     title = _required_text(target.get("title"), "target_novel.title", 300)
     author = _required_text(target.get("author"), "target_novel.author", 300)
     synopsis = target.get("synopsis")
     if synopsis is not None and (not isinstance(synopsis, str) or len(synopsis) > 20000):
         raise ValueError("target_novel.synopsis must be text of at most 20000 characters")
+    source_url = target.get("source_url")
+    if source_url is not None and not isinstance(source_url, str):
+        raise ValueError("target_novel.source_url must be a URL string")
 
     preferences = value["user_preferences"]
     if not isinstance(preferences, dict) or set(preferences) - {
@@ -54,7 +57,12 @@ def normalize_user_input(value: dict[str, Any]) -> tuple[dict[str, str], dict[st
     story_preferences.extend(f"Dislikes: {item}" for item in _string_list(stories, "disliked_elements"))
 
     return (
-        {"title": title, "author": author, "synopsis": synopsis.strip() if synopsis else ""},
+        {
+            "title": title,
+            "author": author,
+            "synopsis": synopsis.strip() if synopsis else "",
+            "source_url": source_url.strip() if source_url else "",
+        },
         {
             "liked_genres": _string_list(genres, "liked_genres"),
             "disliked_genres": _string_list(genres, "disliked_genres"),

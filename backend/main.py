@@ -16,6 +16,7 @@ from services.gemini_service import (
     GeminiRateLimitError,
     GeminiServiceError,
     GeminiTimeoutError,
+    GeminiUnavailableError,
     MASTER_ANALYSIS_PROMPT,
     MatchAnalysis,
 )
@@ -68,7 +69,7 @@ async def analyze_novel(request: AnalysisRequest) -> dict[str, Any]:
             title = target["title"]
             author = target["author"]
             synopsis = target["synopsis"] or None
-            source_url = None
+            source_url = target["source_url"] or None
         else:
             if not request.title or not request.author or request.user_preference is None:
                 raise ValueError(
@@ -87,11 +88,15 @@ async def analyze_novel(request: AnalysisRequest) -> dict[str, Any]:
             user_provided_source_url=source_url,
         )
         payload = build_ai_payload(research, user_preference)
-        analysis = (
-            GeminiAIService().analyze(**payload)
-            if request.provider == "gemini"
-            else _analyze_with_gpt_oss(payload)
-        )
+        if request.provider == "gemini":
+            try:
+                analysis = GeminiAIService().analyze(**payload)
+            except (GeminiUnavailableError, GeminiTimeoutError, GeminiRateLimitError):
+                if not _gpt_oss_configuration_available():
+                    raise
+                analysis = _analyze_with_gpt_oss(payload)
+        else:
+            analysis = _analyze_with_gpt_oss(payload)
         output = analysis.model_dump()
         validate_analysis_evidence(output, payload)
         return merge_analysis_limitations(output, payload)
@@ -144,6 +149,11 @@ def _analyze_with_gpt_oss(payload: dict[str, Any]) -> MatchAnalysis:
         max_retries=0,
     )
     return GPTOSSService(client=client, model=model).analyze(**payload)
+
+
+def _gpt_oss_configuration_available() -> bool:
+    api_key = os.getenv("NVIDIA_API_KEY") or os.getenv("GPT_OSS_API_KEY")
+    return bool(api_key and os.getenv("GPT_OSS_BASE_URL") and os.getenv("GPT_OSS_MODEL"))
 
 
 @app.get("/")
