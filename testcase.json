@@ -1,0 +1,35 @@
+{
+  "target_novel": {
+    "title": "Crime and Punishment",
+    "author": "Fyodor Dostoevsky",
+    "synopsis": "A former student in Saint Petersburg commits a murder under the belief that he is an extraordinary being above ordinary morality, only to face psychological guilt, intense interrogations, and a path toward moral redemption."
+  },
+  "user_preferences": {
+    "genre_preferences": {
+      "liked_genres": [
+        "Drama",
+        "Mystery"
+      ],
+      "disliked_genres": [
+        "Comedy"
+      ]
+    },
+    "character_preferences": {
+      "liked_traits": [
+        "Intelligent",
+        "Calm"
+      ],
+      "liked_character_description": "ชอบนักสืบที่มีจิตวิทยาสูง ช่างวิเคราะห์ ใช้เหตุผล และอ่านใจคนเก่ง",
+      "disliked_character_description": "ไม่ชอบคนที่ยกยอตัวเองว่าเหนือผู้อื่นแล้วหาความชอบธรรมให้การทำบาป"
+    },
+    "story_element_preferences": {
+      "liked_elements": [
+        "Complex story",
+        "Character-driven"
+      ],
+      "disliked_elements": [
+        "Light-hearted"
+      ]
+    }
+  }
+}

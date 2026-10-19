@@ -12,13 +12,44 @@ from supabase import Client, create_client
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
-from services.gemini_service import GeminiAIService, GeminiServiceError
 from services.novel_sources import (
     InsufficientNovelDataError,
     NovelResearchService,
     build_ai_payload,
     merge_analysis_limitations,
 )
+from typing import Literal
+
+from openai import OpenAI
+from pydantic import BaseModel, Field
+from services.gemini_service import (
+    GeminiAIService,
+    GeminiAPIError,
+    GeminiConfigurationError,
+    GeminiInvalidResponseError,
+    GeminiRateLimitError,
+    GeminiServiceError,
+    GeminiTimeoutError,
+    MASTER_ANALYSIS_PROMPT,
+    MatchAnalysis,
+)
+from services.gpt_oss_service import (
+    GPTOSSAPIError,
+    GPTOSSConfigurationError,
+    GPTOSSInvalidResponseError,
+    GPTOSSRateLimitError,
+    GPTOSSService,
+    GPTOSSTimeoutError,
+)
+from services.novel_sources import (
+    InsufficientNovelDataError,
+    NovelResearchService,
+    build_ai_payload,
+    merge_analysis_limitations,
+    normalize_user_input,
+    validate_analysis_evidence,
+)
+import asyncio
 
 app = FastAPI(title="NovelMatch API", version="1.0.0")
 bearer_scheme = HTTPBearer()
@@ -59,9 +90,9 @@ class UserPreferences(BaseModel):
     story_element_preferences: StoryPreferences = Field(default_factory=StoryPreferences)
 
 
-class AnalysisRequest(BaseModel):
-    target_novel: NovelInput
-    user_preferences: UserPreferences
+# class AnalysisRequest(BaseModel):
+#     target_novel: NovelInput
+#     user_preferences: UserPreferences
 
 
 class AuthCredentials(BaseModel):
@@ -130,118 +161,238 @@ async def require_user(
         raise HTTPException(status_code=401, detail="Invalid Supabase user.")
     user["_access_token"] = token
     return user
-from typing import Literal
-
-from openai import OpenAI
-from pydantic import BaseModel, Field
-from services.gemini_service import (
-    GeminiAIService,
-    GeminiAPIError,
-    GeminiConfigurationError,
-    GeminiInvalidResponseError,
-    GeminiRateLimitError,
-    GeminiServiceError,
-    GeminiTimeoutError,
-    MASTER_ANALYSIS_PROMPT,
-    MatchAnalysis,
-)
-from services.gpt_oss_service import (
-    GPTOSSAPIError,
-    GPTOSSConfigurationError,
-    GPTOSSInvalidResponseError,
-    GPTOSSRateLimitError,
-    GPTOSSService,
-    GPTOSSTimeoutError,
-)
-from services.novel_sources import (
-    InsufficientNovelDataError,
-    NovelResearchService,
-    build_ai_payload,
-    merge_analysis_limitations,
-    normalize_user_input,
-    validate_analysis_evidence,
-)
 
 class AnalysisRequest(BaseModel):
-    # Preferred contract: the nested form schema handled by user_input.py.
-    target_novel: dict[str, Any] | None = None
-    user_preferences: dict[str, Any] | None = None
-
-    # Keep the existing flattened API contract for existing callers.
-    title: str | None = Field(default=None, min_length=1, max_length=300)
-    author: str | None = Field(default=None, min_length=1, max_length=300)
-    synopsis: str | None = Field(default=None, max_length=20000)
-    source_url: str | None = None
-    user_preference: dict[str, Any] | None = None
-    provider: Literal["gemini", "gpt_oss"] = "gemini"
+    title: str = Field(min_length=1, max_length=300, description="ชื่อนิยาย")
+    author: str = Field(min_length=1, max_length=300, description="ชื่อผู้แต่ง")
+    synopsis: str | None = Field(default=None, max_length=20000, description="เรื่องย่อ")
+    book_cover: str | None = Field(default=None, description="URL รูปปก")
+    genre: list[str] = Field(default_factory=list, description="หมวดหมู่นิยาย")
+    # provider: Literal["gemini", "gpt_oss"]
 
 
+# --- Endpoint /analysis ---
 @app.post("/analysis")
-async def analyze_novel(request: AnalysisRequest) -> dict[str, Any]:
-    """Search for novel evidence and return a validated AI analysis."""
-
+async def analyze_novel(
+    request: AnalysisRequest,
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+    user_id = user.get("id")
+    
+    
     try:
-        if request.target_novel is not None or request.user_preferences is not None:
-            if request.target_novel is None or request.user_preferences is None:
-                raise ValueError("target_novel and user_preferences must be provided together")
-            target, user_preference = normalize_user_input({
-                "target_novel": request.target_novel,
-                "user_preferences": request.user_preferences,
-            })
-            title = target["title"]
-            author = target["author"]
-            synopsis = target["synopsis"] or None
-            source_url = None
-        else:
-            if not request.title or not request.author or request.user_preference is None:
-                raise ValueError(
-                    "provide either target_novel/user_preferences or title/author/user_preference"
-                )
-            title = request.title
-            author = request.author
-            synopsis = request.synopsis
-            source_url = request.source_url
-            user_preference = request.user_preference
+        # Step 1: ดึง Preference ของ User จาก Database อัตโนมัติ
+        pref_res = supabase.table("user_preferences").select("*").eq("user_id", user_id).execute()
+        if not pref_res.data:
+            raise HTTPException(
+                status_code=400,
+                detail="ยังไม่พบข้อมูลความชอบในระบบ กรุณาตั้งค่าที่ /preferences ก่อนเริ่มวิเคราะห์",
+            )
+        pref_row = pref_res.data[0]
 
+        char_prefs = list(pref_row.get("enjoyed_character") or [])
+        if pref_row.get("liked_character"):
+            char_prefs.append(f"Likes: {pref_row['liked_character']}")
+        if pref_row.get("disliked_character"):
+            char_prefs.append(f"Dislikes: {pref_row['disliked_character']}")
+
+        story_prefs = [f"Likes: {s}" for s in (pref_row.get("enjoyed_story") or [])]
+        story_prefs += [f"Dislikes: {s}" for s in (pref_row.get("disliked_story") or [])]
+
+        user_preference_payload = {
+            "liked_genres": pref_row.get("enjoyed_genres") or [],
+            "disliked_genres": pref_row.get("disliked_genres") or [],
+            "character_preferences": char_prefs,
+            "story_preferences": story_prefs,
+            "rated_novels": [],
+        }
+
+        # Step 2: ให้ AI ค้นคว้าและคำนวณผลการจับคู่
         research = await NovelResearchService().search(
-            title,
-            author,
-            user_provided_description=synopsis,
-            user_provided_source_url=source_url,
+            title=request.title,
+            author=request.author,
+            user_provided_description=request.synopsis,
+            user_provided_source_url=None,
         )
-        payload = build_ai_payload(research, user_preference)
-        analysis = (
-            GeminiAIService().analyze(**payload)
-            if request.provider == "gemini"
-            else _analyze_with_gpt_oss(payload)
+        payload = build_ai_payload(research, user_preference_payload)
+
+        # 3. รันทั้ง 2 โมเดลแบบขนาน (Parallel Execution) พร้อมกัน
+        # gemini_task = asyncio.to_thread(GeminiAIService().analyze, **payload)
+        gpt_oss_task = asyncio.to_thread(_analyze_with_gpt_oss, payload)
+
+        # gemini_raw, gpt_raw = await asyncio.gather(gemini_task, gpt_oss_task)
+        gpt_raw = await asyncio.gather(gpt_oss_task)
+
+        # 4. ตรวจสอบและจัดการผลลัพธ์ของแต่ละโมเดล
+        # ประมวลผลผลลัพธ์ของ Gemini
+        # gemini_output = gemini_raw.model_dump()
+        # validate_analysis_evidence(gemini_output, payload)
+        # final_gemini = merge_analysis_limitations(gemini_output, payload)
+
+        # ประมวลผลผลลัพธ์ของ GPT-OSS
+        gpt_output = gpt_raw.model_dump()
+        validate_analysis_evidence(gpt_output, payload)
+        final_gpt = merge_analysis_limitations(gpt_output, payload)
+
+        # Step 3: บันทึกนิยายลงตาราง comparison_novels (ถ้ามีแล้วใช้ของเดิม ถ้ายังไม่มีให้สร้างใหม่)
+        novel_res = (
+            supabase.table("comparison_novels")
+            .select("id")
+            .eq("title", request.title)
+            .eq("author", request.author)
+            .limit(1)
+            .execute()
         )
-        output = analysis.model_dump()
-        validate_analysis_evidence(output, payload)
-        return merge_analysis_limitations(output, payload)
+        if novel_res.data:
+            novel_id = novel_res.data[0]["id"]
+        else:
+            novel_insert = (
+                supabase.table("comparison_novels")
+                .insert({
+                    "title": request.title,
+                    "author": request.author,
+                    "synopsis": request.synopsis,
+                    "genre": request.genre or research.get("metadata", {}).get("genres", []),
+                    "book_cover": request.book_cover or research.get("metadata", {}).get("cover_url"),
+                })
+                .execute()
+            )
+            novel_id = novel_insert.data[0]["id"]
+
+        # Step 4: บันทึกผลลัพธ์ลงตาราง match_history
+        # gemini_record = {
+        #     "user_id": user_id,
+        #     "novel_id": novel_id,
+        #     "score": final_gemini.get("match_score"),
+        #     "matches": final_gemini.get("matches", []),
+        #     "mismatches": final_gemini.get("mismatches", []),
+        #     "limitations": final_gemini.get("limitations", []),
+        #     "matches_level": final_gemini.get("match_level"),
+        #     "matches_summary": f"[Gemini] {final_gemini.get('summary', '')}",
+        #     "data_sources": final_gemini.get("sources", []),
+        #     "review_summary": final_gemini.get("review_summary", {}),
+        #     "review_overview": final_gemini.get("summary"),
+        #     "review_sources": [
+        #         s for s in final_gemini.get("sources", [])
+        #         if "review" in str(s.get("evidence_id", ""))
+        #     ],
+        # }
+
+        gpt_record = {
+            "user_id": user_id,
+            "novel_id": novel_id,
+            "score": final_gpt.get("match_score"),
+            "matches": final_gpt.get("matches", []),
+            "mismatches": final_gpt.get("mismatches", []),
+            "limitations": final_gpt.get("limitations", []),
+            "matches_level": final_gpt.get("match_level"),
+            "matches_summary": f"[GPT-OSS] {final_gpt.get('summary', '')}",
+            "data_sources": final_gpt.get("sources", []),
+            "review_summary": final_gpt.get("review_summary", {}),
+            "review_overview": final_gpt.get("summary"),
+            "review_sources": [
+                s for s in final_gpt.get("sources", [])
+                if "review" in str(s.get("evidence_id", ""))
+            ],
+        }
+        history_res = supabase.table("match_history").insert(gpt_record).execute()
+        # history_res = supabase.table("match_history").insert([gemini_record, gpt_record]).execute()
+
+        # ส่ง ID ทั้ง 2 แถวและผลการวิเคราะห์กลับให้ Frontend
+        return {
+            "match_history_ids": [row["id"] for row in (history_res.data or [])],
+            "novel_id": novel_id,
+            "novel_title": request.title,
+            "results": {
+                # "gemini": final_gemini,
+                "gpt_oss": final_gpt,
+            },
+        }
+    except APIError as exc:
+        raise HTTPException(status_code=400, detail=exc.message or "Database error.") from exc
     except InsufficientNovelDataError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    except GeminiConfigurationError as exc:
+    except (GeminiConfigurationError, GPTOSSConfigurationError) as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except GeminiTimeoutError as exc:
+    except (GeminiTimeoutError, GPTOSSTimeoutError) as exc:
         raise HTTPException(status_code=504, detail=str(exc)) from exc
-    except GeminiRateLimitError as exc:
+    except (GeminiRateLimitError, GPTOSSRateLimitError) as exc:
         raise HTTPException(status_code=429, detail=str(exc)) from exc
-    except (GeminiAPIError, GeminiInvalidResponseError) as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    except GeminiServiceError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    except GPTOSSConfigurationError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    except GPTOSSTimeoutError as exc:
-        raise HTTPException(status_code=504, detail=str(exc)) from exc
-    except GPTOSSRateLimitError as exc:
-        raise HTTPException(status_code=429, detail=str(exc)) from exc
-    except GPTOSSInvalidResponseError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
-    except GPTOSSAPIError as exc:
+    except (
+        GeminiAPIError,
+        GeminiInvalidResponseError,
+        GeminiServiceError,
+        GPTOSSInvalidResponseError,
+        GPTOSSAPIError,
+    ) as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+# async def analyze_novel(request: AnalysisRequest) -> dict[str, Any]:
+#     """Search for novel evidence and return a validated AI analysis."""
+
+#     try:
+#         if request.target_novel is not None or request.user_preferences is not None:
+#             if request.target_novel is None or request.user_preferences is None:
+#                 raise ValueError("target_novel and user_preferences must be provided together")
+#             target, user_preference = normalize_user_input({
+#                 "target_novel": request.target_novel,
+#                 "user_preferences": request.user_preferences,
+#             })
+#             title = target["title"]
+#             author = target["author"]
+#             synopsis = target["synopsis"] or None
+#             source_url = None
+#         else:
+#             if not request.title or not request.author or request.user_preference is None:
+#                 raise ValueError(
+#                     "provide either target_novel/user_preferences or title/author/user_preference"
+#                 )
+#             title = request.title
+#             author = request.author
+#             synopsis = request.synopsis
+#             source_url = request.source_url
+#             user_preference = request.user_preference
+
+#         research = await NovelResearchService().search(
+#             title,
+#             author,
+#             user_provided_description=synopsis,
+#             user_provided_source_url=source_url,
+#         )
+#         payload = build_ai_payload(research, user_preference)
+#         analysis = (
+#             GeminiAIService().analyze(**payload)
+#             if request.provider == "gemini"
+#             else _analyze_with_gpt_oss(payload)
+#         )
+#         output = analysis.model_dump()
+#         validate_analysis_evidence(output, payload)
+#         return merge_analysis_limitations(output, payload)
+#     except InsufficientNovelDataError as exc:
+#         raise HTTPException(status_code=422, detail=str(exc)) from exc
+#     except GeminiConfigurationError as exc:
+#         raise HTTPException(status_code=503, detail=str(exc)) from exc
+#     except GeminiTimeoutError as exc:
+#         raise HTTPException(status_code=504, detail=str(exc)) from exc
+#     except GeminiRateLimitError as exc:
+#         raise HTTPException(status_code=429, detail=str(exc)) from exc
+#     except (GeminiAPIError, GeminiInvalidResponseError) as exc:
+#         raise HTTPException(status_code=502, detail=str(exc)) from exc
+#     except GeminiServiceError as exc:
+#         raise HTTPException(status_code=502, detail=str(exc)) from exc
+#     except GPTOSSConfigurationError as exc:
+#         raise HTTPException(status_code=503, detail=str(exc)) from exc
+#     except GPTOSSTimeoutError as exc:
+#         raise HTTPException(status_code=504, detail=str(exc)) from exc
+#     except GPTOSSRateLimitError as exc:
+#         raise HTTPException(status_code=429, detail=str(exc)) from exc
+#     except GPTOSSInvalidResponseError as exc:
+#         raise HTTPException(status_code=502, detail=str(exc)) from exc
+#     except GPTOSSAPIError as exc:
+#         raise HTTPException(status_code=502, detail=str(exc)) from exc
+#     except ValueError as exc:
+#         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
 def _analyze_with_gpt_oss(payload: dict[str, Any]) -> MatchAnalysis:
@@ -317,7 +468,7 @@ async def logout(
 async def read_current_user(user: dict[str, Any] = Depends(require_user)) -> dict[str, Any]:
     return {"user": {key: value for key, value in user.items() if key != "_access_token"}}
 
-@app.get("/novels/me")
+@app.get("/novels")
 async def get_novels(
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
@@ -341,18 +492,22 @@ async def get_novels(
 
 
 
-@app.post("/novels/me")
+@app.post("/novels")
 async def create_novel(
     novel: NovelInput,
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
-    supabase.postgrest.auth(user["_access_token"])
-    if user.get("id") != user.get("id"):
+    user_id = user.get("id")
+    if not novel.title or not novel.author:
+        raise HTTPException(status_code=422, detail="Title and author are required.")
+    
+    if user_id != user.get("id"):
         raise HTTPException(status_code=403, detail="You can only create novels for your own account.")
+    supabase.postgrest.auth(user["_access_token"])
     try:
         response = (
             supabase.table("comparison_novels")
-            .insert(novel.model_dump())
+            .upsert(novel.model_dump())
             .execute()
         )
     except APIError as exc:
@@ -362,7 +517,7 @@ async def create_novel(
         ) from exc
     return {"data": response.data}
 
-@app.post("/preferences/me")
+@app.post("/preferences")
 async def create_preferences(
     preferences: UserPreferences,
     user: dict[str, Any] = Depends(require_user),
@@ -399,7 +554,7 @@ async def create_preferences(
 
 
 
-@app.get("/preferences/me")
+@app.get("/preferences")
 async def get_preferences(
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:

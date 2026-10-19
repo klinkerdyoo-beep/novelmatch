@@ -1,0 +1,298 @@
+{
+  "input": {
+    "target_novel": {
+      "title": "Crime and Punishment",
+      "author": "Fyodor Dostoevsky",
+      "synopsis": "A former student in Saint Petersburg commits a murder under the belief that he is an extraordinary being above ordinary morality, only to face psychological guilt, intense interrogations, and a path toward moral redemption."
+    },
+    "user_preferences": {
+      "genre_preferences": {
+        "liked_genres": [
+          "Drama",
+          "Mystery"
+        ],
+        "disliked_genres": [
+          "Comedy"
+        ]
+      },
+      "character_preferences": {
+        "liked_traits": [
+          "Intelligent",
+          "Calm"
+        ],
+        "liked_character_description": "ชอบนักสืบที่มีจิตวิทยาสูง ช่างวิเคราะห์ ใช้เหตุผล และอ่านใจคนเก่ง",
+        "disliked_character_description": "ไม่ชอบคนที่ยกยอตัวเองว่าเหนือผู้อื่นแล้วหาความชอบธรรมให้การทำบาป"
+      },
+      "story_element_preferences": {
+        "liked_elements": [
+          "Complex story",
+          "Character-driven"
+        ],
+        "disliked_elements": [
+          "Light-hearted"
+        ]
+      }
+    }
+  },
+  "research": {
+    "metadata": {
+      "title": "Crime and Punishment",
+      "authors": [
+        "Fyodor Dostoevsky"
+      ],
+      "description": "Hailed by Washington Post Book World as “the best [translation] currently available\" when it was first published, this second edition of Crime and Punishment has been updated in honor of the 200th anniversary of Dostoevsky’s birth. • ONE OF TIME MAGAZINE'S 100 BEST MYSTERY AND THRILLER BOOKS OF ALL TIME With the same suppleness, energy, and range of voices that won their translation of The Brothers Karamazov the PEN/Book-of-the-Month Club Prize, Richard Pevear and Larissa Volokhonsky offer a brilliant translation of Crime and Punishment, Dostoevsky's astounding pyschological thriller, newly revised for his bicentenniel. In Crime and Punishment, when Raskolnikov, an impoverished student living in the St. Petersburg of the tsars, commits an act of murder and theft, he sets into motion a story that is almost unequalled in world literature for its excruciating suspense, its atmospheric vividness, and its depth of characterization and vision. Dostoevsky’s drama of sin, guilt, and redemption transforms the sordid story of an old woman’s murder into the nineteenth century’s profoundest and most compelling philosophical novel.",
+      "description_source": "google_books",
+      "publisher": "Vintage",
+      "published_year": 2012,
+      "genres": [
+        "Fiction"
+      ],
+      "average_rating": null,
+      "ratings_count": null,
+      "cover_url": "http://books.google.com/books/content?id=U5NhxE67JjMC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+      "provider": "google_books",
+      "source_url": "https://play.google.com/store/books/details?id=U5NhxE67JjMC&source=gbs_api",
+      "provider_id": "U5NhxE67JjMC",
+      "match_score": 1.0,
+      "sources": [
+        {
+          "provider": "google_books",
+          "url": "https://play.google.com/store/books/details?id=U5NhxE67JjMC&source=gbs_api",
+          "fields": [
+            "title",
+            "authors",
+            "publisher",
+            "published_year",
+            "genres",
+            "cover_url",
+            "description"
+          ]
+        }
+      ]
+    },
+    "reviews": [
+      {
+        "title": "Crime and Punishment by Fyodor Dostoevsky",
+        "url": "https://app.thestorygraph.com/books/320c2e3c-2d1c-4bdf-90a4-d2052e36052d",
+        "snippet": "this book is a good fit for. Reviews 4.18 based on 62,822 reviews Moods dark: 87% reflective: 71% tense: 59% challenging: 55% emotional: 43% sad: 31%",
+        "source_name": "app.thestorygraph.com",
+        "relevance_score": 0.83452857,
+        "published_date": null,
+        "review_id": "review-9aec702b8b50f912",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      },
+      {
+        "title": "Crime and Punishment by Fyodor Dostoevsky | Goodreads",
+        "url": "https://www.goodreads.com/book/show/7144.Crime_and_Punishment",
+        "snippet": "Kim 1,208 reviews January 23, 2018 Writing this was a crime and reading it was a punishment. emma 2,694 reviews101k followers Want to Read January 4, 2024 i always have to be the smartest looking person on public transit classics library non-ya Tola Grupa 35 reviews26.4k followers April 20, 2024 I finally said my goodbyes to this book. It was the best piece i've ever read. Christine 68 reviews14 followers April 4, 2007 [...] Witchy Books for Fall Jump to ratings and reviews # Crime and Punishment ### Fyodor Dostoevsky, David McDuff (Translator), Joseph Frank (Introduction) 1,161,214 ratings59,113 reviews [...] ## Ratings & Reviews What do you think? ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.29 1,161,214 ratings59,113 reviews 5 stars 618,346 (53%) 4 stars 343,991 (29%) 3 stars 138,810 (11%) 2 stars 40,718 (3%) 1 star 19,349 (1%) Displaying 1 - 30 of 58,913 reviews Matt 1,090 reviews32.1k followers December 29, 2009",
+        "source_name": "goodreads.com",
+        "relevance_score": 0.8036831,
+        "published_date": null,
+        "review_id": "review-ae07e7a6b56d4729",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      },
+      {
+        "title": "Crime and Punishment by Fyodor Dostoevsky | Goodreads",
+        "url": "https://www.goodreads.com/en/book/show/7144.Crime_and_Punishment",
+        "snippet": "Kim 1,209 reviews January 23, 2018 Writing this was a crime and reading it was a punishment. emma 2,700 reviews101k followers Want to Read January 4, 2024 i always have to be the smartest looking person on public transit classics library non-ya Tola Grupa 35 reviews26.4k followers April 20, 2024 I finally said my goodbyes to this book. It was the best piece i've ever read. Christine 68 reviews14 followers April 4, 2007 [...] ## Ratings & Reviews What do you think? ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.29 1,164,418 ratings59,391 reviews 5 stars 620,161 (53%) 4 stars 344,950 (29%) 3 stars 139,098 (11%) 2 stars 40,814 (3%) 1 star 19,395 (1%) Displaying 1 - 30 of 59,183 reviews Matt 1,092 reviews32.1k followers December 29, 2009 [...] The (Half) Stars Have Aligned Jump to ratings and reviews # Crime and Punishment ### Fyodor Dostoevsky, David McDuff (Translator), Joseph Frank (Introduction) 1,164,418 ratings59,391 reviews",
+        "source_name": "goodreads.com",
+        "relevance_score": 0.8021998,
+        "published_date": null,
+        "review_id": "review-c8ff1813b897be0b",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      },
+      {
+        "title": "The Readers Review: Literature from 1714 to 1910 - 2022/23 Group Reads - Archive: Crime and Punishment 2022: Epilogue & final thoughts Showing 1-13 of 13",
+        "url": "https://www.goodreads.com/topic/show/22388086-144-crime-and-punishment-week-10---final-week---epilogue-entire-book",
+        "snippet": "Growing up I always heard Crime and Punishment was a classic and that Dostoevsky was a literary genius. I think I had very high expectations and therefore I was a bit disappointed. To be perfectly honest I think this book (like many other classics) is overrated. I found several parts of it boring, drawn out, dark and depressing. The names of the characters were very confusing and hard to keep track of. (And I’m from Eastern Europe where such names are common.) [...] 7) Fyodor Dostoevsky adored Nikolai Gogol, a writer well known for his laugh-out-loud but bleak humor. Does Crime and Punishment make you laugh? What parts, if any, are funny, and why? If you didn't find any parts of this book funny, why do you suppose that is? 8) What about Crime and Punishment's abrupt chapter endings? Do the endings comment on the chapter as a whole? Do they prepare us in some way for the next chapter? [...] reply | flag message 13: by Gem ✿Ƹ̵̡Ӝ̵̨̄Ʒ✿, Moderator (new) - rated it 5 stars Feb 07, 2023 07:56PM Gem ✿Ƹ̵̡Ӝ̵̨̄Ʒ✿ | 1276 comments Mod Nancy wrote: \"This novel intrigued me throughout. No, it wasn’t a happy or an easy story, but it has depths that make it worth studying. I hope to re-read it some day and try to understand more of Dostoyevsky’s ...\" I plan on rereading it at some point as well. reply | flag back to top post a comment » Add a reference: Book Author",
+        "source_name": "goodreads.com",
+        "relevance_score": 0.75355774,
+        "published_date": null,
+        "review_id": "review-53478a81ffcb519c",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      },
+      {
+        "title": "Crime and Punishment by Fyodor Dostoevsky | Goodreads",
+        "url": "https://www.goodreads.com/book/show/7138.Crime_and_Punishment",
+        "snippet": "Top Horror Novels ### Loading... # Crime and Punishment ### Fyodor Dostoevsky, Leonard Stanton (Introduction), James D. Hardy Jr. (Introduction) ...more 534 pages, Mass Market Paperback First published January 1, 1866 ### About the author Profile Image for Fyodor Dostoevsky. #### Fyodor Dostoevsky ## Ratings & Reviews ### Friends & Following ### Community Reviews Profile Image for Matt. ![Profile Image for s.penkevich [hiatus-will return-miss you all].]( [...] Profile Image for Paul Bryant. Profile Image for Fergus, Weaver of Autistic Webs. Profile Image for Emily May. Profile Image for Jim Fonseca. Profile Image for Bonnie. Profile Image for Lucy Dacus. Profile Image for Geoff. Profile Image for Kim. Profile Image for emma. Profile Image for Tola Grupa. Profile Image for Christine. Profile Image for Stephen. crimeandpunish review Photobucket Profile Image for Shawn McComb. Profile Image for فؤاد. [...] Profile Image for Fernando.",
+        "source_name": "goodreads.com",
+        "relevance_score": 0.73023266,
+        "published_date": null,
+        "review_id": "review-da10d306e6afc246",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      },
+      {
+        "title": "Comments on Shannon 's review of Crime and Punishment",
+        "url": "https://www.goodreads.com/Review/22864033/comments?subject=22864033",
+        "snippet": "The review basically consisted of a bland recapitulation of the plot, and ended with a bunch of entirely subjective complaints about how self-centered",
+        "source_name": "goodreads.com",
+        "relevance_score": 0.58919704,
+        "published_date": null,
+        "review_id": "review-543cc01af1c0dca2",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      }
+    ],
+    "warnings": [
+      "Missing novel metadata: average_rating, ratings_count.",
+      "Excluded 4 review search results (1 title mismatch, 3 no opinion signal).",
+      "Some review excerpts matched the exact title but did not independently confirm the author.",
+      "Review evidence consists of search excerpts screened by title, author and opinion keywords; full pages and reader authorship have not been verified. Excerpts may be incomplete or promotional."
+    ]
+  },
+  "ai_payload": {
+    "user_preference": {
+      "liked_genres": [
+        "Drama",
+        "Mystery"
+      ],
+      "disliked_genres": [
+        "Comedy"
+      ],
+      "character_preferences": [
+        "Likes: Intelligent",
+        "Likes: Calm",
+        "Likes: ชอบนักสืบที่มีจิตวิทยาสูง ช่างวิเคราะห์ ใช้เหตุผล และอ่านใจคนเก่ง",
+        "Dislikes: ไม่ชอบคนที่ยกยอตัวเองว่าเหนือผู้อื่นแล้วหาความชอบธรรมให้การทำบาป"
+      ],
+      "story_preferences": [
+        "Likes: Complex story",
+        "Likes: Character-driven",
+        "Dislikes: Light-hearted"
+      ],
+      "rated_novels": []
+    },
+    "novel": {
+      "title": "Crime and Punishment",
+      "author": [
+        "Fyodor Dostoevsky"
+      ],
+      "genres": [
+        "Fiction"
+      ],
+      "description": "Hailed by Washington Post Book World as “the best [translation] currently available\" when it was first published, this second edition of Crime and Punishment has been updated in honor of the 200th anniversary of Dostoevsky’s birth. • ONE OF TIME MAGAZINE'S 100 BEST MYSTERY AND THRILLER BOOKS OF ALL TIME With the same suppleness, energy, and range of voices that won their translation of The Brothers Karamazov the PEN/Book-of-the-Month Club Prize, Richard Pevear and Larissa Volokhonsky offer a brilliant translation of Crime and Punishment, Dostoevsky's astounding pyschological thriller, newly revised for his bicentenniel. In Crime and Punishment, when Raskolnikov, an impoverished student living in the St. Petersburg of the tsars, commits an act of murder and theft, he sets into motion a story that is almost unequalled in world literature for its excruciating suspense, its atmospheric vividness, and its depth of characterization and vision. Dostoevsky’s drama of sin, guilt, and redemption transforms the sordid story of an old woman’s murder into the nineteenth century’s profoundest and most compelling philosophical novel.",
+      "publisher": "Vintage",
+      "published_date": "2012",
+      "rating": null,
+      "rating_count": null
+    },
+    "reviews": [
+      {
+        "review_id": "review-9aec702b8b50f912",
+        "text": "this book is a good fit for. Reviews 4.18 based on 62,822 reviews Moods dark: 87% reflective: 71% tense: 59% challenging: 55% emotional: 43% sad: 31%",
+        "rating": null,
+        "source": "app.thestorygraph.com",
+        "url": "https://app.thestorygraph.com/books/320c2e3c-2d1c-4bdf-90a4-d2052e36052d"
+      },
+      {
+        "review_id": "review-ae07e7a6b56d4729",
+        "text": "Kim 1,208 reviews January 23, 2018 Writing this was a crime and reading it was a punishment. emma 2,694 reviews101k followers Want to Read January 4, 2024 i always have to be the smartest looking person on public transit classics library non-ya Tola Grupa 35 reviews26.4k followers April 20, 2024 I finally said my goodbyes to this book. It was the best piece i've ever read. Christine 68 reviews14 followers April 4, 2007 [...] Witchy Books for Fall Jump to ratings and reviews # Crime and Punishment ### Fyodor Dostoevsky, David McDuff (Translator), Joseph Frank (Introduction) 1,161,214 ratings59,113 reviews [...] ## Ratings & Reviews What do you think? ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.29 1,161,214 ratings59,113 reviews 5 stars 618,346 (53%) 4 stars 343,991 (29%) 3 stars 138,810 (11%) 2 stars 40,718 (3%) 1 star 19,349 (1%) Displaying 1 - 30 of 58,913 reviews Matt 1,090 reviews32.1k followers December 29, 2009",
+        "rating": null,
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/book/show/7144.Crime_and_Punishment"
+      },
+      {
+        "review_id": "review-c8ff1813b897be0b",
+        "text": "Kim 1,209 reviews January 23, 2018 Writing this was a crime and reading it was a punishment. emma 2,700 reviews101k followers Want to Read January 4, 2024 i always have to be the smartest looking person on public transit classics library non-ya Tola Grupa 35 reviews26.4k followers April 20, 2024 I finally said my goodbyes to this book. It was the best piece i've ever read. Christine 68 reviews14 followers April 4, 2007 [...] ## Ratings & Reviews What do you think? ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.29 1,164,418 ratings59,391 reviews 5 stars 620,161 (53%) 4 stars 344,950 (29%) 3 stars 139,098 (11%) 2 stars 40,814 (3%) 1 star 19,395 (1%) Displaying 1 - 30 of 59,183 reviews Matt 1,092 reviews32.1k followers December 29, 2009 [...] The (Half) Stars Have Aligned Jump to ratings and reviews # Crime and Punishment ### Fyodor Dostoevsky, David McDuff (Translator), Joseph Frank (Introduction) 1,164,418 ratings59,391 reviews",
+        "rating": null,
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/en/book/show/7144.Crime_and_Punishment"
+      },
+      {
+        "review_id": "review-53478a81ffcb519c",
+        "text": "Growing up I always heard Crime and Punishment was a classic and that Dostoevsky was a literary genius. I think I had very high expectations and therefore I was a bit disappointed. To be perfectly honest I think this book (like many other classics) is overrated. I found several parts of it boring, drawn out, dark and depressing. The names of the characters were very confusing and hard to keep track of. (And I’m from Eastern Europe where such names are common.) [...] 7) Fyodor Dostoevsky adored Nikolai Gogol, a writer well known for his laugh-out-loud but bleak humor. Does Crime and Punishment make you laugh? What parts, if any, are funny, and why? If you didn't find any parts of this book funny, why do you suppose that is? 8) What about Crime and Punishment's abrupt chapter endings? Do the endings comment on the chapter as a whole? Do they prepare us in some way for the next chapter? [...] reply | flag message 13: by Gem ✿Ƹ̵̡Ӝ̵̨̄Ʒ✿, Moderator (new) - rated it 5 stars Feb 07, 2023 07:56PM Gem ✿Ƹ̵̡Ӝ̵̨̄Ʒ✿ | 1276 comments Mod Nancy wrote: \"This novel intrigued me throughout. No, it wasn’t a happy or an easy story, but it has depths that make it worth studying. I hope to re-read it some day and try to understand more of Dostoyevsky’s ...\" I plan on rereading it at some point as well. reply | flag back to top post a comment » Add a reference: Book Author",
+        "rating": null,
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/topic/show/22388086-144-crime-and-punishment-week-10---final-week---epilogue-entire-book"
+      },
+      {
+        "review_id": "review-da10d306e6afc246",
+        "text": "Top Horror Novels ### Loading... # Crime and Punishment ### Fyodor Dostoevsky, Leonard Stanton (Introduction), James D. Hardy Jr. (Introduction) ...more 534 pages, Mass Market Paperback First published January 1, 1866 ### About the author Profile Image for Fyodor Dostoevsky. #### Fyodor Dostoevsky ## Ratings & Reviews ### Friends & Following ### Community Reviews Profile Image for Matt. ![Profile Image for s.penkevich [hiatus-will return-miss you all].]( [...] Profile Image for Paul Bryant. Profile Image for Fergus, Weaver of Autistic Webs. Profile Image for Emily May. Profile Image for Jim Fonseca. Profile Image for Bonnie. Profile Image for Lucy Dacus. Profile Image for Geoff. Profile Image for Kim. Profile Image for emma. Profile Image for Tola Grupa. Profile Image for Christine. Profile Image for Stephen. crimeandpunish review Photobucket Profile Image for Shawn McComb. Profile Image for فؤاد. [...] Profile Image for Fernando.",
+        "rating": null,
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/book/show/7138.Crime_and_Punishment"
+      },
+      {
+        "review_id": "review-543cc01af1c0dca2",
+        "text": "The review basically consisted of a bland recapitulation of the plot, and ended with a bunch of entirely subjective complaints about how self-centered",
+        "rating": null,
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/Review/22864033/comments?subject=22864033"
+      }
+    ]
+  },
+  "gemini_analysis": {
+    "match_score": 76,
+    "match_level": "Medium",
+    "summary": "Crime and Punishment strongly matches the user's preference for complex, character-driven drama and mystery stories that are not light-hearted. However, compatibility is moderately affected by mixed reader feedback regarding pacing and confusing character names, as well as insufficient details to verify specific character preferences regarding detectives and moral rationalizations.",
+    "matches": [
+      {
+        "point": "Genre alignment with Drama and Mystery",
+        "explanation": "The user enjoys Drama and Mystery genres. The novel is described as a 'drama of sin, guilt, and redemption' and listed among Time Magazine's '100 Best Mystery and Thriller Books of All Time', matching these preferences directly.",
+        "evidence_ids": []
+      },
+      {
+        "point": "Complex, character-driven, and serious narrative",
+        "explanation": "The user prefers complex, character-driven stories and dislikes light-hearted themes. The novel is highlighted for its 'depth of characterization' and philosophical weight, while reviews note its dark, tense, reflective, and challenging mood, confirming it is not light-hearted.",
+        "evidence_ids": [
+          "review-9aec702b8b50f912",
+          "review-53478a81ffcb519c"
+        ]
+      }
+    ],
+    "mismatches": [
+      {
+        "point": "Potential pacing and character presentation issues",
+        "explanation": "Some readers reported that the book can feel boring, drawn out, and that character names are confusing and difficult to track, which may hinder engagement for a reader seeking calm and analytical character focus.",
+        "evidence_ids": [
+          "review-53478a81ffcb519c"
+        ]
+      }
+    ],
+    "review_summary": {
+      "positive": [
+        "Readers praise the book as a profound piece of literature with depths worth studying and rereading.",
+        "Some readers consider it the best piece they have ever read."
+      ],
+      "negative": [
+        "Some readers found the novel boring, drawn out, dark, depressing, and overrated.",
+        "A reader noted that character names are confusing and difficult to keep track of.",
+        "A reader described the reading experience as a 'punishment'."
+      ],
+      "mixed": [
+        "Opinions vary drastically regarding enjoyment, ranging from high acclaim as an unmatched classic to criticism of it being tedious and difficult to get through."
+      ]
+    },
+    "sources": [
+      {
+        "evidence_id": "review-9aec702b8b50f912",
+        "source": "app.thestorygraph.com",
+        "url": "https://app.thestorygraph.com/books/320c2e3c-2d1c-4bdf-90a4-d2052e36052d"
+      },
+      {
+        "evidence_id": "review-ae07e7a6b56d4729",
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/book/show/7144.Crime_and_Punishment"
+      },
+      {
+        "evidence_id": "review-c8ff1813b897be0b",
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/en/book/show/7144.Crime_and_Punishment"
+      },
+      {
+        "evidence_id": "review-53478a81ffcb519c",
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/topic/show/22388086-144-crime-and-punishment-week-10---final-week---epilogue-entire-book"
+      }
+    ],
+    "limitations": [
+      "The rated_novels list was empty, so the Rated Novel Similarity criterion could not be evaluated and its weight was redistributed across the remaining criteria.",
+      "The provided text and reviews lack sufficient detail to fully evaluate the user's specific character preferences regarding an analytical, psychological detective or the specific moral rationalizations of the characters."
+    ]
+  }
+}

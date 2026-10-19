@@ -68,14 +68,14 @@ def signup(name: str, email: str, password: str) -> dict[str, Any]:
 def save_preferences(preferences: dict[str, Any], token: str) -> dict[str, Any]:
     return _request(
         "POST",
-        "/preferences/me",
+        "/preferences",
         json=preferences,
         token=token,
     )
 
 
 def get_preferences(token: str) -> dict[str, Any]:
-    return _request("GET", "/preferences/me", token=token)
+    return _request("GET", "/preferences", token=token)
 
 
 def analyze_novel(payload: dict[str, Any]) -> dict[str, Any]:
