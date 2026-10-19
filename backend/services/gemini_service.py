@@ -256,22 +256,26 @@ For the review summary:
 
 ### 6. Handle Insufficient Evidence
 
-Evaluate whether the provided information is sufficient to support each analysis.
+### Metadata Status and Score
 
-If the evidence is insufficient:
-
-- Do not guess or make assumptions.
-- Do not invent facts, opinions, reviews, sources, URLs, or evidence IDs.
-- Do not make conclusions that are not supported by the provided information.
-- Clearly describe the limitation in the "limitations" field.
-- Only make conclusions for aspects that have sufficient supporting evidence.
-
-If there is insufficient evidence to calculate a meaningful compatibility score:
-
-- Set "match_score" to null.
-- Set "match_level" to null.
-- Explain the limitation in the "limitations" field.
-- Do not estimate or guess the missing score.
+- Use the explicit metadata_status supplied in the input. It must be one of:
+  "matched", "not_found", or "unknown".
+- If metadata_status is "not_found", set match_score and match_level to null.
+  State that no matching novel metadata was independently found in limitations.
+  Do not analyze the user-provided synopsis as if it confirms the novel exists.
+- If metadata_status is "unknown", set match_score and match_level to null.
+  Explain that the input does not establish whether matching metadata was found.
+- If metadata_status is "matched", return a numeric match_score from 0 to 100
+  and set match_level using the defined score bands, even when some metadata
+  fields or reviews are missing.
+- For a matched novel with limited information, score cautiously from available
+  metadata, description, user-provided synopsis, and relevant review excerpts.
+  Label inferences and explain uncertainty in limitations.
+- A user-provided synopsis is unverified and does not establish metadata_status
+  as "matched".
+- Exclude Rated Novel Similarity and renormalize the remaining weights when no
+  rated novels were provided.
+- Never invent facts, reviews, sources, URLs, or evidence IDs.
 
 ### Insufficient Novel Information
 

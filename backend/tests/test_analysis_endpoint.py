@@ -14,10 +14,38 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.modules.setdefault("database", types.SimpleNamespace(engine=object()))
 
 import main  # noqa: E402
-from services.gemini_service import GeminiConfigurationError  # noqa: E402
+from services.gemini_service import (  # noqa: E402
+    GeminiConfigurationError,
+    GeminiUnavailableError,
+)
 
 
 class AnalysisEndpointTests(unittest.TestCase):
+    def test_gemini_503_uses_configured_gpt_oss_fallback(self):
+        request = main.AnalysisRequest(
+            title="A Novel",
+            author="An Author",
+            user_preference={"liked_genres": ["Fantasy"]},
+        )
+        payload = {"user_preference": {}, "novel": {}, "reviews": []}
+        expected = types.SimpleNamespace(model_dump=lambda: {"match_score": 75})
+
+        with patch.dict(os.environ, {
+            "GPT_OSS_BASE_URL": "https://nvidia.example/v1",
+            "GPT_OSS_API_KEY": "test-key",
+            "GPT_OSS_MODEL": "openai/gpt-oss-20b",
+        }), \
+                patch.object(main.NovelResearchService, "search", new=AsyncMock(return_value=object())), \
+                patch.object(main, "build_ai_payload", return_value=payload), \
+                patch.object(main.GeminiAIService, "analyze", side_effect=GeminiUnavailableError("Gemini 503")), \
+                patch.object(main, "_analyze_with_gpt_oss", return_value=expected) as fallback, \
+                patch.object(main, "validate_analysis_evidence"), \
+                patch.object(main, "merge_analysis_limitations", return_value={"match_score": 75}):
+            result = asyncio.run(main.analyze_novel(request))
+
+        fallback.assert_called_once_with(payload)
+        self.assertEqual(result, {"match_score": 75})
+
     def test_pipeline_is_called_and_validated_output_is_returned(self):
         request = main.AnalysisRequest(
             title="A Novel",

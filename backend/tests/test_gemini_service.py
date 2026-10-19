@@ -70,8 +70,10 @@ class FakeResponse:
 class FakeModels:
     def __init__(self, response: FakeResponse):
         self.response = response
+        self.last_config = None
 
     def generate_content(self, **kwargs):
+        self.last_config = kwargs.get("config")
         return self.response
 
 
@@ -165,9 +167,11 @@ class GeminiResponseValidationTests(unittest.TestCase):
             self.analyze(response_text)
 
     def test_valid_response(self):
-        result = self.analyze(valid_response())
+        client = FakeClient(valid_response())
+        result = GeminiAIService(client=client).analyze(**INPUT_PAYLOAD)
         self.assertEqual(result.match_level, "High")
         self.assertEqual(result.sources[0].evidence_id, REVIEW["review_id"])
+        self.assertTrue(client.models.last_config.automatic_function_calling.disable)
 
     def test_invalid_score(self):
         self.assert_invalid(valid_response(match_score=101))
@@ -223,7 +227,7 @@ class GeminiResponseValidationTests(unittest.TestCase):
             with patch("backend.services.gemini_service.genai.Client") as client_factory:
                 service = GeminiAIService()
 
-        self.assertEqual(service.model, "gemini-3.8-flash")
+        self.assertEqual(service.model, "gemini-3.5-flash-lite")
         self.assertEqual(service.fallback_models, ("gemini-3.6-flash",))
         options = client_factory.call_args.kwargs["http_options"]
         self.assertEqual(options.retry_options.attempts, 1)
