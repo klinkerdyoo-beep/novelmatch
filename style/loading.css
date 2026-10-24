@@ -104,182 +104,186 @@
     font-size: 13px;
 }
 
+```css
 /* =========================================================
-   Progress Bar
+   NovelMatch Loading Page
+   Typography aligned with chat.css
    ========================================================= */
 
-.st-key-loading-page [data-testid="stProgress"] {
-    margin-top: 20px;
+/* =========================================================
+   Page Wrapper
+   ========================================================= */
+
+.st-key-loading-page {
+    width: min(760px, calc(100% - 32px));
+    margin: 100px auto 48px;
+    padding: 24px;
+    box-sizing: border-box;
+
+    color: #172957;
+    font-family: "Barlow", sans-serif;
+    font-weight: 400;
+
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 12px 40px rgba(23, 41, 87, 0.08);
+
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
 }
 
-.st-key-loading-page [data-testid="stProgress"] > div {
-    height: 8px;
-    overflow: hidden;
-    border-radius: 99px;
-    background: #E5EFEE;
+/* =========================================================
+   Typography
+   Apply Barlow consistently throughout the page.
+   ========================================================= */
+
+.st-key-loading-page,
+.st-key-loading-page h1,
+.st-key-loading-page h2,
+.st-key-loading-page h3,
+.st-key-loading-page p,
+.st-key-loading-page span,
+.st-key-loading-page label,
+.st-key-loading-page button,
+.st-key-loading-page [data-testid="stMarkdownContainer"],
+.st-key-loading-page [data-testid="stCaptionContainer"] {
+    font-family: "Barlow", sans-serif;
 }
 
-.st-key-loading-page [data-testid="stProgress"] [role="progressbar"] {
-    border-radius: 99px;
-    background: linear-gradient(90deg, #32A3A8, #5DBD99);
+/* =========================================================
+   Brand
+   ========================================================= */
+
+.loading-brand {
+    margin-bottom: 12px;
+    text-align: center;
 }
 
-/* Progress Label */
+.loading-brand-name {
+    color: #172957;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
 
-.st-key-loading-page [data-testid="stProgress"] p {
-    color: #71869E;
+.loading-brand-name span {
+    color: #32A3A8;
+    font-weight: 600;
+}
+
+.loading-brand-caption {
+    margin-top: 4px;
+    color: #8195AC;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 3px;
+}
+
+/* =========================================================
+   Hero
+   ========================================================= */
+
+.loading-hero {
+    padding: 24px 0 28px;
+    text-align: center;
+}
+
+.loading-hero h1 {
+    margin: 24px 0 10px;
+    color: #172957;
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+}
+
+.loading-hero p {
+    max-width: 600px;
+    margin: 0 auto;
+    color: #7488A1;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   Loading Card
+   Used by st.container(border=True)
+   ========================================================= */
+
+.st-key-loading-page [data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 12px 35px rgba(23, 41, 87, 0.07);
+
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+}
+
+/* =========================================================
+   Streamlit Content
+   ========================================================= */
+
+.st-key-loading-page [data-testid="stMarkdownContainer"] {
+    color: #172957;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.st-key-loading-page [data-testid="stMarkdownContainer"] p {
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1.65;
+}
+
+.st-key-loading-page [data-testid="stCaptionContainer"] {
+    color: #8195AC;
     font-size: 13px;
+    font-weight: 400;
     line-height: 1.6;
 }
 
 /* =========================================================
-   View Results Button
+   Buttons
    ========================================================= */
 
 .st-key-loading-page .stButton > button {
-    width: 100%;
-    min-height: 48px;
-    padding: 0 22px;
-
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(90deg, #32A3A8, #5DBD99);
-    color: #FFFFFF;
-
     font-family: "Barlow", sans-serif;
     font-size: 15px;
-    font-weight: 600;
-
-    box-shadow: none;
-    transition: opacity 0.2s ease;
-}
-
-.st-key-loading-page .stButton > button:hover {
-    border: none;
-    background: linear-gradient(90deg, #32A3A8, #5DBD99);
-    color: #FFFFFF;
-    opacity: 0.92;
-    box-shadow: none;
-    transform: none;
-}
-
-.st-key-loading-page .stButton > button:focus-visible {
-    outline: 3px solid rgba(50, 163, 168, 0.45);
-    outline-offset: 3px;
-    box-shadow: none;
+    font-weight: 500;
 }
 
 /* =========================================================
-   Animations
-   ========================================================= */
-
-@keyframes orbit-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes robot-float {
-    0%,
-    100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-9px);
-    }
-}
-
-@keyframes robot-blink {
-    0%,
-    45%,
-    49%,
-    100% {
-        transform: scaleY(1);
-    }
-
-    47% {
-        transform: scaleY(0.12);
-    }
-}
-
-@keyframes sparkle {
-    0%,
-    100% {
-        opacity: 0.4;
-        transform: scale(0.8);
-    }
-
-    50% {
-        opacity: 1;
-        transform: scale(1.2);
-    }
-}
-
-@keyframes active-pulse {
-    0%,
-    100% {
-        box-shadow: 0 0 0 4px rgba(50, 163, 168, 0.1);
-    }
-
-    50% {
-        box-shadow: 0 0 0 8px rgba(50, 163, 168, 0.04);
-    }
-}
-
-/* =========================================================
-   Accessibility: Reduced Motion
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-    .robot-orbit,
-    .robot,
-    .robot-eye,
-    .loading-sparkle,
-    .loading-step.active .loading-step-icon {
-        animation: none !important;
-    }
-
-    .st-key-loading-page [data-testid="stProgress"] [role="progressbar"] {
-        transition: none;
-    }
-}
-
-/* =========================================================
-   Mobile
+   Responsive
    ========================================================= */
 
 @media (max-width: 768px) {
     .st-key-loading-page {
-        width: calc(100% - 20px);
-        margin: 16px auto 32px;
-        padding: 18px;
-        border-radius: 22px;
+        width: calc(100% - 32px);
+        margin: 48px auto 32px;
+        padding: 20px;
+        border-radius: 24px;
     }
 
     .loading-brand-name {
         font-size: 30px;
     }
 
-    .loading-brand-caption {
-        font-size: 9px;
-        letter-spacing: 2px;
-    }
-
     .loading-hero {
-        padding: 16px 0 22px;
+        padding: 20px 0 24px;
     }
 
     .loading-hero h1 {
-        margin-top: 16px;
         font-size: 28px;
     }
 
     .loading-hero p {
-        font-size: 14px;
-    }
-
-    .st-key-loading-page [data-testid="stVerticalBlockBorderWrapper"] {
-        border-radius: 22px;
+        font-size: 15px;
     }
 }
+```

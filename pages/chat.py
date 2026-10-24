@@ -61,6 +61,9 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# Static result-page styles are maintained in style/chat.css.
+
+
 
 # =========================================================
 # Get User Data
@@ -136,6 +139,25 @@ else:
     match_status = "Low Match"
     match_status_th = "เข้ากันในระดับต่ำ"
 
+# Gemini uses clearly labeled mock data until its API is connected.
+gemini_match_score = 78
+if gemini_match_score >= 80:
+    gemini_match_status = "Great Match"
+    gemini_status_class = "status-high"
+elif gemini_match_score >= 60:
+    gemini_match_status = "Good Match"
+    gemini_status_class = "status-medium"
+else:
+    gemini_match_status = "Low Match"
+    gemini_status_class = "status-low"
+
+if match_score >= 80:
+    match_status_class = "status-high"
+elif match_score >= 60:
+    match_status_class = "status-medium"
+else:
+    match_status_class = "status-low"
+
 # =========================================================
 # Helpers
 # =========================================================
@@ -156,6 +178,24 @@ def show_list(title, items):
         st.caption("No preferences provided.")
 
 
+def format_preference(value):
+    """Format preference data safely whether it is stored as text or a list."""
+    if value is None:
+        return ""
+
+    if isinstance(value, str):
+        return value.strip()
+
+    if isinstance(value, (list, tuple, set)):
+        return ", ".join(
+            str(item).strip()
+            for item in value
+            if str(item).strip()
+        )
+
+    return str(value).strip()
+
+
 def show_match_point(title, description, positive=True):
     css_class = "result-positive" if positive else "result-warning"
 
@@ -173,10 +213,6 @@ def show_match_point(title, description, positive=True):
         unsafe_allow_html=True
     )
 
-
-# =========================================================
-# Page Header
-# =========================================================
 
 with st.container(key="result-content"):
     st.markdown(
@@ -196,8 +232,9 @@ st.write("")
 # Main Glass Card
 # =========================================================
 
-with st.container(key="results-glass"):
 
+with st.container(key="results-glass"):
+    # Shared novel information appears once, above both independent model analyses.
     # =========================================================
     # Book Information
     # =========================================================
@@ -303,20 +340,21 @@ with st.container(key="results-glass"):
                 unsafe_allow_html=True,
             )
 
-    # =========================================================
-    # Match Score
-    # Keep the original score circle design
-    # =========================================================
 
-    with st.container(border=False, key="score-card"):
+    st.divider()
 
-        score_col, summary_col = st.columns(
-            [0.75, 1.5],
-            gap="large",
-            vertical_alignment="center"
-        )
+    # Keep only model-generated analysis in the two side-by-side columns.
+    chatgpt_col, gemini_col = st.columns([1, 1], gap="large", vertical_alignment="top")
 
-        with score_col:
+    with chatgpt_col:
+        st.markdown('<div class="model-heading model-heading-chatgpt">ChatGPT Analysis</div>', unsafe_allow_html=True)
+
+        # =========================================================
+        # Match Score
+        # Keep the original score circle design
+        # =========================================================
+
+        with st.container(border=False, key="score-card"):
             st.html(
                 f"""
                 <div class="match-score-wrapper">
@@ -325,29 +363,19 @@ with st.container(key="results-glass"):
                         style="--score: {match_score * 3.6}deg;"
                     >
                         <div class="match-score-inner">
-                            <div class="match-score-number">
-                                {match_score}
-                            </div>
-                            <div class="match-score-label">
-                                / 100
-                            </div>
+                            <div class="match-score-number">{match_score}</div>
+                            <div class="match-score-label">/ 100</div>
                         </div>
                     </div>
-
-                    <div class="match-score-text">
-                        YOUR MATCH
-                    </div>
-
-                    <div class="match-status">
+                    <div class="match-score-text">YOUR MATCH</div>
+                    <div class="match-status {match_status_class}">
                         {escape(match_status)}
                     </div>
                 </div>
                 """
             )
 
-        with summary_col:
             st.markdown("### Overall Match Summary")
-
             st.markdown(
                 """
                 <div class="result-summary">
@@ -358,228 +386,454 @@ with st.container(key="results-glass"):
                 """,
                 unsafe_allow_html=True
             )
-
             st.caption(
                 "Demo score — replace with the actual evaluation result."
             )
 
-    # =========================================================
-    # Match Analysis
-    # =========================================================
+        # =========================================================
+        # Match Analysis
+        # =========================================================
 
-    with st.container(border=False, key="match-analysis-card"):
+        with st.container(border=False, key="match-analysis-card"):
 
-        show_section_title("Match Analysis")
+            show_section_title("Match Analysis")
 
-        st.markdown(
-            "Understand which aspects may fit your preferences "
-            "and which ones may not."
-        )
+            st.markdown(
+                "Understand which aspects may fit your preferences "
+                "and which ones may not."
+            )
 
-        match_col, mismatch_col = st.columns(2, gap="large")
+            match_col, mismatch_col = st.columns(2, gap="large")
 
-        with match_col:
+            with match_col:
 
-            st.markdown("### ✓ Matches")
+                st.markdown("### ✓ Matches")
 
-            # Show preference information without claiming
-            # that it has already been verified against the novel.
-            if favorite_genres:
-                show_match_point(
-                    "Your Favorite Genres",
-                    "Your preferred genres are: "
-                    + ", ".join(favorite_genres)
-                    + ". The book's actual genres need to be verified."
-                )
-            else:
-                show_match_point(
-                    "Genre Preferences",
-                    "You have not selected any favorite genres yet."
-                )
-
-            if liked_characters or enjoy_characters:
-                character_summary = ", ".join(liked_characters)
-
-                if enjoy_characters:
-                    character_summary += (
-                        (" " if character_summary else "")
-                        + enjoy_characters
+                # Show preference information without claiming
+                # that it has already been verified against the novel.
+                if favorite_genres:
+                    show_match_point(
+                        "Your Favorite Genres",
+                        "Your preferred genres are: "
+                        + ", ".join(favorite_genres)
+                        + ". The book's actual genres need to be verified."
+                    )
+                else:
+                    show_match_point(
+                        "Genre Preferences",
+                        "You have not selected any favorite genres yet."
                     )
 
-                show_match_point(
-                    "Characters You Enjoy",
-                    character_summary
-                )
-            else:
-                show_match_point(
-                    "Character Preferences",
-                    "No preferred character traits or description provided."
+                character_summary = " ".join(
+                    part for part in [
+                        format_preference(liked_characters),
+                        format_preference(enjoy_characters),
+                    ] if part
                 )
 
-            if liked_stories:
-                show_match_point(
-                    "Story Elements You Enjoy",
-                    ", ".join(liked_stories)
-                )
-            else:
-                show_match_point(
-                    "Story Preferences",
-                    "No preferred story elements selected."
-                )
+                if character_summary:
+                    show_match_point(
+                        "Characters You Enjoy",
+                        character_summary
+                    )
+                else:
+                    show_match_point(
+                        "Character Preferences",
+                        "No preferred character traits or description provided."
+                    )
 
-        with mismatch_col:
+                if liked_stories:
+                    show_match_point(
+                        "Story Elements You Enjoy",
+                        ", ".join(liked_stories)
+                    )
+                else:
+                    show_match_point(
+                        "Story Preferences",
+                        "No preferred story elements selected."
+                    )
 
-            st.markdown("### ⚠ Mismatches")
+            with mismatch_col:
 
-            if disliked_genres:
-                show_match_point(
-                    "Genres You Prefer to Avoid",
-                    "Check whether the novel includes: "
-                    + ", ".join(disliked_genres)
-                    + ". The novel's actual genres need to be verified.",
-                    positive=False
-                )
-            else:
-                show_match_point(
-                    "Genre Mismatches",
-                    "No disliked genres provided.",
-                    positive=False
-                )
+                st.markdown("### ⚠ Mismatches")
 
-            if disliked_character_description.strip():
-                show_match_point(
-                    "Character Traits You Dislike",
-                    disliked_character_description,
-                    positive=False
-                )
-            else:
-                show_match_point(
-                    "Character Mismatches",
-                    "No disliked character traits provided.",
-                    positive=False
-                )
+                if disliked_genres:
+                    show_match_point(
+                        "Genres You Prefer to Avoid",
+                        "Check whether the novel includes: "
+                        + ", ".join(disliked_genres)
+                        + ". The novel's actual genres need to be verified.",
+                        positive=False
+                    )
+                else:
+                    show_match_point(
+                        "Genre Mismatches",
+                        "No disliked genres provided.",
+                        positive=False
+                    )
 
-            if disliked_stories:
-                show_match_point(
-                    "Story Elements You Prefer to Avoid",
-                    ", ".join(disliked_stories),
-                    positive=False
-                )
-            else:
-                show_match_point(
-                    "Story Mismatches",
-                    "No disliked story elements selected.",
-                    positive=False
-                )
+                if disliked_character_description.strip():
+                    show_match_point(
+                        "Character Traits You Dislike",
+                        disliked_character_description,
+                        positive=False
+                    )
+                else:
+                    show_match_point(
+                        "Character Mismatches",
+                        "No disliked character traits provided.",
+                        positive=False
+                    )
+
+                if disliked_stories:
+                    show_match_point(
+                        "Story Elements You Prefer to Avoid",
+                        ", ".join(disliked_stories),
+                        positive=False
+                    )
+                else:
+                    show_match_point(
+                        "Story Mismatches",
+                        "No disliked story elements selected.",
+                        positive=False
+                    )
 
 
-    # =========================================================
-    # Review Summary
-    # =========================================================
+        # =========================================================
+        # Review Summary
+        # =========================================================
 
-    with st.container(border=False, key="review-summary-card"):
+        with st.container(border=False, key="review-summary-card"):
 
-        show_section_title("Review Summary")
+            show_section_title("Review Summary")
 
-        st.markdown(
-            "### What do readers say about this novel?"
-        )
-
-        st.markdown(
-            """
-            <div class="result-muted">
-                Review summaries will appear here after review data
-                has been retrieved and analyzed.
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        st.write("")
-
-        review_col1, review_col2, review_col3 = st.columns(3, gap="medium")
-
-        with review_col1:
-            st.markdown("#### What Readers Like")
-            st.caption(
-                "Highlights from positive reader reviews will appear here."
+            st.markdown(
+                "### What do readers say about this novel?"
             )
-
-        with review_col2:
-            st.markdown("#### Criticisms")
-            st.caption(
-                "Common concerns from reader reviews will appear here."
-            )
-
-        with review_col3:
-            st.markdown("#### Mixed Opinions")
-            st.caption(
-                "Different reader perspectives will appear here."
-            )
-
-        st.info(
-            "Review data has not been connected yet. "
-            "No reader opinions are being presented as verified facts."
-        )
-
-    # =========================================================
-    # Sources and Limitations
-    # =========================================================
-
-    with st.container(border=False, key="source-card"):
-
-        with st.expander(
-            "View Sources and Limitations",
-            expanded=False
-        ):
-
-            st.markdown("### Data Sources")
 
             st.markdown(
                 """
-                - **Book information:** Google Books API / Open Library API
-                - **Reader reviews:** To be connected
-                - **Preference matching:** NovelMatch evaluation model
+                <div class="result-muted">
+                    Review summaries will appear here after review data
+                    has been retrieved and analyzed.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            st.write("")
+
+            review_col1, review_col2, review_col3 = st.columns(3, gap="medium")
+
+            with review_col1:
+                st.markdown("#### What Readers Like")
+                st.caption(
+                    "Highlights from positive reader reviews will appear here."
+                )
+
+            with review_col2:
+                st.markdown("#### Criticisms")
+                st.caption(
+                    "Common concerns from reader reviews will appear here."
+                )
+
+            with review_col3:
+                st.markdown("#### Mixed Opinions")
+                st.caption(
+                    "Different reader perspectives will appear here."
+                )
+
+            st.info(
+                "Review data has not been connected yet. "
+                "No reader opinions are being presented as verified facts."
+            )
+
+        # =========================================================
+        # Sources and Limitations
+        # =========================================================
+
+        with st.container(border=False, key="source-card"):
+
+            with st.expander(
+                "View Sources and Limitations",
+                expanded=False
+            ):
+
+                st.markdown("### Data Sources")
+
+                st.markdown(
+                    """
+                    - **Book information:** Google Books API / Open Library API
+                    - **Reader reviews:** To be connected
+                    - **Preference matching:** NovelMatch evaluation model
+                    """
+                )
+
+                st.markdown("### Review Data Overview")
+
+                st.write(
+                    "Review counts, review excerpts, and source links "
+                    "will be displayed after the review retrieval pipeline "
+                    "has been implemented."
+                )
+
+                st.markdown("### Limitations")
+
+                st.markdown(
+                    """
+                    - Book metadata may be incomplete or differ between sources.
+                    - Reviews may not represent every reader's experience.
+                    - The compatibility score depends on the quality and
+                    availability of the retrieved information.
+                    - The current score and analysis are demonstration content,
+                    not a verified prediction.
+                    """
+                )
+
+                st.markdown("### Review Sources")
+
+                st.caption(
+                    "Individual review links will be displayed here "
+                    "when real review sources are available."
+                )
+
+    with gemini_col:
+        st.markdown('<div class="model-heading model-heading-gemini">Gemini Analysis</div>', unsafe_allow_html=True)
+
+        # Keep the exact same section order and component structure as
+        # ChatGPT Analysis. Only the model-specific content differs.
+
+        # =========================================================
+        # Match Score
+        # =========================================================
+        with st.container(border=False, key="gemini-score-card"):
+            st.html(
+                """
+                <div class="match-score-wrapper">
+                    <div class="match-score-circle" style="--score: 280.8deg;">
+                        <div class="match-score-inner">
+                            <div class="match-score-number">78</div>
+                            <div class="match-score-label">/ 100</div>
+                        </div>
+                    </div>
+                    <div class="match-score-text">YOUR MATCH</div>
+                    <div class="match-status status-medium">Good Match</div>
+                </div>
                 """
             )
 
-            st.markdown("### Review Data Overview")
+            st.markdown("### Overall Match Summary")
+            favorite_genres_text = format_preference(favorite_genres)
+            disliked_genres_text = format_preference(disliked_genres)
 
-            st.write(
-                "Review counts, review excerpts, and source links "
-                "will be displayed after the review retrieval pipeline "
-                "has been implemented."
-            )
+            if favorite_genres_text:
+                gemini_summary = (
+                    f"Your favorite genres are {favorite_genres_text}. "
+                    "Compare these preferences with the listed novel genres "
+                    "and verify the book details before treating this as a recommendation."
+                )
+            else:
+                gemini_summary = (
+                    "You have not selected favorite genres yet. Add more "
+                    "preferences to make this mock analysis more personalized."
+                )
 
-            st.markdown("### Limitations")
+            if disliked_genres_text:
+                gemini_summary += (
+                    f" You also prefer to avoid {disliked_genres_text}, "
+                    "so those genres should be checked in the novel details."
+                )
 
             st.markdown(
-                """
-                - Book metadata may be incomplete or differ between sources.
-                - Reviews may not represent every reader's experience.
-                - The compatibility score depends on the quality and
-                availability of the retrieved information.
-                - The current score and analysis are demonstration content,
-                not a verified prediction.
-                """
+                f'<div class="result-summary">{escape(gemini_summary)}</div>',
+                unsafe_allow_html=True
             )
-
-            st.markdown("### Review Sources")
-
             st.caption(
-                "Individual review links will be displayed here "
-                "when real review sources are available."
+                "Illustrative mock data for UI testing — not generated by the Gemini API."
             )
 
-    # =========================================================
-    # Footer / Navigation
-    # =========================================================
+        # =========================================================
+        # Match Analysis
+        # Uses the same user preference state as ChatGPT, but the wording is
+        # presented as illustrative Gemini-style mock analysis until the API
+        # is connected. It does not claim the mock data is AI-generated.
+        # =========================================================
+        with st.container(border=False, key="gemini-match-analysis-card"):
+            show_section_title("Match Analysis")
+            st.markdown(
+                "A preference-based preview of how this novel could align "
+                "with your reading preferences."
+            )
 
+            match_col, mismatch_col = st.columns(2, gap="large")
+
+            with match_col:
+                st.markdown("### ✓ Matches")
+
+                if favorite_genres:
+                    listed_genres = format_preference(novel_genres or ["Fantasy", "Adventure", "Romance"])
+                    show_match_point(
+                        "Your Favorite Genres",
+                        f"You enjoy {format_preference(favorite_genres)}. "
+                        f"The displayed novel genres are {listed_genres}. "
+                        "This is a mock comparison; genre metadata has not been verified."
+                    )
+                else:
+                    show_match_point(
+                        "Genre Preferences",
+                        "You have not selected any favorite genres yet."
+                    )
+
+                character_summary = " ".join(
+                    part for part in [
+                        format_preference(liked_characters),
+                        format_preference(enjoy_characters),
+                    ] if part
+                )
+                if character_summary:
+                    show_match_point(
+                        "Characters You Enjoy",
+                        f"Your preferred character traits or descriptions: {character_summary}. "
+                        "The novel's character details still need to be checked."
+                    )
+                else:
+                    show_match_point(
+                        "Character Preferences",
+                        "No preferred character traits or description provided."
+                    )
+
+                if liked_stories:
+                    show_match_point(
+                        "Story Elements You Enjoy",
+                        f"You enjoy stories featuring {format_preference(liked_stories)}. "
+                        "The novel's actual plot details have not been verified."
+                    )
+                else:
+                    show_match_point(
+                        "Story Preferences",
+                        "No preferred story elements selected."
+                    )
+
+            with mismatch_col:
+                st.markdown("### ⚠ Mismatches")
+
+                if disliked_genres:
+                    show_match_point(
+                        "Genres You Prefer to Avoid",
+                        f"Check whether the novel includes {format_preference(disliked_genres)}. "
+                        "This mockup cannot confirm those elements without verified book data.",
+                        positive=False
+                    )
+                else:
+                    show_match_point(
+                        "Genre Mismatches",
+                        "No disliked genres provided.",
+                        positive=False
+                    )
+
+                if disliked_character_description.strip():
+                    show_match_point(
+                        "Character Traits You Dislike",
+                        f"You prefer to avoid: {disliked_character_description}. "
+                        "The novel's character details still need to be checked.",
+                        positive=False
+                    )
+                else:
+                    show_match_point(
+                        "Character Mismatches",
+                        "No disliked character traits provided.",
+                        positive=False
+                    )
+
+                if disliked_stories:
+                    show_match_point(
+                        "Story Elements You Prefer to Avoid",
+                        f"You prefer to avoid stories featuring {format_preference(disliked_stories)}. "
+                        "The novel's actual plot details have not been verified.",
+                        positive=False
+                    )
+                else:
+                    show_match_point(
+                        "Story Mismatches",
+                        "No disliked story elements selected.",
+                        positive=False
+                    )
+
+        # =========================================================
+        # Review Summary
+        # =========================================================
+        with st.container(border=False, key="gemini-review-summary-card"):
+            show_section_title("Review Summary")
+            st.markdown("### What do readers say about this novel?")
+            st.markdown(
+                """
+                <div class="result-muted">
+                    Example review themes are shown below for layout preview only.
+                    They are not based on retrieved reader reviews.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            st.write("")
+
+            review_col1, review_col2, review_col3 = st.columns(3, gap="medium")
+            with review_col1:
+                st.markdown("#### What Readers Like")
+                st.caption("Readers may enjoy the imaginative setting and sense of adventure (mock example).")
+            with review_col2:
+                st.markdown("#### Criticisms")
+                st.caption("Some readers may want deeper character development (mock example).")
+            with review_col3:
+                st.markdown("#### Mixed Opinions")
+                st.caption("Opinions may differ on how much romance the story contains (mock example).")
+
+            st.info(
+                "Mockup content only. Gemini API and verified reader-review sources are not connected."
+            )
+
+        # =========================================================
+        # Sources and Limitations
+        # =========================================================
+        with st.container(border=False, key="gemini-source-card"):
+            with st.expander("View Sources and Limitations", expanded=False):
+                st.markdown("### Data Sources")
+                st.markdown(
+                    """
+                    - **Book information:** Google Books API / Open Library API
+                    - **Reader reviews:** To be connected
+                    - **AI analysis:** Illustrative mock data; Gemini API not connected yet
+                    """
+                )
+
+                st.markdown("### Review Data Overview")
+                st.write(
+                    "Review counts, review excerpts, and source links will be "
+                    "displayed after the review retrieval pipeline has been implemented."
+                )
+
+                st.markdown("### Limitations")
+                st.markdown(
+                    """
+                    - The displayed Gemini score and analysis are mock data, not model-generated results.
+                    - Book metadata may be incomplete or differ between sources.
+                    - Reviews may not represent every reader's experience.
+                    - Results depend on the quality of the information and prompt supplied to the model.
+                    """
+                )
+
+                st.markdown("### Review Sources")
+                st.caption(
+                    "Individual review links will be displayed here when real review sources are available."
+                )
+
+
+    # Full-width navigation belongs below both model panels, not inside ChatGPT.
     st.divider()
-
-    if st.button(
-        "← Back to Home",
-        use_container_width=True,
-        key="result_back_to_home"
-    ):
-        st.switch_page("main.py")
+    _, back_col, _ = st.columns([1, 1, 1])
+    with back_col:
+        if st.button(
+            "← Back to Home",
+            use_container_width=True,
+            key="result_back_to_home"
+        ):
+            st.switch_page("main.py")
