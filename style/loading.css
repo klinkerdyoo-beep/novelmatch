@@ -103,3 +103,187 @@
     color: #8195AC;
     font-size: 13px;
 }
+
+```css
+/* =========================================================
+   NovelMatch Loading Page
+   Typography aligned with chat.css
+   ========================================================= */
+
+/* =========================================================
+   Page Wrapper
+   ========================================================= */
+
+.st-key-loading-page {
+    width: min(760px, calc(100% - 32px));
+    margin: 100px auto 48px;
+    padding: 24px;
+    box-sizing: border-box;
+
+    color: #172957;
+    font-family: "Barlow", sans-serif;
+    font-weight: 400;
+
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 12px 40px rgba(23, 41, 87, 0.08);
+
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+}
+
+/* =========================================================
+   Typography
+   Apply Barlow consistently throughout the page.
+   ========================================================= */
+
+.st-key-loading-page,
+.st-key-loading-page h1,
+.st-key-loading-page h2,
+.st-key-loading-page h3,
+.st-key-loading-page p,
+.st-key-loading-page span,
+.st-key-loading-page label,
+.st-key-loading-page button,
+.st-key-loading-page [data-testid="stMarkdownContainer"],
+.st-key-loading-page [data-testid="stCaptionContainer"] {
+    font-family: "Barlow", sans-serif;
+}
+
+/* =========================================================
+   Brand
+   ========================================================= */
+
+.loading-brand {
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.loading-brand-name {
+    color: #172957;
+    font-size: 36px;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
+
+.loading-brand-name span {
+    color: #32A3A8;
+    font-weight: 600;
+}
+
+.loading-brand-caption {
+    margin-top: 4px;
+    color: #8195AC;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 3px;
+}
+
+/* =========================================================
+   Hero
+   ========================================================= */
+
+.loading-hero {
+    padding: 24px 0 28px;
+    text-align: center;
+}
+
+.loading-hero h1 {
+    margin: 24px 0 10px;
+    color: #172957;
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+}
+
+.loading-hero p {
+    max-width: 600px;
+    margin: 0 auto;
+    color: #7488A1;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   Loading Card
+   Used by st.container(border=True)
+   ========================================================= */
+
+.st-key-loading-page [data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 12px 35px rgba(23, 41, 87, 0.07);
+
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+}
+
+/* =========================================================
+   Streamlit Content
+   ========================================================= */
+
+.st-key-loading-page [data-testid="stMarkdownContainer"] {
+    color: #172957;
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.st-key-loading-page [data-testid="stMarkdownContainer"] p {
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1.65;
+}
+
+.st-key-loading-page [data-testid="stCaptionContainer"] {
+    color: #8195AC;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+
+.st-key-loading-page .stButton > button {
+    font-family: "Barlow", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 768px) {
+    .st-key-loading-page {
+        width: calc(100% - 32px);
+        margin: 48px auto 32px;
+        padding: 20px;
+        border-radius: 24px;
+    }
+
+    .loading-brand-name {
+        font-size: 30px;
+    }
+
+    .loading-hero {
+        padding: 20px 0 24px;
+    }
+
+    .loading-hero h1 {
+        font-size: 28px;
+    }
+
+    .loading-hero p {
+        font-size: 15px;
+    }
+}
+```

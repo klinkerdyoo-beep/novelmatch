@@ -1,7 +1,8 @@
-
-import streamlit as st
 import base64
 from html import escape
+from pathlib import Path
+
+import streamlit as st
 
 from components.navbar import navbar
 
@@ -9,680 +10,494 @@ from components.navbar import navbar
 # =========================================================
 # Page Config
 # =========================================================
-
-st.set_page_config(
-    page_title="My Reading History",
-    layout="wide"
-)
+st.set_page_config(page_title="My Reading History", layout="wide")
 
 
 # =========================================================
 # CSS
 # =========================================================
-
-css_files = [
+for css_file in (
     "style/global.css",
     "style/navbar.css",
-    "style/history.css",
     "style/chat.css",
-]
-
-for css_file in css_files:
-    with open(css_file, encoding="utf-8") as f:
-        st.markdown(
-            f"<style>{f.read()}</style>",
-            unsafe_allow_html=True
-        )
+    "style/history.css",
+):
+    path = Path(css_file)
+    if path.exists():
+        st.markdown(f"<style>{path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 
 # =========================================================
-# Navbar
+# Navbar + Background
 # =========================================================
-
 navbar()
 
-
-# =========================================================
-# Background
-# =========================================================
-
-with open("assets/about-you-bg.png", "rb") as f:
-    hero_bg = base64.b64encode(f.read()).decode()
-
-st.markdown(
-    f"""
-    <style>
-        .stApp {{
-            background-image: url("data:image/png;base64,{hero_bg}");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+background_path = Path("assets/about-you-bg.png")
+if background_path.exists():
+    encoded_bg = base64.b64encode(background_path.read_bytes()).decode("utf-8")
+    st.markdown(
+        f"""
+        <style>
+            .stApp {{
+                background-image: url("data:image/png;base64,{encoded_bg}");
+                background-size: cover;
+                background-position: center;
+                background-attachment: fixed;
+            }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 # =========================================================
-# Mock Data
-# Replace with backend data later
+# Temporary Mock Data
+# Replace with backend/session data when persistence is ready.
 # =========================================================
-
 demo_history = [
     {
         "id": "demo-1",
         "title": "The Silent Kingdom",
         "author": "Demo Author",
         "genres": ["Fantasy", "Adventure", "Romance"],
-        "score": 86,
-        "status": "Great Match",
         "date": "Oct 10, 2026",
         "cover_url": "",
-        "synopsis": (
-            "A fantasy adventure about a hidden kingdom "
-            "and the people who seek to protect it."
-        ),
-        "matches": [
-            {
-                "title": "Favorite Genres",
-                "description": (
-                    "Fantasy and Adventure align with "
-                    "your preferred genres."
-                ),
-            },
-            {
-                "title": "Character Preferences",
-                "description": (
-                    "The story features clever and independent "
-                    "characters that may appeal to you."
-                ),
-            },
-            {
-                "title": "Story Elements",
-                "description": (
-                    "The adventure-driven plot may fit "
-                    "your preferred storytelling style."
-                ),
-            },
-        ],
-        "mismatches": [
-            {
-                "title": "Genre Preferences",
-                "description": (
-                    "Romance is present in the story. "
-                    "Its compatibility depends on your preferences."
-                ),
-            },
-        ],
-        "review_summary": {
-            "positive": [
-                "Readers enjoy the world-building.",
-                "The characters are engaging.",
+        "synopsis": "A fantasy adventure about a hidden kingdom and the people who seek to protect it.",
+        "is_demo": True,
+        "chatgpt": {
+            "score": 86,
+            "status": "Great Match",
+            "overall_summary": "The fantasy and adventure elements appear aligned with the reader's stated interests. This is a mock evaluation; book details have not been verified.",
+            "matches": [
+                {"title": "Favorite Genres", "description": "Fantasy and Adventure align with the example preferences."},
+                {"title": "Character Preferences", "description": "Character compatibility needs to be checked against verified novel details."},
+                {"title": "Story Elements", "description": "The adventure-driven premise may fit the reader's preferred storytelling style."},
             ],
-            "negative": [
-                "Some readers find the pacing slow.",
+            "mismatches": [
+                {"title": "Genre Preferences", "description": "Romance is listed among the genres; whether this is a mismatch depends on the reader's preferences."},
             ],
-            "mixed": [
-                "Readers have different opinions about the ending.",
-            ],
+            "review_summary": {
+                "positive": ["Mock example: readers enjoy the world-building."],
+                "negative": ["Mock example: some readers find the pacing slow."],
+                "mixed": ["Mock example: opinions about the ending differ."],
+            },
+            "sources": [{"title": "Google Books (example source)", "url": "https://books.google.com/"}],
+            "limitations": ["This is demonstration content, not verified reader feedback.", "The score is a mock value for UI testing."],
+            "is_demo": True,
         },
-        "sources": [
-            {
-                "title": "Book Information",
-                "url": "https://books.google.com/",
+        "gemini": {
+            "score": 78,
+            "status": "Good Match",
+            "overall_summary": "The listed genres suggest a possible fit, but character and plot compatibility should be verified before drawing a conclusion. This is mock data, not a Gemini API result.",
+            "matches": [
+                {"title": "Genre Alignment", "description": "Fantasy and Adventure are present in the displayed genre list."},
+                {"title": "Potential Story Fit", "description": "The hidden-kingdom adventure premise may appeal to readers who enjoy exploration."},
+            ],
+            "mismatches": [
+                {"title": "Unverified Romance Fit", "description": "Romance is listed, but the reader's preference for this element is not known in this demo."},
+            ],
+            "review_summary": {
+                "positive": ["Mock example: readers may enjoy the imaginative setting."],
+                "negative": ["Mock example: some readers may want deeper character development."],
+                "mixed": ["Mock example: opinions on the romance element may vary."],
             },
-        ],
-        "limitations": [
-            "This is demonstration data, not verified reader feedback.",
-            "The score is a mock value for UI testing.",
-        ],
+            "sources": [{"title": "Google Books (example source)", "url": "https://books.google.com/"}],
+            "limitations": ["This is illustrative mock content and was not generated by the Gemini API.", "Reader reviews and novel metadata have not been verified."],
+            "is_demo": True,
+        },
     },
     {
         "id": "demo-2",
         "title": "The Midnight Library",
         "author": "Demo Author",
         "genres": ["Mystery", "Drama"],
-        "score": 72,
-        "status": "Good Match",
         "date": "Oct 8, 2026",
         "cover_url": "",
-        "synopsis": (
-            "A mysterious story about choices, secrets, "
-            "and unexpected discoveries."
-        ),
-        "matches": [
-            {
-                "title": "Mystery Elements",
-                "description": "The story includes secrets and discoveries.",
-            },
-        ],
-        "mismatches": [
-            {
-                "title": "Story Preferences",
-                "description": "The pacing has not been verified.",
-            },
-        ],
-        "review_summary": {
-            "positive": ["Mock review: readers enjoy the central concept."],
-            "negative": ["Mock review: some readers want more action."],
-            "mixed": ["Mock review: opinions on the ending vary."],
+        "synopsis": "A mysterious story about choices, secrets, and unexpected discoveries.",
+        "is_demo": True,
+        "chatgpt": {
+            "score": 72,
+            "status": "Good Match",
+            "overall_summary": "The mystery-driven premise could appeal to some readers, but preference alignment has not been fully evaluated.",
+            "matches": [{"title": "Mystery Elements", "description": "The premise includes secrets and discoveries."}],
+            "mismatches": [{"title": "Story Preferences", "description": "Pacing and character details have not been verified."}],
+            "review_summary": {"positive": ["Mock example: readers enjoy the central concept."], "negative": ["Mock example: some readers want more action."], "mixed": ["Mock example: opinions on the ending vary."]},
+            "sources": [], "limitations": ["All analysis and review summaries are mock data."], "is_demo": True,
         },
-        "sources": [],
-        "limitations": ["All analysis and review summaries are mock data."],
+        "gemini": {
+            "score": 68,
+            "status": "Good Match",
+            "overall_summary": "The mystery and drama genres may be appealing, although more preference and book data are needed.",
+            "matches": [{"title": "Possible Genre Fit", "description": "Mystery may fit readers who enjoy secrets and discoveries."}],
+            "mismatches": [{"title": "Limited Evidence", "description": "The current synopsis is too brief to assess character and pacing preferences."}],
+            "review_summary": {"positive": ["Mock example: the concept may appeal to readers."], "negative": ["Mock example: some readers may want more action."], "mixed": ["Mock example: reader opinions may vary."]},
+            "sources": [], "limitations": ["All Gemini-style analysis is illustrative mock data."], "is_demo": True,
+        },
     },
     {
         "id": "demo-3",
         "title": "Beyond the Stars",
         "author": "Demo Author",
         "genres": ["Science Fiction", "Adventure"],
-        "score": 58,
-        "status": "Moderate Match",
         "date": "Oct 5, 2026",
         "cover_url": "",
-        "synopsis": (
-            "An adventure through distant worlds "
-            "and unfamiliar civilizations."
-        ),
-        "matches": [
-            {
-                "title": "Adventure",
-                "description": "The story includes an adventure-driven premise.",
-            },
-        ],
-        "mismatches": [
-            {
-                "title": "Genre Alignment",
-                "description": "The genre fit needs to be evaluated against user preferences.",
-            },
-        ],
-        "review_summary": {
-            "positive": ["Mock review: readers enjoy the imaginative setting."],
-            "negative": ["Mock review: some readers find the story complex."],
-            "mixed": ["Mock review: opinions on the characters differ."],
+        "synopsis": "An adventure through distant worlds and unfamiliar civilizations.",
+        "is_demo": True,
+        "chatgpt": {
+            "score": 58,
+            "status": "Moderate Match",
+            "overall_summary": "The adventure premise is promising, but there is not enough verified information to confirm a strong match.",
+            "matches": [{"title": "Adventure", "description": "The synopsis suggests an adventure-driven premise."}],
+            "mismatches": [{"title": "Genre Alignment", "description": "Compatibility depends on the reader's preferences and verified book details."}],
+            "review_summary": {"positive": ["Mock example: readers enjoy the imaginative setting."], "negative": ["Mock example: some readers find the story complex."], "mixed": ["Mock example: opinions on the characters differ."]},
+            "sources": [], "limitations": ["All analysis and review summaries are mock data."], "is_demo": True,
         },
-        "sources": [],
-        "limitations": ["All analysis and review summaries are mock data."],
+        "gemini": {
+            "score": 64,
+            "status": "Good Match",
+            "overall_summary": "Science fiction and adventure may fit readers seeking imaginative settings, but a more complete synopsis is needed.",
+            "matches": [{"title": "Imaginative Setting", "description": "The premise involves distant worlds and unfamiliar civilizations."}],
+            "mismatches": [{"title": "Insufficient Detail", "description": "Character traits and plot progression are not available for reliable comparison."}],
+            "review_summary": {"positive": ["Mock example: the setting may be engaging."], "negative": ["Mock example: the story may feel complex."], "mixed": ["Mock example: opinions on character development may vary."]},
+            "sources": [], "limitations": ["All Gemini-style analysis is illustrative mock data."], "is_demo": True,
+        },
     },
 ]
 
-# Temporary front-end data.
-# Backend can replace this data source later.
 if "match_history" not in st.session_state:
     st.session_state.match_history = demo_history.copy()
 
-history = st.session_state.match_history
+history = st.session_state.get("match_history", [])
+
+
+def safe_text(value, fallback=""):
+    return escape(str(value if value is not None else fallback))
+
+
+def as_list(value):
+    return value if isinstance(value, list) else []
+
+
+def render_point(point, css_class, default_title):
+    if isinstance(point, dict):
+        point_title = point.get("title", default_title)
+        description = point.get("description", "")
+    else:
+        point_title, description = default_title, str(point)
+    st.markdown(
+        f"""
+        <div class="{css_class}">
+            <div class="result-point-title">{safe_text(point_title)}</div>
+            <div class="result-point-description">{safe_text(description)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def render_review_column(heading, reviews, empty_message):
+    st.markdown(f"#### {heading}")
+    if reviews:
+        for review in reviews:
+            # Plain text, deliberately not rendered as a bullet list.
+            st.text(str(review))
+    else:
+        st.caption(empty_message)
 
 
 # =========================================================
-# Page Header
+# Page Header + Search
 # =========================================================
-
 with st.container(key="history-content"):
-
     st.markdown(
         """
         <h1>Reading<br>History</h1>
-
         <div class="history-description">
             Revisit your previous novel matches and discover
             how well each story aligns with your preferences.
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
-
-    st.write("")
-
-
-
-    # =====================================================
-    # Search Books
-    # =====================================================
 
     search_query = st.text_input(
         "Search books",
-        placeholder="Search by book title...",
+        placeholder="Search by book title or author...",
         key="history-search",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
     )
 
-
-
-    # =====================================================
-    # History Summary
-    # =====================================================
-
+    query = search_query.strip().casefold()
     filtered_history = [
-        item
-        for item in history
-        if search_query.strip().lower()
-        in item.get("title", "").lower()
+        item for item in history
+        if query in str(item.get("title", "")).casefold()
+        or query in str(item.get("author", "")).casefold()
     ]
 
-    total_count = len(history)
+    count_col, sort_col = st.columns([2, 1], vertical_alignment="center")
+    with count_col:
+        st.markdown(
+            f"""
+            <div class="history-count">
+                <span>{len(filtered_history)} results</span>
+                <span>{len(history)} analyses in total</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    with sort_col:
+        sort_choice = st.selectbox(
+            "Sort history",
+            ["Newest first", "Highest match", "Lowest match", "Title A–Z"],
+            key="history-sort",
+            label_visibility="collapsed",
+        )
 
-    st.markdown(
-        f"""
-        <div class="history-count">
-            <span>{len(filtered_history)} results</span>
-            <span>{total_count} analyses in total</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-
-    # =====================================================
-    # History List
-    # =====================================================
+    if sort_choice == "Highest match":
+        filtered_history.sort(key=lambda item: int((item.get("chatgpt", {}) or {}).get("score", item.get("score", 0)) or 0), reverse=True)
+    elif sort_choice == "Lowest match":
+        filtered_history.sort(key=lambda item: int((item.get("chatgpt", {}) or {}).get("score", item.get("score", 0)) or 0))
+    elif sort_choice == "Title A–Z":
+        filtered_history.sort(key=lambda item: str(item.get("title", "")).casefold())
+    else:
+        # The demo date strings are human-readable; newest-first preserves their stored order.
+        filtered_history.sort(key=lambda item: history.index(item))
 
     if filtered_history:
-
         for index, item in enumerate(filtered_history):
-
-            title = escape(item.get("title", "Untitled Novel"))
-            author = escape(item.get("author", "Unknown Author"))
-            date = escape(item.get("date", "Date unavailable"))
-            status = escape(item.get("status", "Not rated"))
-
-            score = item.get("score", 0)
-            genres = item.get("genres", [])
+            title = safe_text(item.get("title", "Untitled Novel"))
+            author = safe_text(item.get("author", "Unknown Author"))
+            date = safe_text(item.get("date", "Date unavailable"))
+            status = safe_text(item.get("status", "Not rated"))
+            # The history card uses ChatGPT's score as the primary list score.
+            # Older records without nested model data remain supported.
+            primary_model = item.get("chatgpt", {})
+            if not isinstance(primary_model, dict):
+                primary_model = {}
+            raw_card_score = primary_model.get("score", item.get("score", 0))
+            try:
+                score = max(0, min(100, int(raw_card_score or 0)))
+            except (TypeError, ValueError):
+                score = 0
+            status = safe_text(primary_model.get("status", item.get("status", "Not rated")))
+            genres = as_list(item.get("genres"))
             synopsis = item.get("synopsis", "")
             cover_url = item.get("cover_url", "")
-
             genres_html = "".join(
-                f'<span class="history-genre">{escape(str(genre))}</span>'
-                for genre in genres
+                f'<span class="history-genre">{safe_text(genre)}</span>' for genre in genres
             )
+            card_key = safe_text(item.get("id", index))
 
-            with st.container(
-                border=True,
-                key=f"history-card-{item.get('id', index)}"
-            ):
-
-                cover_col, info_col, score_col = st.columns(
-                    [1, 3, 1.2],
-                    vertical_alignment="center"
-                )
+            with st.container(border=True, key=f"history-card-{card_key}"):
+                cover_col, info_col, score_col = st.columns([0.85, 3.1, 1.15], vertical_alignment="center")
 
                 with cover_col:
-
                     if cover_url:
-                        st.image(
-                            cover_url,
-                            use_container_width=True
-                        )
+                        st.image(cover_url, use_container_width=True)
                     else:
                         st.markdown(
-                            """
-                            <div class="history-cover-placeholder">
-                                <span>📚</span>
-                                <span>Book Cover</span>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
+                            '<div class="history-cover-placeholder"><span>📚</span><span>Book Cover</span></div>',
+                            unsafe_allow_html=True,
                         )
 
                 with info_col:
-
                     st.markdown(
                         f"""
                         <div class="history-book-title">{title}</div>
-                        <div class="history-book-author">
-                            By {author}
-                        </div>
-                        <div class="history-book-date">
-                            {date}
-                        </div>
-                        <div class="history-genres">
-                            {genres_html}
-                        </div>
+                        <div class="history-book-author">By {author}</div>
+                        <div class="history-book-date">{date}</div>
+                        <div class="history-genres">{genres_html}</div>
                         """,
-                        unsafe_allow_html=True
-                    )
-
-                with score_col:
-
-                    st.markdown(
-                        f"""
-                        <div class="history-score">
-                            <div class="history-score-number">
-                                {score}<span>/100</span>
-                            </div>
-                            <div class="history-score-status">
-                                {status}
-                            </div>
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
-
-
-                with st.expander("View Details", expanded=False):
-
-                    # =====================================================
-                    # Novel Details
-                    # =====================================================
-
-                    st.markdown(
-                        '<div class="result-section-title">Novel Details</div>',
                         unsafe_allow_html=True,
                     )
 
-                    detail_cover_col, detail_info_col = st.columns(
-                        [0.75, 1.5],
-                        gap="large",
-                        vertical_alignment="top",
+                with score_col:
+                    st.markdown(
+                        f"""
+                        <div class="history-score">
+                            <div class="history-score-number">{score}<span>/100</span></div>
+                            <div class="history-score-status">{status}</div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
                     )
 
+                with st.expander("View Details", expanded=False):
+                    # Shared novel information appears once above both model analyses.
+                    st.markdown('<div class="result-section-title">Novel Details</div>', unsafe_allow_html=True)
+                    detail_cover_col, detail_info_col = st.columns([0.75, 1.5], gap="large", vertical_alignment="top")
                     with detail_cover_col:
                         if cover_url:
                             st.image(cover_url, use_container_width=True)
                         else:
                             st.markdown(
-                                """
-                                <div class="history-cover-placeholder">
-                                    <span>📚</span>
-                                    <span>Book Cover</span>
-                                </div>
-                                """,
+                                '<div class="history-cover-placeholder"><span>📚</span><span>Book Cover</span></div>',
                                 unsafe_allow_html=True,
                             )
-
                     with detail_info_col:
                         st.markdown(
-                            f'<div class="result-book-title">{title}</div>'
-                            f'<div class="result-book-author">By {author}</div>',
+                            f'<div class="result-book-title">{title}</div><div class="result-book-author">By {author}</div>',
                             unsafe_allow_html=True,
                         )
-
                         st.markdown("**Genres**")
-                        st.write(", ".join(genres) if genres else "No genres available.")
-
+                        st.write(", ".join(str(genre) for genre in genres) if genres else "No genres available.")
                         st.markdown("**Synopsis**")
                         st.write(synopsis or "No synopsis available.")
 
                     st.divider()
 
-                    # =====================================================
-                    # Match Score
-                    # =====================================================
+                    # Model results are separate. New history records may store
+                    # each model under item["chatgpt"] and item["gemini"].
+                    # Older records retain their legacy shared fields; do not
+                    # silently present the same analysis as two model outputs.
+                    def get_model_data(model_key):
+                        data = item.get(model_key, {})
+                        return data if isinstance(data, dict) else {}
 
-                    st.markdown(
-                        '<div class="result-section-title">Match Score</div>',
-                        unsafe_allow_html=True,
-                    )
+                    def model_score(model_data, fallback=None):
+                        raw = model_data.get("score", fallback)
+                        try:
+                            return max(0, min(100, int(raw)))
+                        except (TypeError, ValueError):
+                            return None
 
-                    score_col, summary_col = st.columns(
-                        [0.75, 1.5],
-                        gap="large",
-                        vertical_alignment="center",
-                    )
-
-                    with score_col:
-                        safe_score = max(0, min(100, int(score)))
-
+                    def render_model_panel(model_key, model_label, accent_class, fallback_legacy=False):
+                        model_data = get_model_data(model_key)
                         st.markdown(
-                            f"""
-                            <div class="match-score-wrapper">
-                                <div class="match-score-circle"
-                                    style="--score: {safe_score * 3.6}deg;">
-                                    <div class="match-score-inner">
-                                        <div class="match-score-number">{safe_score}</div>
-                                        <div class="match-score-label">/ 100</div>
-                                    </div>
-                                </div>
-                                <div class="match-score-text">YOUR MATCH</div>
-                                <div class="match-status">{status}</div>
-                            </div>
-                            """,
+                            f'<div class="model-heading {accent_class}">{model_label} Analysis</div>',
                             unsafe_allow_html=True,
                         )
 
-                    with summary_col:
-                        st.markdown("### Overall Match Summary")
-                        st.write(
-                            "This score represents the simulated compatibility "
-                            "between the novel and the reader's preferences."
+                        # Prefer this model's own saved fields.
+                        this_score = model_score(
+                            model_data,
+                            item.get("score") if fallback_legacy else None,
                         )
-                        st.caption("Demo score — not a verified AI evaluation.")
+                        this_status = model_data.get("status") or (
+                            item.get("status", "Not rated") if fallback_legacy else "No saved result"
+                        )
+                        this_summary = model_data.get("overall_summary") or (
+                            item.get("overall_summary", "") if fallback_legacy else ""
+                        )
+                        this_matches = as_list(model_data.get("matches"))
+                        this_mismatches = as_list(model_data.get("mismatches"))
+                        this_reviews = model_data.get("review_summary", {})
+                        if not isinstance(this_reviews, dict):
+                            this_reviews = {}
+                        this_demo = model_data.get("is_demo", item.get("is_demo", True))
 
-                    st.divider()
+                        if fallback_legacy:
+                            if not this_matches:
+                                this_matches = as_list(item.get("matches"))
+                            if not this_mismatches:
+                                this_mismatches = as_list(item.get("mismatches"))
+                            if not this_reviews:
+                                legacy_reviews = item.get("review_summary", {})
+                                this_reviews = legacy_reviews if isinstance(legacy_reviews, dict) else {}
 
-                    # =====================================================
-                    # Match Analysis
-                    # =====================================================
+                        if this_score is None:
+                            st.info(f"No saved {model_label} analysis is available for this history item.")
+                            return
 
-                    st.markdown(
-                        '<div class="result-section-title">Match Analysis</div>',
-                        unsafe_allow_html=True,
-                    )
-
-                    match_col, mismatch_col = st.columns(2, gap="large")
-
-                    with match_col:
-                        st.markdown("### ✓ Matches")
-
-                        matches = item.get("matches", [])
-
-                        if matches:
-                            for point in matches:
-                                if isinstance(point, dict):
-                                    point_title = point.get("title", "Match")
-                                    description = point.get("description", "")
-                                else:
-                                    point_title = "Match"
-                                    description = str(point)
-
-                                st.markdown(
-                                    f"""
-                                    <div class="result-positive">
-                                        <div class="result-point-title">
-                                            {escape(str(point_title))}
-                                        </div>
-                                        <div class="result-point-description">
-                                            {escape(str(description))}
+                        score_status_class = "status-high" if this_score >= 80 else "status-medium" if this_score >= 60 else "status-low"
+                        score_col, summary_col = st.columns([0.85, 1.4], gap="medium", vertical_alignment="center")
+                        with score_col:
+                            st.markdown(
+                                f'''<div class="match-score-wrapper">
+                                    <div class="match-score-circle" style="--score: {this_score * 3.6}deg;">
+                                        <div class="match-score-inner">
+                                            <div class="match-score-number">{this_score}</div>
+                                            <div class="match-score-label">/ 100</div>
                                         </div>
                                     </div>
-                                    """,
-                                    unsafe_allow_html=True,
-                                )
-                        else:
-                            st.caption("No matching points available.")
+                                    <div class="match-score-text">YOUR MATCH</div>
+                                    <div class="match-status {score_status_class}">{safe_text(this_status)}</div>
+                                </div>''',
+                                unsafe_allow_html=True,
+                            )
+                        with summary_col:
+                            st.markdown("### Overall Match Summary")
+                            st.write(this_summary or "No saved overall summary is available for this model.")
+                            if this_demo:
+                                st.caption("Demo content — not a verified AI evaluation.")
 
-                    with mismatch_col:
-                        st.markdown("### ⚠ Mismatches")
+                        st.markdown('<div class="result-section-title">Match Analysis</div>', unsafe_allow_html=True)
+                        match_col, mismatch_col = st.columns(2, gap="medium")
+                        with match_col:
+                            st.markdown("### ✓ Matches")
+                            if this_matches:
+                                for point in this_matches:
+                                    render_point(point, "result-positive", "Match")
+                            else:
+                                st.caption("No saved matching points available.")
+                        with mismatch_col:
+                            st.markdown("### ⚠ Mismatches")
+                            if this_mismatches:
+                                for point in this_mismatches:
+                                    render_point(point, "result-warning", "Mismatch")
+                            else:
+                                st.caption("No saved mismatches available.")
 
-                        mismatches = item.get("mismatches", [])
+                        st.markdown('<div class="result-section-title">Review Summary</div>', unsafe_allow_html=True)
+                        review_col1, review_col2, review_col3 = st.columns(3, gap="small")
+                        with review_col1:
+                            render_review_column("What Readers Like", as_list(this_reviews.get("positive")), "No saved positive review summary.")
+                        with review_col2:
+                            render_review_column("Criticisms", as_list(this_reviews.get("negative")), "No saved criticism summary.")
+                        with review_col3:
+                            render_review_column("Mixed Opinions", as_list(this_reviews.get("mixed")), "No saved mixed review summary.")
 
-                        if mismatches:
-                            for point in mismatches:
-                                if isinstance(point, dict):
-                                    point_title = point.get("title", "Mismatch")
-                                    description = point.get("description", "")
-                                else:
-                                    point_title = "Mismatch"
-                                    description = str(point)
+                        with st.expander("View Sources and Limitations", expanded=False):
+                            sources = as_list(model_data.get("sources", item.get("sources", []) if fallback_legacy else []))
+                            limitations = as_list(model_data.get("limitations", item.get("limitations", []) if fallback_legacy else []))
+                            st.markdown("### Data Sources")
+                            if sources:
+                                for source in sources:
+                                    if isinstance(source, dict):
+                                        source_title = safe_text(source.get("title", "Source"))
+                                        source_url = str(source.get("url", "")).strip()
+                                        if source_url.startswith(("https://", "http://")):
+                                            st.markdown(f"- [{source_title}]({escape(source_url, quote=True)})")
+                                        else:
+                                            st.markdown(f"- {source_title}")
+                                    else:
+                                        st.markdown(f"- {safe_text(source)}")
+                            else:
+                                st.caption("No saved sources available.")
+                            st.markdown("### Limitations")
+                            if limitations:
+                                for limitation in limitations:
+                                    st.markdown(f"- {safe_text(limitation)}")
+                            else:
+                                st.markdown("- Book metadata and review coverage may be incomplete.")
+                                st.markdown("- Scores should be treated as estimates, not definitive predictions.")
 
-                                st.markdown(
-                                    f"""
-                                    <div class="result-warning">
-                                        <div class="result-point-title">
-                                            {escape(str(point_title))}
-                                        </div>
-                                        <div class="result-point-description">
-                                            {escape(str(description))}
-                                        </div>
-                                    </div>
-                                    """,
-                                    unsafe_allow_html=True,
-                                )
-                        else:
-                            st.caption("No mismatches available.")
-
-                    st.divider()
-
-                    # =====================================================
-                    # Review Summary — Plain Text
-                    # =====================================================
-
-                    st.markdown(
-                        '<div class="result-section-title">Review Summary</div>',
-                        unsafe_allow_html=True,
-                    )
-
-                    review_summary = item.get("review_summary", {})
-
-                    review_col1, review_col2, review_col3 = st.columns(
-                        3,
-                        gap="medium",
-                    )
-
-                    with review_col1:
-                        st.markdown("#### What Readers Like")
-
-                        positive_reviews = review_summary.get("positive", [])
-
-                        if positive_reviews:
-                            for review in positive_reviews:
-                                st.text(str(review))
-                        else:
-                            st.caption("No positive review summary available.")
-
-                    with review_col2:
-                        st.markdown("#### Criticisms")
-
-                        negative_reviews = review_summary.get("negative", [])
-
-                        if negative_reviews:
-                            for review in negative_reviews:
-                                st.text(str(review))
-                        else:
-                            st.caption("No criticism summary available.")
-
-                    with review_col3:
-                        st.markdown("#### Mixed Opinions")
-
-                        mixed_reviews = review_summary.get("mixed", [])
-
-                        if mixed_reviews:
-                            for review in mixed_reviews:
-                                st.text(str(review))
-                        else:
-                            st.caption("No mixed review summary available.")
-
-                    st.info(
-                        "Review data has not been connected yet. "
-                        "No reader opinions are being presented as verified facts."
-                    )
-                    # =====================================================
-                    # Sources and Limitations — Dropdown
-                    # =====================================================
-
-                    with st.expander(
-                        "Sources and Limitations",
-                        expanded=False,
-                    ):
-
-                        # -------------------------------------------------
-                        # Data Sources
-                        # -------------------------------------------------
-
-                        st.markdown("### Data Sources")
-
-                        st.markdown(
-                            """
-                            - **Book information:** Google Books API / Open Library API
-                            - **Reader reviews:** To be connected
-                            - **Preference matching:** NovelMatch evaluation model
-                            """
-                        )
-
-                        # -------------------------------------------------
-                        # Review Data Overview
-                        # -------------------------------------------------
-
-                        st.markdown("### Review Data Overview")
-
-                        st.write(
-                            "Review counts, review excerpts, and source links "
-                            "will be displayed after the review retrieval pipeline "
-                            "has been implemented."
-                        )
-
-                        # -------------------------------------------------
-                        # Limitations
-                        # -------------------------------------------------
-
-                        st.markdown("### Limitations")
-
-                        st.markdown(
-                            """
-                            - Book metadata may be incomplete or differ between sources.
-                            - Reviews may not represent every reader's experience.
-                            - The compatibility score depends on the quality and
-                            availability of the retrieved information.
-                            - The current score and analysis are demonstration content,
-                            not a verified prediction.
-                            """
-                        )
-
-                        # -------------------------------------------------
-                        # Review Sources
-                        # -------------------------------------------------
-
-                        st.markdown("### Review Sources")
-
-                        st.caption(
-                            "Individual review links will be displayed here "
-                            "when real review sources are available."
-                        )
-
+                    chatgpt_col, gemini_col = st.columns(2, gap="large", vertical_alignment="top")
+                    with chatgpt_col:
+                        with st.container(border=False, key=f"history-chatgpt-{card_key}"):
+                            render_model_panel("chatgpt", "ChatGPT", "model-heading-chatgpt", fallback_legacy=True)
+                    with gemini_col:
+                        with st.container(border=False, key=f"history-gemini-{card_key}"):
+                            render_model_panel("gemini", "Gemini", "model-heading-gemini", fallback_legacy=False)
 
     else:
-
         st.markdown(
             """
             <div class="history-empty">
                 <div class="history-empty-icon">📖</div>
-                <div class="history-empty-title">
-                    No reading history found
-                </div>
-                <div class="history-empty-description">
-                    Try another search or start a new novel analysis.
-                </div>
+                <div class="history-empty-title">No reading history found</div>
+                <div class="history-empty-description">Try another search or start a new novel analysis.</div>
             </div>
             """,
-            unsafe_allow_html=True
+            unsafe_allow_html=True,
         )
-
-
-    # =====================================================
-    # Footer Actions
-    # =====================================================
 
     st.write("")
     st.divider()
-
     col1, col2 = st.columns(2)
-
     with col1:
-        if st.button(
-            "← Back to Home",
-            type="secondary",
-            use_container_width=True,
-            key="history-back-home"
-        ):
+        if st.button("← Back to Home", type="secondary", use_container_width=True, key="history-back-home"):
             st.switch_page("main.py")
-
     with col2:
-        if st.button(
-            "Find a New Novel",
-            type="primary",
-            use_container_width=True,
-            key="history-new-analysis"
-        ):
+        if st.button("Find a New Novel", type="primary", use_container_width=True, key="history-new-analysis"):
             st.switch_page("pages/preview.py")
-
