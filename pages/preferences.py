@@ -343,6 +343,11 @@ with st.container(key="preferences-content"):
                     else:
                         st.session_state.preferences_completed = True
                         st.switch_page("pages/novel.py")
-
+                if enjoyed_genres[:] == disliked_genres[:]:
+                    st.warning("Enter different genres for 'enjoyed' and 'disliked' preferences.")
+                if enjoy_characters[:] == disliked_character_description[:]:
+                    st.warning("Enter different character traits for 'enjoyed' and 'disliked' preferences.")
+                if liked_stories[:] == disliked_stories[:]:
+                    st.warning("Enter different story elements for 'liked' and 'disliked' preferences.")
 if not st.session_state.get("logged_in", False):
     login_required_popup()

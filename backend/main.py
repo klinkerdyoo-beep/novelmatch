@@ -217,17 +217,16 @@ async def analyze_novel(
         payload = build_ai_payload(research, user_preference_payload)
 
         # 3. รันทั้ง 2 โมเดลแบบขนาน (Parallel Execution) พร้อมกัน
-        # gemini_task = asyncio.to_thread(GeminiAIService().analyze, **payload)
+        gemini_task = asyncio.to_thread(GeminiAIService().analyze, **payload)
         gpt_oss_task = asyncio.to_thread(_analyze_with_gpt_oss, payload)
 
-        # gemini_raw, gpt_raw = await asyncio.gather(gemini_task, gpt_oss_task)
-        gpt_raw = await asyncio.gather(gpt_oss_task)
+        gemini_raw, gpt_raw = await asyncio.gather(gemini_task, gpt_oss_task)
 
         # 4. ตรวจสอบและจัดการผลลัพธ์ของแต่ละโมเดล
         # ประมวลผลผลลัพธ์ของ Gemini
-        # gemini_output = gemini_raw.model_dump()
-        # validate_analysis_evidence(gemini_output, payload)
-        # final_gemini = merge_analysis_limitations(gemini_output, payload)
+        gemini_output = gemini_raw.model_dump()
+        validate_analysis_evidence(gemini_output, payload)
+        final_gemini = merge_analysis_limitations(gemini_output, payload)
 
         # ประมวลผลผลลัพธ์ของ GPT-OSS
         gpt_output = gpt_raw.model_dump()
@@ -260,23 +259,23 @@ async def analyze_novel(
             novel_id = novel_insert.data[0]["id"]
 
         # Step 4: บันทึกผลลัพธ์ลงตาราง match_history
-        # gemini_record = {
-        #     "user_id": user_id,
-        #     "novel_id": novel_id,
-        #     "score": final_gemini.get("match_score"),
-        #     "matches": final_gemini.get("matches", []),
-        #     "mismatches": final_gemini.get("mismatches", []),
-        #     "limitations": final_gemini.get("limitations", []),
-        #     "matches_level": final_gemini.get("match_level"),
-        #     "matches_summary": f"[Gemini] {final_gemini.get('summary', '')}",
-        #     "data_sources": final_gemini.get("sources", []),
-        #     "review_summary": final_gemini.get("review_summary", {}),
-        #     "review_overview": final_gemini.get("summary"),
-        #     "review_sources": [
-        #         s for s in final_gemini.get("sources", [])
-        #         if "review" in str(s.get("evidence_id", ""))
-        #     ],
-        # }
+        gemini_record = {
+            "user_id": user_id,
+            "novel_id": novel_id,
+            "score": final_gemini.get("match_score"),
+            "matches": final_gemini.get("matches", []),
+            "mismatches": final_gemini.get("mismatches", []),
+            "limitations": final_gemini.get("limitations", []),
+            "matches_level": final_gemini.get("match_level"),
+            "matches_summary": f"[Gemini] {final_gemini.get('summary', '')}",
+            "data_sources": final_gemini.get("sources", []),
+            "review_summary": final_gemini.get("review_summary", {}),
+            "review_overview": final_gemini.get("summary"),
+            "review_sources": [
+                s for s in final_gemini.get("sources", [])
+                if "review" in str(s.get("evidence_id", ""))
+            ],
+        }
 
         gpt_record = {
             "user_id": user_id,
@@ -295,8 +294,8 @@ async def analyze_novel(
                 if "review" in str(s.get("evidence_id", ""))
             ],
         }
-        history_res = supabase.table("match_history").insert(gpt_record).execute()
-        # history_res = supabase.table("match_history").insert([gemini_record, gpt_record]).execute()
+    
+        history_res = supabase.table("match_history").insert([gemini_record, gpt_record]).execute()
 
         # ส่ง ID ทั้ง 2 แถวและผลการวิเคราะห์กลับให้ Frontend
         return {
@@ -304,7 +303,7 @@ async def analyze_novel(
             "novel_id": novel_id,
             "novel_title": request.title,
             "results": {
-                # "gemini": final_gemini,
+                "gemini": final_gemini,
                 "gpt_oss": final_gpt,
             },
         }
@@ -462,12 +461,31 @@ async def logout(
     await _supabase_request("POST", "/logout", token=token)
     return {"message": "Logged out successfully."}
 
-
-
 @app.get("/auth/me")
-async def read_current_user(user: dict[str, Any] = Depends(require_user)) -> dict[str, Any]:
-    return {"user": {key: value for key, value in user.items() if key != "_access_token"}}
+async def read_current_user(
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+  user_id = user.get("id")
 
+  # Query ตาราง public.users ด้วย id
+  res = (
+      supabase.table("users")
+      .select("username")
+      .eq("id", user_id)
+      .execute()
+      .data
+  )
+
+  username = res[0].get("username") if res else "User"
+
+  return {
+      "user": {
+          "id": user_id,
+          "email": user.get("email"),
+          "username": username,
+      }
+  }
+  
 @app.get("/novels")
 async def get_novels(
     user: dict[str, Any] = Depends(require_user),

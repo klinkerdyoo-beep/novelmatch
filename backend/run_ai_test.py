@@ -9,8 +9,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from services.gemini_service import GeminiAIService
-# from services.gpt_oss_service import GPTOSSService
+# from services.gemini_service import GeminiAIService
+from services.gpt_oss_service import GPTOSSService
 from services.novel_sources import (
     NovelResearchService,
     build_ai_payload,
@@ -40,8 +40,8 @@ async def run(testcase_path: Path) -> dict:
         )
 
     payload = build_ai_payload(research, preferences)
-    gemini_analysis = GeminiAIService().analyze(**payload)
-    # gpt_analysis = GPTOSSService().analyze(**payload)
+    # gemini_analysis = GeminiAIService().analyze(**payload)
+    gpt_analysis = GPTOSSService().analyze(**payload)
     research_data = research.to_dict()
     return {
         "input": user_input,
@@ -51,8 +51,8 @@ async def run(testcase_path: Path) -> dict:
             "warnings": research_data["warnings"],
         },
         "ai_payload": payload,
-        "gemini_analysis": gemini_analysis.model_dump(mode="json"),
-        # "gpt_analysis": gpt_analysis.model_dump(mode="json"),
+        # "gemini_analysis": gemini_analysis.model_dump(mode="json"),
+        "gpt_analysis": gpt_analysis.model_dump(mode="json"),
     }
 
 

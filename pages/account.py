@@ -3,6 +3,7 @@ import streamlit as st
 import base64
 
 from components.navbar import navbar
+from components.api_client import NovelMatchAPIError, get_user_info, get_preferences
 
 
 # =========================================================
@@ -67,8 +68,41 @@ st.markdown(
 # Session State
 # =========================================================
 
-username = st.session_state.get("username", "User")
-user_email = st.session_state.get("user_email", "")
+# 1. ดึง token จาก access_token
+print("=== เข้าหน้า ACCOUNT แล้ว ===")
+print("Session State ที่ตามมาด้วย:", dict(st.session_state))
+
+token = st.session_state.get("access_token")
+print("Token ที่ได้มา:", token)
+if not token:
+  print("❌ หา Token ไม่เจอ! เด้งกลับหน้า Login")
+  st.switch_page("pages/login.py")
+  st.stop()
+token = st.session_state.get("access_token")
+print("Token ที่ได้มา:", token)
+
+# 2. ตรวจสอบสถานะการยืนยันตัวตน
+if not token:
+  st.warning("Session expired or not logged in. Please log in again.")
+  st.switch_page("pages/login.py")
+  st.stop()
+
+
+
+
+
+# 3. เรียก API ด้วย token ที่มีค่าจริง
+try:
+  user_info = get_user_info(token)
+  preferences = get_preferences(token)
+
+  # ดึง username และ email จาก user_info ที่ได้มา
+  username = user_info.get("username", "")
+  user_email = user_info.get("email", "")
+
+except NovelMatchAPIError as exc:
+  st.error(f"Failed to load account information: {exc}")
+  st.stop()
 
 
 # =========================================================
@@ -147,20 +181,21 @@ with st.container(key="preferences-content"):
 
         st.markdown("### Reading Preferences")
 
+        preferences = get_preferences(st.session_state.get("token", ""))
 
-        favorite_genres = st.session_state.get("favorite_genres", [])
-        disliked_genres = st.session_state.get("disliked_genres", [])
+        favorite_genres = preferences.get("enjoyed_genres", [])
+        disliked_genres = preferences.get("disliked_genres", [])
 
         # Character Preferences
-        enjoy_characters = st.session_state.get("enjoy_characters", [])
-        liked_characters = st.session_state.get("liked_characters", "")
-        disliked_character_description = st.session_state.get(
-            "disliked_character_description", ""
+        enjoy_characters = preferences.get("enjoyed_characters", [])
+        liked_characters = preferences.get("liked_characters", "")
+        disliked_character = preferences.get(
+            "disliked_character", ""
         )
 
         # Story Preferences
-        liked_stories = st.session_state.get("liked_stories", [])
-        disliked_stories = st.session_state.get("disliked_stories", [])
+        liked_stories = preferences.get("liked_story", [])
+        disliked_stories = preferences.get("disliked_story", [])
 
 
         # =================================================
@@ -212,10 +247,9 @@ with st.container(key="preferences-content"):
             else:
                 st.caption("Not provided.")
 
-            preference_label("Describe Traits You Dislike")
-
-            if disliked_character_description.strip():
-                st.write(disliked_character_description)
+            preference_label("Describe a Character You Dislike")
+            if disliked_character.strip():
+                st.write(disliked_character)
             else:
                 st.caption("Not provided.")
 

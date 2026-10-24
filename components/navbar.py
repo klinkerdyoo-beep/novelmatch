@@ -31,8 +31,9 @@ for css_file in css_files:
 # Navbar
 # =========================================================
 
-def navbar():
 
+
+def navbar():
     username = st.session_state.get(
         "username",
         ""
@@ -62,7 +63,7 @@ def navbar():
                 <div class="account-divider"></div>
 
                 <a
-                    href="/account"
+                    href="?nav=account"
                     target="_self"
                     class="account-menu-item"
                 >
@@ -70,7 +71,7 @@ def navbar():
                 </a>
 
                 <a
-                    href="/history"
+                    href="?nav=history"
                     target="_self"
                     class="account-menu-item"
                 >
@@ -80,7 +81,7 @@ def navbar():
                 <div class="account-divider"></div>
 
                 <a
-                    href="/login"
+                    href="pages/logout.py"
                     target="_self"
                     class="account-menu-item account-logout"
                 >
@@ -100,7 +101,7 @@ def navbar():
 
         account_html = """
         <a
-            href="/login"
+            href="pages/login.py"
             target="_self"
             class="nav-button nav-login-button"
         >
@@ -118,7 +119,7 @@ def navbar():
         <div class="navbar">
 
             <a
-                href="/"
+                href="pages/home.py"
                 target="_self"
                 class="nav-logo-link"
             >
@@ -133,7 +134,7 @@ def navbar():
             <div class="nav-actions">
 
                 <a
-                    href="/preferences"
+                    href="pages/preferences.py"
                     target="_self"
                     class="nav-button"
                 >
