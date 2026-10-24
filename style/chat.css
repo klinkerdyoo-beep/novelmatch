@@ -1,9 +1,13 @@
 /* =========================================================
-   Result Page Header
+   Results Page — Header
    ========================================================= */
 
 .st-key-result-content {
-    padding: 100px 40px 40px 40px;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 100px 40px 0;
+    box-sizing: border-box;
     text-align: center;
 }
 
@@ -11,7 +15,7 @@
     font-family: "Barlow", sans-serif;
     font-size: 64px;
     font-weight: 400;
-    color: white;
+    color: #FFFFFF;
 }
 
 .result-description {
@@ -26,46 +30,103 @@
    ========================================================= */
 
 .st-key-results-glass {
-    width: calc(100% - 40px);
+    width: 100%;
+    max-width: 1100px;
     margin: 20px auto;
     padding: 28px;
     box-sizing: border-box;
     border-radius: 32px;
-
-    background: rgba(255, 255, 255, 0.48);
+    background: rgba(255, 255, 255, 0.48) !important;
+    color: #172957 !important;
     backdrop-filter: blur(22px);
     -webkit-backdrop-filter: blur(22px);
-
     border: 1px solid rgba(255, 255, 255, 0.65);
-
     box-shadow:
         inset 0 1px 1px rgba(255, 255, 255, 0.8),
         inset 0 -1px 1px rgba(255, 255, 255, 0.15),
         0 12px 35px rgba(0, 0, 0, 0.12);
 }
 
+.st-key-results-glass > div {
+    min-width: 0;
+}
 
 /* =========================================================
-   White Inner Sections
+   Inner Result Cards
    ========================================================= */
 
 .st-key-novel-details-card,
 .st-key-score-card,
 .st-key-match-analysis-card,
 .st-key-review-summary-card,
-.st-key-source-card {
+.st-key-external-rating-card,
+.st-key-source-card,
+.st-key-gemini-score-card,
+.st-key-gemini-match-analysis-card,
+.st-key-gemini-review-summary-card,
+.st-key-gemini-external-rating-card,
+.st-key-gemini-source-card {
     width: 100%;
     margin: 0 0 20px;
     padding: 28px;
     box-sizing: border-box;
     border-radius: 20px;
-
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.94) !important;
+    color: #172957 !important;
     border: 1px solid rgba(255, 255, 255, 0.95);
-
     box-shadow: 0 4px 14px rgba(23, 41, 87, 0.05);
 }
 
+/* Text and headings inside result cards */
+.st-key-results-glass .st-key-novel-details-card p,
+.st-key-results-glass .st-key-score-card p,
+.st-key-results-glass .st-key-match-analysis-card p,
+.st-key-results-glass .st-key-review-summary-card p,
+.st-key-results-glass .st-key-external-rating-card p,
+.st-key-results-glass .st-key-source-card p,
+.st-key-results-glass .st-key-gemini-score-card p,
+.st-key-results-glass .st-key-gemini-match-analysis-card p,
+.st-key-results-glass .st-key-gemini-review-summary-card p,
+.st-key-results-glass .st-key-gemini-external-rating-card p,
+.st-key-results-glass .st-key-gemini-source-card p {
+    color: #465467 !important;
+}
+
+.st-key-results-glass .st-key-novel-details-card h1,
+.st-key-results-glass .st-key-novel-details-card h2,
+.st-key-results-glass .st-key-novel-details-card h3,
+.st-key-results-glass .st-key-score-card h1,
+.st-key-results-glass .st-key-score-card h2,
+.st-key-results-glass .st-key-score-card h3,
+.st-key-results-glass .st-key-match-analysis-card h1,
+.st-key-results-glass .st-key-match-analysis-card h2,
+.st-key-results-glass .st-key-match-analysis-card h3,
+.st-key-results-glass .st-key-review-summary-card h1,
+.st-key-results-glass .st-key-review-summary-card h2,
+.st-key-results-glass .st-key-review-summary-card h3,
+.st-key-results-glass .st-key-external-rating-card h1,
+.st-key-results-glass .st-key-external-rating-card h2,
+.st-key-results-glass .st-key-external-rating-card h3,
+.st-key-results-glass .st-key-source-card h1,
+.st-key-results-glass .st-key-source-card h2,
+.st-key-results-glass .st-key-source-card h3,
+.st-key-results-glass .st-key-gemini-score-card h1,
+.st-key-results-glass .st-key-gemini-score-card h2,
+.st-key-results-glass .st-key-gemini-score-card h3,
+.st-key-results-glass .st-key-gemini-match-analysis-card h1,
+.st-key-results-glass .st-key-gemini-match-analysis-card h2,
+.st-key-results-glass .st-key-gemini-match-analysis-card h3,
+.st-key-results-glass .st-key-gemini-review-summary-card h1,
+.st-key-results-glass .st-key-gemini-review-summary-card h2,
+.st-key-results-glass .st-key-gemini-review-summary-card h3,
+.st-key-results-glass .st-key-gemini-external-rating-card h1,
+.st-key-results-glass .st-key-gemini-external-rating-card h2,
+.st-key-results-glass .st-key-gemini-external-rating-card h3,
+.st-key-results-glass .st-key-gemini-source-card h1,
+.st-key-results-glass .st-key-gemini-source-card h2,
+.st-key-results-glass .st-key-gemini-source-card h3 {
+    color: #172957 !important;
+}
 
 /* =========================================================
    Section Headings
@@ -77,19 +138,16 @@
     font-size: 26px;
     font-weight: 600;
     line-height: 1.4;
-
     margin: 12px 0 18px;
     padding-bottom: 12px;
-
     border-bottom: 2px solid rgba(50, 163, 168, 0.35);
 }
 
 .st-key-results-glass h3 {
-    color: #222;
+    color: #222222;
     font-family: "Barlow", sans-serif;
     font-weight: 500;
 }
-
 
 /* =========================================================
    Novel Details
@@ -115,17 +173,23 @@
     display: inline-block;
     padding: 5px 12px;
     margin: 12px 6px 0 0;
-
     border-radius: 20px;
     background: #E4F4F1;
     color: #176D70;
     font-size: 14px;
 }
 
+.st-key-novel-details-card img {
+    width: 100%;
+    max-width: 180px;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(23, 41, 87, 0.16);
+}
 
 /* =========================================================
    Match Score
-   Original Score Circle Design
    ========================================================= */
 
 .match-score-wrapper {
@@ -140,41 +204,32 @@
 
     width: 190px;
     height: 190px;
-
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-
     border-radius: 50%;
-
     background: conic-gradient(
         #32A3A8 0deg,
         #5DBD99 var(--score),
         rgba(255, 255, 255, 0.35) var(--score),
         rgba(255, 255, 255, 0.35) 360deg
     );
-
     box-shadow:
         0 12px 30px rgba(50, 163, 168, 0.18),
         inset 0 1px 2px rgba(255, 255, 255, 0.8);
-
     animation: scoreAppear 0.8s ease-out both;
 }
 
 .match-score-circle::before {
     content: "";
     position: absolute;
-
     width: 158px;
     height: 158px;
     border-radius: 50%;
-
     background: rgba(255, 255, 255, 0.72);
-
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-
     box-shadow:
         inset 0 1px 2px rgba(255, 255, 255, 0.9),
         0 4px 12px rgba(0, 0, 0, 0.06);
@@ -183,12 +238,10 @@
 .match-score-inner {
     position: relative;
     z-index: 2;
-
     display: flex;
     align-items: baseline;
-
     font-family: "Barlow", sans-serif;
-    color: #222;
+    color: #222222;
 }
 
 .match-score-number {
@@ -201,30 +254,26 @@
     margin-left: 3px;
     font-size: 18px;
     font-weight: 300;
-    color: #777;
+    color: #777777;
 }
 
 .match-score-text {
     margin-top: 16px;
-
     font-family: "Barlow", sans-serif;
     font-size: 15px;
     font-weight: 500;
     letter-spacing: 2px;
-
-    color: #555;
+    color: #555555;
 }
 
 .match-status {
     width: fit-content;
     margin: 18px auto 12px;
     padding: 7px 18px;
-
     border-radius: 999px;
     background: rgba(50, 163, 168, 0.12);
     border: 1px solid rgba(50, 163, 168, 0.22);
-
-    color: #23878b;
+    color: #23878B;
     font-family: "Barlow", sans-serif;
     font-size: 15px;
     font-weight: 500;
@@ -240,6 +289,100 @@
         opacity: 1;
         transform: scale(1);
     }
+}
+
+/* =========================================================
+   Model Comparison — subtle model-specific accents
+   ========================================================= */
+
+:root {
+    --chatgpt-accent: #2563EB;
+    --chatgpt-accent-bright: #60A5FA;
+    --chatgpt-accent-soft: #F8FBFF;
+    --gemini-accent: #6558C9;
+    --gemini-accent-bright: #8175E5;
+    --gemini-accent-soft: #FCFAFF;
+}
+
+.model-heading {
+    margin: 0 0 18px;
+    padding: 0 0 12px;
+    font-family: "Barlow", sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.35;
+    border-bottom: 3px solid currentColor;
+}
+
+.model-heading-chatgpt {
+    color: var(--chatgpt-accent);
+    border-color: var(--chatgpt-accent);
+}
+
+.model-heading-gemini {
+    color: var(--gemini-accent);
+    border-color: var(--gemini-accent);
+}
+
+/* Keep the score component identical in size and layout, changing only its accent. */
+.st-key-score-card .match-score-circle {
+    background: conic-gradient(
+        var(--chatgpt-accent) 0deg,
+        var(--chatgpt-accent-bright) var(--score),
+        rgba(255, 255, 255, 0.35) var(--score),
+        rgba(255, 255, 255, 0.35) 360deg
+    );
+    box-shadow:
+        0 12px 30px rgba(37, 99, 235, 0.18),
+        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.st-key-score-card .match-score-text {
+    color: var(--chatgpt-accent);
+}
+
+.st-key-score-card .match-status {
+    background: rgba(37, 99, 235, 0.10);
+    border-color: rgba(37, 99, 235, 0.22);
+    color: var(--chatgpt-accent);
+}
+
+.st-key-match-analysis-card .result-section-title,
+.st-key-review-summary-card .result-section-title,
+.st-key-external-rating-card .result-section-title,
+.st-key-source-card .result-section-title {
+    border-bottom-color: rgba(37, 99, 235, 0.30);
+}
+
+.st-key-match-analysis-card .result-positive {
+    border-left-color: var(--chatgpt-accent-bright);
+}
+
+.st-key-gemini-score-card .match-score-circle {
+    background: conic-gradient(
+        var(--gemini-accent) 0deg,
+        var(--gemini-accent-bright) var(--score),
+        rgba(255, 255, 255, 0.35) var(--score),
+        rgba(255, 255, 255, 0.35) 360deg
+    );
+    box-shadow:
+        0 12px 30px rgba(101, 88, 201, 0.18),
+        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.st-key-gemini-score-card .match-score-text {
+    color: var(--gemini-accent);
+}
+
+.st-key-gemini-match-analysis-card .result-section-title,
+.st-key-gemini-review-summary-card .result-section-title,
+.st-key-gemini-external-rating-card .result-section-title,
+.st-key-gemini-source-card .result-section-title {
+    border-bottom-color: rgba(101, 88, 201, 0.35);
+}
+
+.st-key-gemini-match-analysis-card .result-positive {
+    border-left-color: var(--gemini-accent-bright);
 }
 
 /* =========================================================
@@ -281,18 +424,151 @@
 }
 
 /* =========================================================
-   Book Cover
+   Review Summary and Muted Text
    ========================================================= */
 
-.st-key-novel-details-card img {
-    width: 100%;
-    max-width: 180px;
-    aspect-ratio: 2 / 3;
-    object-fit: cover;
-    border-radius: 12px;
-    box-shadow: 0 10px 24px rgba(23, 41, 87, 0.16);
+.result-review-heading {
+    color: #172957;
+    font-weight: 600;
+    font-size: 17px;
+    margin-bottom: 8px;
 }
 
+.result-muted {
+    color: #667085;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* =========================================================
+   Dividers
+   ========================================================= */
+
+.st-key-results-glass hr {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    margin: 24px 0;
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+
+.st-key-results-glass .stButton > button {
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 10px;
+    font-family: "Barlow", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    background: #FFFFFF;
+    color: #29448D;
+    border: 1px solid #DCE3ED;
+    box-shadow: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.st-key-results-glass .stButton > button:hover {
+    background: #F0F4FA;
+    color: #203A7B;
+    border-color: #B8C7DF;
+    box-shadow: none;
+    transform: none;
+}
+
+.st-key-results-glass .stButton > button:active {
+    transform: none;
+}
+
+/* =========================================================
+   Sources and Limitations Expander
+   ========================================================= */
+
+.st-key-results-glass [data-testid="stExpander"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(220, 227, 237, 0.9) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.st-key-results-glass [data-testid="stExpander"] details > summary {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #172957 !important;
+}
+
+.st-key-results-glass [data-testid="stExpander"] details > summary p,
+.st-key-results-glass [data-testid="stExpander"] details > summary span {
+    color: #172957 !important;
+}
+
+.st-key-results-glass [data-testid="stExpander"] details > summary svg {
+    color: #29448D !important;
+    fill: #29448D !important;
+}
+
+.st-key-results-glass [data-testid="stExpander"] details > div {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #172957 !important;
+}
+
+.st-key-results-glass [data-testid="stExpander"] details > div p,
+.st-key-results-glass [data-testid="stExpander"] details > div li,
+.st-key-results-glass [data-testid="stExpander"] details > div strong,
+.st-key-results-glass [data-testid="stExpander"] details > div h1,
+.st-key-results-glass [data-testid="stExpander"] details > div h2,
+.st-key-results-glass [data-testid="stExpander"] details > div h3 {
+    color: #172957 !important;
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 768px) {
+    .st-key-result-content {
+        padding: 60px 18px 0;
+    }
+
+    .st-key-result-content h1 {
+        font-size: 42px;
+    }
+
+    .st-key-results-glass {
+        width: calc(100% - 36px);
+        padding: 16px;
+        border-radius: 24px;
+    }
+
+    .st-key-novel-details-card,
+    .st-key-score-card,
+    .st-key-match-analysis-card,
+    .st-key-review-summary-card,
+    .st-key-external-rating-card,
+    .st-key-source-card,
+    .st-key-gemini-score-card,
+    .st-key-gemini-match-analysis-card,
+    .st-key-gemini-review-summary-card,
+    .st-key-gemini-external-rating-card,
+    .st-key-gemini-source-card {
+        padding: 20px;
+        margin-bottom: 16px;
+        border-radius: 16px;
+    }
+
+    .match-score-circle {
+        width: 160px;
+        height: 160px;
+    }
+
+    .match-score-circle::before {
+        width: 132px;
+        height: 132px;
+    }
+
+    .match-score-number {
+        font-size: 44px;
+    }
+}
 
 @media (max-width: 640px) {
     .result-book-layout {
@@ -314,247 +590,54 @@
 }
 
 /* =========================================================
-   Review Summary & Muted Text
+   Model-specific tinted backgrounds
+   ChatGPT = light blue | Gemini = light purple
+   Keep Novel Details neutral white.
    ========================================================= */
 
-.result-review-heading {
-    color: #172957;
-    font-weight: 600;
-    font-size: 17px;
-    margin-bottom: 8px;
+.st-key-score-card,
+.st-key-match-analysis-card,
+.st-key-review-summary-card,
+.st-key-external-rating-card,
+.st-key-source-card {
+    background: #F8FBFF !important;
+    border: 1px solid rgba(37, 99, 235, 0.13) !important;
+    box-shadow: 0 5px 18px rgba(37, 99, 235, 0.06) !important;
 }
 
-.result-muted {
-    color: #667085;
-    font-size: 14px;
-    line-height: 1.7;
+.st-key-gemini-score-card,
+.st-key-gemini-match-analysis-card,
+.st-key-gemini-review-summary-card,
+.st-key-gemini-external-rating-card,
+.st-key-gemini-source-card {
+    background: #FCFAFF !important;
+    border: 1px solid rgba(101, 88, 201, 0.14) !important;
+    box-shadow: 0 5px 18px rgba(101, 88, 201, 0.06) !important;
 }
 
-
-/* =========================================================
-   Dividers Inside Main Glass
-   ========================================================= */
-
-.st-key-results-glass hr {
-    border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    margin: 24px 0;
-}
-
-
-/* =========================================================
-   Responsive
-   ========================================================= */
-
-@media (max-width: 768px) {
-    .st-key-result-content {
-        padding: 48px 16px 32px;
-    }
-
-    .st-key-result-content h1 {
-        font-size: 42px;
-    }
-
-    .st-key-results-glass {
-        width: calc(100% - 40px);
-        padding: 16px;
-        border-radius: 24px;
-    }
-
-    .st-key-novel-details-card,
-    .st-key-score-card,
-    .st-key-match-analysis-card,
-    .st-key-review-summary-card,
-    .st-key-external-rating-card,
-    .st-key-source-card {
-        padding: 20px;
-        margin-bottom: 16px;
-        border-radius: 16px;
-    }
-
-    .match-score-circle {
-        width: 160px;
-        height: 160px;
-    }
-
-    .match-score-circle::before {
-        width: 132px;
-        height: 132px;
-    }
-
-    .match-score-number {
-        font-size: 44px;
-    }
-}
-
-
-/* =========================================================
-   Centered Results Page
-   ========================================================= */
-
-.st-key-result-content {
-    width: 100%;
-    max-width: 1100px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 100px 40px 0;
-    box-sizing: border-box;
-}
-
-.st-key-results-glass {
-    width: 100%;
-    max-width: 1100px;
-    margin-left: auto;
-    margin-right: auto;
-    box-sizing: border-box;
-}
-
-/* Keep content inside the main glass card */
-.st-key-results-glass > div {
-    min-width: 0;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .st-key-result-content {
-        padding: 60px 18px 0;
-    }
-
-    .st-key-results-glass {
-        width: calc(100% - 36px);
-    }
-}
-
-/* =========================================================
-   Results — Back to Home Button
-   ========================================================= */
-
-.st-key-results-glass .stButton > button {
-    min-height: 44px;
-    padding: 0 22px;
-
-    border-radius: 10px;
-    font-family: "Barlow", sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-
-    background: #FFFFFF;
-    color: #29448D;
-    border: 1px solid #DCE3ED;
-
-    box-shadow: none;
-    transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-/* Hover */
-
-.st-key-results-glass .stButton > button:hover {
-    background: #F0F4FA;
-    color: #203A7B;
-    border-color: #B8C7DF;
-
-    box-shadow: none;
-    transform: none;
-}
-
-/* Active */
-
-.st-key-results-glass .stButton > button:active {
-    transform: none;
-}
-
-
-/* =========================================================
-   Results Page — Force Light Appearance
-   ========================================================= */
-
-/* Main glass card */
-.st-key-results-glass {
+/* Keep expanders visually integrated with each model's card. */
+.st-key-score-card [data-testid="stExpander"] details > summary,
+.st-key-score-card [data-testid="stExpander"] details > div,
+.st-key-match-analysis-card [data-testid="stExpander"] details > summary,
+.st-key-match-analysis-card [data-testid="stExpander"] details > div,
+.st-key-review-summary-card [data-testid="stExpander"] details > summary,
+.st-key-review-summary-card [data-testid="stExpander"] details > div,
+.st-key-external-rating-card [data-testid="stExpander"] details > summary,
+.st-key-external-rating-card [data-testid="stExpander"] details > div,
+.st-key-source-card [data-testid="stExpander"] details > summary,
+.st-key-source-card [data-testid="stExpander"] details > div {
     background: rgba(255, 255, 255, 0.48) !important;
-    color: #172957 !important;
 }
 
-/* Inner result cards */
-.st-key-results-glass .st-key-novel-details-card,
-.st-key-results-glass .st-key-score-card,
-.st-key-results-glass .st-key-match-analysis-card,
-.st-key-results-glass .st-key-review-summary-card,
-.st-key-results-glass .st-key-source-card {
-    background: rgba(255, 255, 255, 0.94) !important;
-    color: #172957 !important;
-}
-
-/* General text inside result cards */
-.st-key-results-glass .st-key-novel-details-card p,
-.st-key-results-glass .st-key-score-card p,
-.st-key-results-glass .st-key-match-analysis-card p,
-.st-key-results-glass .st-key-review-summary-card p,
-.st-key-results-glass .st-key-source-card p {
-    color: #465467 !important;
-}
-
-/* Headings inside result cards */
-.st-key-results-glass .st-key-novel-details-card h1,
-.st-key-results-glass .st-key-novel-details-card h2,
-.st-key-results-glass .st-key-novel-details-card h3,
-.st-key-results-glass .st-key-score-card h1,
-.st-key-results-glass .st-key-score-card h2,
-.st-key-results-glass .st-key-score-card h3,
-.st-key-results-glass .st-key-match-analysis-card h1,
-.st-key-results-glass .st-key-match-analysis-card h2,
-.st-key-results-glass .st-key-match-analysis-card h3,
-.st-key-results-glass .st-key-review-summary-card h1,
-.st-key-results-glass .st-key-review-summary-card h2,
-.st-key-results-glass .st-key-review-summary-card h3,
-.st-key-results-glass .st-key-source-card h1,
-.st-key-results-glass .st-key-source-card h2,
-.st-key-results-glass .st-key-source-card h3 {
-    color: #172957 !important;
-}
-
-
-/* =========================================================
-   Results — View Sources and Limitations Expander
-   ========================================================= */
-
-/* Expander container */
-.st-key-results-glass [data-testid="stExpander"] {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(220, 227, 237, 0.9) !important;
-    border-radius: 12px !important;
-    overflow: hidden;
-}
-
-/* Expander header — both open and closed */
-.st-key-results-glass [data-testid="stExpander"] details > summary {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #172957 !important;
-}
-
-/* Header text */
-.st-key-results-glass [data-testid="stExpander"] details > summary p,
-.st-key-results-glass [data-testid="stExpander"] details > summary span {
-    color: #172957 !important;
-}
-
-/* Arrow icon */
-.st-key-results-glass [data-testid="stExpander"] details > summary svg {
-    color: #29448d !important;
-    fill: #29448d !important;
-}
-
-/* Expanded content */
-.st-key-results-glass [data-testid="stExpander"] details > div {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #172957 !important;
-}
-
-/* Text and headings inside expanded content */
-.st-key-results-glass [data-testid="stExpander"] details > div p,
-.st-key-results-glass [data-testid="stExpander"] details > div li,
-.st-key-results-glass [data-testid="stExpander"] details > div strong,
-.st-key-results-glass [data-testid="stExpander"] details > div h1,
-.st-key-results-glass [data-testid="stExpander"] details > div h2,
-.st-key-results-glass [data-testid="stExpander"] details > div h3 {
-    color: #172957 !important;
+.st-key-gemini-score-card [data-testid="stExpander"] details > summary,
+.st-key-gemini-score-card [data-testid="stExpander"] details > div,
+.st-key-gemini-match-analysis-card [data-testid="stExpander"] details > summary,
+.st-key-gemini-match-analysis-card [data-testid="stExpander"] details > div,
+.st-key-gemini-review-summary-card [data-testid="stExpander"] details > summary,
+.st-key-gemini-review-summary-card [data-testid="stExpander"] details > div,
+.st-key-gemini-external-rating-card [data-testid="stExpander"] details > summary,
+.st-key-gemini-external-rating-card [data-testid="stExpander"] details > div,
+.st-key-gemini-source-card [data-testid="stExpander"] details > summary,
+.st-key-gemini-source-card [data-testid="stExpander"] details > div {
+    background: rgba(255, 255, 255, 0.48) !important;
 }

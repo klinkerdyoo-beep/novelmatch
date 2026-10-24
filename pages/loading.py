@@ -49,7 +49,7 @@ with open("assets/login-you-bg.png", "rb") as f:
 
 st.markdown(
     f"""
-    <style>
+    <style> 
         .stApp {{
             background-image:
                 url("data:image/png;base64,{hero_bg}");
