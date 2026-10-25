@@ -1,7 +1,5 @@
-/* =========================================================
-   NovelMatch AI — Reading History
-   Visual language aligned with Results / Chat
-   ========================================================= */
+/* NovelMatch AI — Reading History
+   Typography and component styles aligned with Results / Chat. */
 
 :root {
     --history-navy: #172957;
@@ -12,58 +10,45 @@
     --history-border: rgba(255, 255, 255, 0.72);
     --history-shadow: 0 18px 48px rgba(23, 41, 87, 0.12);
     --history-radius: 26px;
+    --history-chatgpt: #2563EB;
+    --history-chatgpt-bright: #60A5FA;
+    --history-chatgpt-soft: #F8FBFF;
+    --history-gemini: #6558C9;
+    --history-gemini-bright: #8175E5;
+    --history-gemini-soft: #FCFAFF;
 }
 
-/* Main page container */
+/* =========================================================
+   Page header and search
+   ========================================================= */
+
 .st-key-history-content {
     width: min(1180px, calc(100% - 48px));
-    margin: 32px auto 64px auto;
+    margin: 32px auto 64px;
     color: var(--history-text);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
 }
 
 .st-key-history-content h1 {
+    margin: 0 0 18px;
     color: #fff;
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: clamp(3.2rem, 6vw, 5.4rem);
     font-weight: 400;
     line-height: 0.98;
     letter-spacing: -0.035em;
-    margin: 0 0 18px 0;
     text-shadow: 0 2px 20px rgba(23, 41, 87, 0.12);
 }
 
 .history-description {
     max-width: 720px;
+    margin-bottom: 30px;
     color: rgba(255, 255, 255, 0.96);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 20px;
     font-weight: 300;
     line-height: 1.55;
-    margin-bottom: 30px;
     text-shadow: 0 1px 12px rgba(23, 41, 87, 0.16);
-}
-
-/* Search */
-.st-key-history-search {
-    max-width: 680px;
-    margin: 0 0 18px 0;
-}
-
-.st-key-history-search input {
-    min-height: 54px;
-    border: 1px solid rgba(255, 255, 255, 0.72) !important;
-    border-radius: 16px !important;
-    background: rgba(255, 255, 255, 0.88) !important;
-    color: var(--history-text) !important;
-    box-shadow: 0 8px 26px rgba(23, 41, 87, 0.08);
-    font-family: 'Barlow', sans-serif;
-    font-size: 16px;
-}
-
-.st-key-history-search input:focus {
-    border-color: var(--history-primary) !important;
-    box-shadow: 0 0 0 3px rgba(41, 68, 141, 0.14) !important;
 }
 
 .history-count {
@@ -72,25 +57,40 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px 18px;
-    color: rgba(255, 255, 255, 0.96);
-    font-family: 'Barlow', sans-serif;
-    font-size: 15px;
     margin: 10px 2px 18px;
+    color: rgba(255, 255, 255, 0.96);
+    font-family: "Barlow", sans-serif;
+    font-size: 15px;
 }
 
-.history-count span:first-child {
-    font-weight: 600;
+.history-count span:first-child { font-weight: 600; }
+.history-count span:last-child { opacity: 0.85; font-weight: 400; }
+
+.st-key-history-search { max-width: 680px; margin: 0 0 18px; }
+
+.st-key-history-search input {
+    min-height: 54px;
+    border: 1px solid rgba(255, 255, 255, 0.72) !important;
+    border-radius: 16px !important;
+    background: rgba(255, 255, 255, 0.88) !important;
+    color: var(--history-text) !important;
+    box-shadow: 0 8px 26px rgba(23, 41, 87, 0.08);
+    font-family: "Barlow", sans-serif !important;
+    font-size: 16px !important;
 }
 
-.history-count span:last-child {
-    opacity: 0.85;
-    font-weight: 400;
+.st-key-history-search input:focus {
+    border-color: var(--history-primary) !important;
+    box-shadow: 0 0 0 3px rgba(41, 68, 141, 0.14) !important;
 }
 
-/* History card — Streamlit container with key history-card-* */
+/* =========================================================
+   Reading History cards
+   ========================================================= */
+
 [class*="st-key-history-card-"] {
+    margin: 0 0 18px;
     padding: 22px 24px !important;
-    margin: 0 0 18px 0;
     border: 1px solid var(--history-border) !important;
     border-radius: var(--history-radius) !important;
     background: var(--history-glass) !important;
@@ -101,8 +101,8 @@
 }
 
 [class*="st-key-history-card-"]:hover {
-    box-shadow: 0 22px 56px rgba(23, 41, 87, 0.16);
     background: rgba(255, 255, 255, 0.84) !important;
+    box-shadow: 0 22px 56px rgba(23, 41, 87, 0.16);
 }
 
 .history-cover-placeholder {
@@ -114,50 +114,44 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    border-radius: 16px;
     border: 1px solid rgba(41, 68, 141, 0.12);
+    border-radius: 16px;
     background: linear-gradient(145deg, rgba(41, 68, 141, 0.12), rgba(233, 212, 154, 0.3));
     color: var(--history-primary);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 13px;
     font-weight: 500;
     text-align: center;
 }
 
-.history-cover-placeholder span:first-child {
-    font-size: 34px;
-}
+.history-cover-placeholder span:first-child { font-size: 34px; }
 
 .history-book-title {
+    margin: 0 0 4px;
     color: var(--history-navy);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: clamp(23px, 2.2vw, 30px);
     font-weight: 500;
     line-height: 1.2;
     overflow-wrap: anywhere;
-    margin: 0 0 4px 0;
 }
 
 .history-book-author {
+    margin-bottom: 7px;
     color: var(--history-primary);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 17px;
     font-weight: 400;
-    margin-bottom: 7px;
 }
 
 .history-book-date {
-    color: var(--history-muted);
-    font-family: 'Barlow', sans-serif;
-    font-size: 14px;
     margin-bottom: 12px;
+    color: var(--history-muted);
+    font-family: "Barlow", sans-serif;
+    font-size: 14px;
 }
 
-.history-genres {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-}
+.history-genres { display: flex; flex-wrap: wrap; gap: 7px; }
 
 .history-genre {
     display: inline-flex;
@@ -167,7 +161,7 @@
     border-radius: 999px;
     background: rgba(41, 68, 141, 0.07);
     color: var(--history-primary);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 12px;
     font-weight: 500;
     line-height: 1.35;
@@ -184,184 +178,371 @@
 
 .history-score-number {
     color: var(--history-navy);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 36px;
     font-weight: 600;
     line-height: 1;
 }
 
-.history-score-number span {
-    color: var(--history-muted);
-    font-size: 14px;
-    font-weight: 400;
-}
+.history-score-number span { color: var(--history-muted); font-size: 14px; font-weight: 400; }
 
 .history-score-status {
     margin-top: 9px;
     color: var(--history-primary);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 13px;
     font-weight: 600;
     line-height: 1.3;
 }
 
-/* Details expander */
 [class*="st-key-history-card-"] details {
+    overflow: hidden;
     border: 1px solid rgba(41, 68, 141, 0.13) !important;
     border-radius: 16px !important;
     background: rgba(255, 255, 255, 0.52) !important;
-    overflow: hidden;
 }
 
 [class*="st-key-history-card-"] details summary {
     padding: 13px 16px !important;
     color: var(--history-navy) !important;
-    font-family: 'Barlow', sans-serif !important;
+    font-family: "Barlow", sans-serif !important;
     font-size: 15px !important;
     font-weight: 600 !important;
 }
 
 [class*="st-key-history-card-"] details summary:hover {
-    color: var(--history-primary) !important;
     background: rgba(41, 68, 141, 0.04) !important;
+    color: var(--history-primary) !important;
 }
 
-[class*="st-key-history-card-"] details > div {
-    padding: 12px 18px 20px !important;
-}
+[class*="st-key-history-card-"] details > div { padding: 12px 18px 20px !important; }
 
-/* Reuse Results page typography and analysis styles */
-.result-section-title {
-    color: var(--history-navy);
-    font-family: 'Barlow', sans-serif;
-    font-size: 26px;
-    font-weight: 600;
-    line-height: 1.4;
-    margin: 18px 0 16px;
-}
-
-.result-book-title {
-    color: var(--history-navy);
-    font-family: 'Barlow', sans-serif;
-    font-size: 30px;
-    font-weight: 500;
-    line-height: 1.3;
-    overflow-wrap: anywhere;
-}
-
-.result-book-author {
-    color: var(--history-primary);
-    font-family: 'Barlow', sans-serif;
-    font-size: 18px;
-    margin: 4px 0 16px;
-}
-
-.result-positive,
-.result-warning {
-    height: 100%;
-    padding: 17px 19px;
-    margin: 0 0 12px;
-    border-radius: 16px;
-    font-family: 'Barlow', sans-serif;
-}
-
-.result-positive {
-    border: 1px solid rgba(52, 128, 98, 0.2);
-    background: rgba(226, 244, 235, 0.68);
-}
-
-.result-warning {
-    border: 1px solid rgba(188, 132, 49, 0.22);
-    background: rgba(255, 243, 220, 0.72);
-}
-
-.result-point-title {
-    color: var(--history-navy);
-    font-size: 17px;
-    font-weight: 600;
-    line-height: 1.4;
-    margin-bottom: 5px;
-}
-
-.result-point-description {
-    color: #414957;
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.7;
-    overflow-wrap: anywhere;
-}
-
-/* Circular match score */
-.match-score-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 0 18px;
-    text-align: center;
-}
-
-.match-score-circle {
-    width: 156px;
-    height: 156px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: conic-gradient(var(--history-primary) var(--score), rgba(41, 68, 141, 0.13) 0);
-    position: relative;
-}
-
-.match-score-inner {
-    width: 130px;
-    height: 130px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: #fff;
-}
-
-.match-score-number {
-    color: var(--history-navy);
-    font-family: 'Barlow', sans-serif;
-    font-size: 42px;
-    font-weight: 600;
-    line-height: 1;
-}
-
-.match-score-label {
-    color: var(--history-muted);
-    font-family: 'Barlow', sans-serif;
-    font-size: 13px;
-    margin-top: 4px;
-}
-
-.match-score-text {
-    color: var(--history-muted);
-    font-family: 'Barlow', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.13em;
-    margin-top: 12px;
-}
-
-.match-status {
-    color: var(--history-primary);
-    font-family: 'Barlow', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    margin-top: 4px;
-}
-
-/* Review summary: plain text, no forced bullet styling */
 [class*="st-key-history-card-"] [data-testid="stText"] {
     color: #414957;
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 14px;
     line-height: 1.65;
     overflow-wrap: anywhere;
 }
+
+[class*="st-key-history-card-"] hr {
+    margin: 24px 0 !important;
+    border-color: rgba(41, 68, 141, 0.13) !important;
+}
+
+/* =========================================================
+   View Details — shared typography
+   ========================================================= */
+
+/* Normalize rendered text once, instead of repeating font rules per component. */
+.st-key-history-content .result-summary,
+.st-key-history-content .result-point-description,
+.st-key-history-content .novel-detail-meta,
+.st-key-history-content .novel-detail-synopsis,
+.st-key-history-content p,
+.st-key-history-content li,
+.st-key-history-content label,
+.st-key-history-content strong,
+.st-key-history-content b,
+.st-key-history-content [data-testid="stExpander"] summary,
+.st-key-history-content [data-testid="stExpander"] p,
+.st-key-history-content [data-testid="stExpander"] li {
+    font-family: "Barlow", sans-serif !important;
+}
+
+.st-key-history-content strong,
+.st-key-history-content b { font-weight: 600; }
+
+.st-key-history-content .result-section-title {
+    margin: 18px 0 16px !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2px solid rgba(50, 163, 168, 0.35) !important;
+    color: #172957 !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 26px !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+}
+
+/* Compact Novel Details: one canonical rule for title and author. */
+.st-key-history-content .result-book-title {
+    margin-bottom: 4px;
+    color: #172957 !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 20px !important;
+    font-weight: 500 !important;
+    line-height: 1.4 !important;
+    overflow-wrap: anywhere;
+}
+
+.st-key-history-content .result-book-author {
+    margin: 8px 0 !important;
+    color: #667085 !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 14px !important;
+}
+
+.st-key-history-content .novel-detail-meta,
+.st-key-history-content .novel-detail-synopsis {
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+.st-key-history-content .novel-detail-meta { margin-top: 10px; }
+.st-key-history-content .novel-detail-synopsis { margin-top: 8px; }
+
+.st-key-history-content .result-positive,
+.st-key-history-content .result-warning {
+    box-sizing: border-box;
+    min-width: 0;
+    height: 100%;
+    margin: 0 0 12px !important;
+    padding: 17px 19px !important;
+    font-family: "Barlow", sans-serif !important;
+    overflow-wrap: anywhere;
+}
+
+.st-key-history-content .result-point-title {
+    margin-bottom: 5px !important;
+    color: var(--history-navy) !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 17px !important;
+    font-weight: 600 !important;
+    line-height: 1.4 !important;
+}
+
+.st-key-history-content .result-point-description {
+    color: #414957 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    line-height: 1.7 !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+/* =========================================================
+   View Details — score ring
+   ========================================================= */
+
+.st-key-history-content .match-score-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    padding: 20px 0 10px;
+    text-align: center;
+}
+
+.st-key-history-content .match-score-circle {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 190px !important;
+    height: 190px !important;
+    border-radius: 50%;
+    background: conic-gradient(#32A3A8 0deg, #5DBD99 var(--score), rgba(255,255,255,.35) var(--score), rgba(255,255,255,.35) 360deg) !important;
+    box-shadow: 0 12px 30px rgba(50, 163, 168, 0.18), inset 0 1px 2px rgba(255,255,255,.8) !important;
+    animation: historyScoreAppear 0.8s ease-out both;
+}
+
+.st-key-history-content .match-score-circle::before {
+    content: "";
+    position: absolute;
+    width: 158px !important;
+    height: 158px !important;
+    border-radius: 50%;
+    background: rgba(255,255,255,.72) !important;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 2px rgba(255,255,255,.9), 0 4px 12px rgba(0,0,0,.06) !important;
+}
+
+.st-key-history-content .match-score-inner {
+    position: relative;
+    z-index: 2;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: baseline !important;
+    justify-content: center;
+    width: auto !important;
+    height: auto !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #222 !important;
+    font-family: "Barlow", sans-serif !important;
+}
+
+.st-key-history-content .match-score-number {
+    color: #222 !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 52px !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+}
+
+.st-key-history-content .match-score-label {
+    margin: 0 0 0 3px !important;
+    color: #777 !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 300 !important;
+}
+
+.st-key-history-content .match-score-text {
+    margin-top: 16px !important;
+    color: #555 !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    letter-spacing: 2px !important;
+}
+
+.st-key-history-content .match-status {
+    width: fit-content;
+    margin: 18px auto 12px !important;
+    padding: 7px 18px !important;
+    border: 1px solid rgba(50, 163, 168, 0.22) !important;
+    border-radius: 999px !important;
+    background: rgba(50, 163, 168, 0.12) !important;
+    color: #23878b !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+}
+
+/* =========================================================
+   Match Status — Score-based colors
+   Great Match: 80–100
+   Good Match: 60–79
+   Low Match: 0–59
+   ========================================================= */
+
+.st-key-history-content .match-status.status-high {
+    border-color: rgba(34, 197, 94, 0.25) !important;
+    background: rgba(34, 197, 94, 0.12) !important;
+    color: #15803D !important;
+}
+
+.st-key-history-content .match-status.status-medium {
+    border-color: rgba(234, 179, 8, 0.28) !important;
+    background: rgba(234, 179, 8, 0.13) !important;
+    color: #A16207 !important;
+}
+
+.st-key-history-content .match-status.status-low {
+    border-color: rgba(239, 68, 68, 0.25) !important;
+    background: rgba(239, 68, 68, 0.10) !important;
+    color: #B91C1C !important;
+}
+
+/* =========================================================
+   View Details — model comparison
+   ChatGPT = blue | Gemini = purple
+   ========================================================= */
+
+.st-key-history-content [class*="st-key-history-chatgpt-"],
+.st-key-history-content [class*="st-key-history-gemini-"] {
+    box-sizing: border-box;
+    height: 100%;
+    min-width: 0;
+}
+
+.st-key-history-content .model-heading {
+    margin: 0 0 18px !important;
+    padding: 0 0 12px !important;
+    border-bottom: 3px solid currentColor !important;
+    font-family: "Barlow", sans-serif !important;
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    line-height: 1.35 !important;
+}
+
+.st-key-history-content .model-heading-chatgpt {
+    border-color: var(--history-chatgpt) !important;
+    color: var(--history-chatgpt) !important;
+}
+
+.st-key-history-content .model-heading-gemini {
+    border-color: var(--history-gemini) !important;
+    color: var(--history-gemini) !important;
+}
+
+.st-key-history-content [class*="st-key-history-chatgpt-"] .result-section-title,
+.st-key-history-content [class*="st-key-history-gemini-"] .result-section-title {
+    margin-top: 22px !important;
+    font-size: 22px !important;
+}
+
+.st-key-history-content [class*="st-key-history-chatgpt-"] .result-positive {
+    border-left: 4px solid var(--history-chatgpt-bright) !important;
+}
+
+.st-key-history-content [class*="st-key-history-gemini-"] .result-positive {
+    border-left: 4px solid var(--history-gemini-bright) !important;
+}
+
+/* ChatGPT cards — soft blue */
+.st-key-history-content [class*="st-key-history-chatgpt-score-card-"],
+.st-key-history-content [class*="st-key-history-chatgpt-match-analysis-card-"],
+.st-key-history-content [class*="st-key-history-chatgpt-review-summary-card-"],
+.st-key-history-content [class*="st-key-history-chatgpt-source-card-"] {
+    margin-bottom: 16px !important;
+    padding: 20px 24px !important;
+    border: 1px solid rgba(37, 99, 235, 0.10) !important;
+    border-radius: 16px !important;
+    background: var(--history-chatgpt-soft) !important;
+    box-shadow: none !important;
+}
+
+/* Gemini cards — soft purple */
+.st-key-history-content [class*="st-key-history-gemini-score-card-"],
+.st-key-history-content [class*="st-key-history-gemini-match-analysis-card-"],
+.st-key-history-content [class*="st-key-history-gemini-review-summary-card-"],
+.st-key-history-content [class*="st-key-history-gemini-source-card-"] {
+    margin-bottom: 16px !important;
+    padding: 20px 24px !important;
+    border: 1px solid rgba(101, 88, 201, 0.10) !important;
+    border-radius: 16px !important;
+    background: var(--history-gemini-soft) !important;
+    box-shadow: none !important;
+}
+
+/* Model-specific score ring colors */
+.st-key-history-content [class*="st-key-history-chatgpt-"] .match-score-circle {
+    background: conic-gradient(var(--history-chatgpt) 0deg, var(--history-chatgpt-bright) var(--score), rgba(37,99,235,.13) var(--score), rgba(37,99,235,.13) 360deg) !important;
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.16) !important;
+}
+
+.st-key-history-content [class*="st-key-history-gemini-"] .match-score-circle {
+    background: conic-gradient(var(--history-gemini) 0deg, var(--history-gemini-bright) var(--score), rgba(101,88,201,.13) var(--score), rgba(101,88,201,.13) 360deg) !important;
+    box-shadow: 0 12px 30px rgba(101, 88, 201, 0.16) !important;
+}
+
+.st-key-history-content [class*="st-key-history-chatgpt-"] .match-score-text,
+.st-key-history-content [class*="st-key-history-chatgpt-"] .match-status {
+    color: var(--history-chatgpt) !important;
+}
+
+.st-key-history-content [class*="st-key-history-gemini-"] .match-score-text,
+.st-key-history-content [class*="st-key-history-gemini-"] .match-status {
+    color: var(--history-gemini) !important;
+}
+
+.st-key-history-content [class*="st-key-history-chatgpt-"] p,
+.st-key-history-content [class*="st-key-history-gemini-"] p,
+.st-key-history-content [class*="st-key-history-chatgpt-"] li,
+.st-key-history-content [class*="st-key-history-gemini-"] li {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+/* =========================================================
+   Empty state and footer actions
+   ========================================================= */
 
 .history-empty {
     padding: 54px 24px;
@@ -373,32 +554,28 @@
     backdrop-filter: blur(22px);
 }
 
-.history-empty-icon {
-    font-size: 42px;
-    margin-bottom: 10px;
-}
+.history-empty-icon { margin-bottom: 10px; font-size: 42px; }
 
 .history-empty-title {
+    margin-bottom: 8px;
     color: var(--history-navy);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 25px;
     font-weight: 600;
-    margin-bottom: 8px;
 }
 
 .history-empty-description {
     color: var(--history-muted);
-    font-family: 'Barlow', sans-serif;
+    font-family: "Barlow", sans-serif;
     font-size: 16px;
     line-height: 1.6;
 }
 
-/* Footer actions */
 .st-key-history-back-home button,
 .st-key-history-new-analysis button {
     min-height: 48px;
     border-radius: 14px !important;
-    font-family: 'Barlow', sans-serif !important;
+    font-family: "Barlow", sans-serif !important;
     font-size: 15px !important;
     font-weight: 600 !important;
     transition: transform 160ms ease, box-shadow 160ms ease;
@@ -422,11 +599,14 @@
     box-shadow: 0 9px 22px rgba(23, 41, 87, 0.16);
 }
 
-/* Dividers inside cards */
-[class*="st-key-history-card-"] hr {
-    border-color: rgba(41, 68, 141, 0.13) !important;
-    margin: 24px 0 !important;
+@keyframes historyScoreAppear {
+    from { opacity: 0; transform: scale(0.75); }
+    to { opacity: 1; transform: scale(1); }
 }
+
+/* =========================================================
+   Responsive
+   ========================================================= */
 
 @media (max-width: 900px) {
     .st-key-history-content {
@@ -439,22 +619,25 @@
         border-radius: 21px !important;
     }
 
-    .history-score {
-        min-width: 0;
-        padding: 12px 8px;
+    .history-score { min-width: 0; padding: 12px 8px; }
+    .history-score-number { font-size: 30px; }
+
+    .st-key-history-content .result-section-title { font-size: 23px !important; }
+}
+
+@media (max-width: 768px) {
+    .st-key-history-content .match-score-circle {
+        width: 160px !important;
+        height: 160px !important;
     }
 
-    .history-score-number {
-        font-size: 30px;
+    .st-key-history-content .match-score-circle::before {
+        width: 132px !important;
+        height: 132px !important;
     }
 
-    .result-section-title {
-        font-size: 23px;
-    }
-
-    .result-book-title {
-        font-size: 25px;
-    }
+    .st-key-history-content .match-score-number { font-size: 44px !important; }
+    .st-key-history-content .model-heading { font-size: 21px !important; }
 }
 
 @media (max-width: 600px) {
@@ -463,428 +646,39 @@
         margin-top: 18px;
     }
 
-    .st-key-history-content h1 {
-        font-size: 3.1rem;
-    }
-
-    .history-description {
-        font-size: 17px;
-    }
+    .st-key-history-content h1 { font-size: 3.1rem; }
+    .history-description { font-size: 17px; }
 
     [class*="st-key-history-card-"] {
-        padding: 13px !important;
         margin-bottom: 14px;
+        padding: 13px !important;
     }
 
-    .history-book-title {
-        font-size: 22px;
-    }
+    .history-book-title { font-size: 22px; }
+    .history-book-author { font-size: 15px; }
+    .history-score-number { font-size: 25px; }
+    .history-score-status { font-size: 11px; }
 
-    .history-book-author {
-        font-size: 15px;
-    }
-
-    .history-score-number {
-        font-size: 25px;
-    }
-
-    .history-score-status {
-        font-size: 11px;
-    }
-
-    .match-score-circle {
-        width: 132px;
-        height: 132px;
-    }
-
-    .match-score-inner {
-        width: 110px;
-        height: 110px;
-    }
-
-    .match-score-number {
-        font-size: 35px;
-    }
-}
-
-/* =========================================================
-   View Details — two-model comparison aligned with Chat Results
-   ========================================================= */
-
-.model-heading {
-    margin: 0 0 18px;
-    padding: 0 0 12px;
-    font-family: "Barlow", sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 1.35;
-    border-bottom: 3px solid currentColor;
-}
-
-.model-heading-chatgpt {
-    color: #2563EB;
-    border-color: #2563EB;
-}
-
-.model-heading-gemini {
-    color: #6558C9;
-    border-color: #6558C9;
-}
-
-/* Each model gets the same component structure, with its own subtle tint. */
-[class*="st-key-history-chatgpt-"] {
-    min-width: 0;
-    padding: 22px 18px 10px;
-    border: 1px solid rgba(37, 99, 235, 0.14);
-    border-radius: 20px;
-    background: #F8FBFF;
-    box-shadow: 0 5px 18px rgba(37, 99, 235, 0.06);
-}
-
-[class*="st-key-history-gemini-"] {
-    min-width: 0;
-    padding: 22px 18px 10px;
-    border: 1px solid rgba(101, 88, 201, 0.15);
-    border-radius: 20px;
-    background: #FCFAFF;
-    box-shadow: 0 5px 18px rgba(101, 88, 201, 0.06);
-}
-
-[class*="st-key-history-chatgpt-"] .result-section-title,
-[class*="st-key-history-gemini-"] .result-section-title {
-    font-size: 22px;
-    margin-top: 18px;
-}
-
-[class*="st-key-history-chatgpt-"] .result-positive,
-[class*="st-key-history-gemini-"] .result-positive,
-[class*="st-key-history-chatgpt-"] .result-warning,
-[class*="st-key-history-gemini-"] .result-warning {
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
-
-[class*="st-key-history-chatgpt-"] .result-positive {
-    border-left: 4px solid #60A5FA;
-}
-
-[class*="st-key-history-gemini-"] .result-positive {
-    border-left: 4px solid #8175E5;
-}
-
-[class*="st-key-history-chatgpt-"] .match-score-circle {
-    background: conic-gradient(#2563EB var(--score), rgba(37, 99, 235, 0.13) 0);
-    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.16);
-}
-
-[class*="st-key-history-gemini-"] .match-score-circle {
-    background: conic-gradient(#6558C9 var(--score), rgba(101, 88, 201, 0.13) 0);
-    box-shadow: 0 12px 30px rgba(101, 88, 201, 0.16);
-}
-
-[class*="st-key-history-chatgpt-"] .match-score-text,
-[class*="st-key-history-chatgpt-"] .match-status {
-    color: #2563EB;
-}
-
-[class*="st-key-history-gemini-"] .match-score-text,
-[class*="st-key-history-gemini-"] .match-status {
-    color: #6558C9;
-}
-
-[class*="st-key-history-chatgpt-"] [data-testid="stExpander"],
-[class*="st-key-history-gemini-"] [data-testid="stExpander"] {
-    border-radius: 12px !important;
-    border: 1px solid rgba(220, 227, 237, 0.9) !important;
-    overflow: hidden;
-}
-
-@media (max-width: 768px) {
-    [class*="st-key-history-chatgpt-"],
-    [class*="st-key-history-gemini-"] {
-        padding: 16px 12px 8px;
-        border-radius: 16px;
-    }
-
-    .model-heading {
-        font-size: 21px;
-    }
-}
-
-
-/* =========================================================
-   History — Model Analysis Layout Polish
-   ========================================================= */
-
-.st-key-history-content [class*="st-key-history-chatgpt-"],
-.st-key-history-content [class*="st-key-history-gemini-"] {
-    box-sizing: border-box;
-    height: 100%;
-    min-width: 0;
-}
-
-.st-key-history-content [class*="st-key-history-chatgpt-"] .result-summary,
-.st-key-history-content [class*="st-key-history-gemini-"] .result-summary,
-.st-key-history-content [class*="st-key-history-chatgpt-"] p,
-.st-key-history-content [class*="st-key-history-gemini-"] p,
-.st-key-history-content [class*="st-key-history-chatgpt-"] li,
-.st-key-history-content [class*="st-key-history-gemini-"] li {
-    overflow-wrap: anywhere;
-    word-break: normal;
-}
-
-.st-key-history-content [class*="st-key-history-chatgpt-"] .match-score-wrapper,
-.st-key-history-content [class*="st-key-history-gemini-"] .match-score-wrapper {
-    margin-bottom: 18px;
-}
-
-.st-key-history-content [class*="st-key-history-chatgpt-"] .result-section-title,
-.st-key-history-content [class*="st-key-history-gemini-"] .result-section-title {
-    margin-top: 22px;
-}
-
-@media (max-width: 768px) {
-    .st-key-history-content [class*="st-key-history-chatgpt-"],
-    .st-key-history-content [class*="st-key-history-gemini-"] {
-        padding: 14px 12px 8px;
-    }
-}
-
-/* =========================================================
-   History Detail — Match the Chat Results visual design
-   Keep the History list/search layout unchanged.
-   ========================================================= */
-
-/* Use the same section heading treatment as Chat */
-.st-key-history-content .result-section-title {
-    color: #172957 !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 26px !important;
-    font-weight: 600 !important;
-    line-height: 1.4 !important;
-    margin: 12px 0 18px !important;
-    padding-bottom: 12px !important;
-    border-bottom: 2px solid rgba(50, 163, 168, 0.35) !important;
-}
-
-.st-key-history-content .result-book-title {
-    color: #172957 !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 30px !important;
-    font-weight: 500 !important;
-    line-height: 1.3 !important;
-    overflow-wrap: anywhere;
-}
-
-.st-key-history-content .result-book-author {
-    color: #667085 !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 18px !important;
-    margin-top: 8px !important;
-}
-
-/* Same score ring size, teal-to-green gradient and glass center as Chat */
-.st-key-history-content .match-score-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 0 10px;
-    text-align: center;
-}
-
-.st-key-history-content .match-score-circle {
-    --score: 288deg;
-    width: 190px !important;
-    height: 190px !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    border-radius: 50%;
-    background: conic-gradient(
-        #32A3A8 0deg,
-        #5DBD99 var(--score),
-        rgba(255, 255, 255, 0.35) var(--score),
-        rgba(255, 255, 255, 0.35) 360deg
-    ) !important;
-    box-shadow: 0 12px 30px rgba(50, 163, 168, 0.18),
-                inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
-    animation: scoreAppear 0.8s ease-out both;
-}
-
-.st-key-history-content .match-score-circle::before {
-    content: "";
-    position: absolute;
-    width: 158px !important;
-    height: 158px !important;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.72) !important;
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.9),
-                0 4px 12px rgba(0, 0, 0, 0.06) !important;
-}
-
-.st-key-history-content .match-score-inner {
-    position: relative;
-    z-index: 2;
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: baseline !important;
-    justify-content: center;
-    width: auto !important;
-    height: auto !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    font-family: "Barlow", sans-serif !important;
-    color: #222 !important;
-}
-
-.st-key-history-content .match-score-number {
-    color: #222 !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 52px !important;
-    font-weight: 500 !important;
-    line-height: 1 !important;
-}
-
-.st-key-history-content .match-score-label {
-    color: #777 !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 18px !important;
-    font-weight: 300 !important;
-    margin: 0 0 0 3px !important;
-}
-
-.st-key-history-content .match-score-text {
-    color: #555 !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-    letter-spacing: 2px !important;
-    margin-top: 16px !important;
-}
-
-.st-key-history-content .match-status {
-    width: fit-content;
-    margin: 18px auto 12px !important;
-    padding: 7px 18px !important;
-    border-radius: 999px !important;
-    background: rgba(50, 163, 168, 0.12) !important;
-    border: 1px solid rgba(50, 163, 168, 0.22) !important;
-    color: #23878b !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-}
-
-/* Chat-style analysis callouts */
-.st-key-history-content .result-positive,
-.st-key-history-content .result-warning {
-    height: 100%;
-    padding: 17px 19px !important;
-    margin: 0 0 12px !important;
-    border-radius: 16px !important;
-    font-family: "Barlow", sans-serif !important;
-}
-
-.st-key-history-content .result-positive {
-    border: 1px solid rgba(52, 128, 98, 0.2) !important;
-    background: rgba(226, 244, 235, 0.68) !important;
-}
-
-.st-key-history-content .result-warning {
-    border: 1px solid rgba(188, 132, 49, 0.22) !important;
-    background: rgba(255, 243, 220, 0.72) !important;
-}
-
-.st-key-history-content .result-point-title {
-    color: #172957 !important;
-    font-size: 17px !important;
-    font-weight: 600 !important;
-    line-height: 1.4 !important;
-    margin-bottom: 5px !important;
-}
-
-.st-key-history-content .result-point-description {
-    color: #414957 !important;
-    font-size: 15px !important;
-    font-weight: 400 !important;
-    line-height: 1.7 !important;
-    overflow-wrap: anywhere;
-}
-
-/* Keep ChatGPT blue and Gemini purple model cards, matching Chat */
-.st-key-history-content [class*="st-key-history-chatgpt-"] {
-    min-width: 0;
-    padding: 22px 18px 10px !important;
-    border: 1px solid rgba(37, 99, 235, 0.14) !important;
-    border-radius: 20px !important;
-    background: #F8FBFF !important;
-    box-shadow: 0 5px 18px rgba(37, 99, 235, 0.06) !important;
-}
-
-.st-key-history-content [class*="st-key-history-gemini-"] {
-    min-width: 0;
-    padding: 22px 18px 10px !important;
-    border: 1px solid rgba(101, 88, 201, 0.15) !important;
-    border-radius: 20px !important;
-    background: #FCFAFF !important;
-    box-shadow: 0 5px 18px rgba(101, 88, 201, 0.06) !important;
-}
-
-.st-key-history-content .model-heading {
-    margin: 0 0 18px !important;
-    padding: 0 0 12px !important;
-    font-family: "Barlow", sans-serif !important;
-    font-size: 24px !important;
-    font-weight: 600 !important;
-    line-height: 1.35 !important;
-    border-bottom: 3px solid currentColor !important;
-}
-
-.st-key-history-content .model-heading-chatgpt {
-    color: #2563EB !important;
-    border-color: #2563EB !important;
-}
-
-.st-key-history-content .model-heading-gemini {
-    color: #6558C9 !important;
-    border-color: #6558C9 !important;
-}
-
-.st-key-history-content [class*="st-key-history-chatgpt-"] .match-score-circle {
-    background: conic-gradient(#32A3A8 0deg, #5DBD99 var(--score), rgba(255,255,255,.35) var(--score), rgba(255,255,255,.35) 360deg) !important;
-}
-
-.st-key-history-content [class*="st-key-history-gemini-"] .match-score-circle {
-    background: conic-gradient(#32A3A8 0deg, #5DBD99 var(--score), rgba(255,255,255,.35) var(--score), rgba(255,255,255,.35) 360deg) !important;
-}
-
-@keyframes scoreAppear {
-    from { opacity: 0; transform: scale(0.75); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-@media (max-width: 768px) {
     .st-key-history-content .match-score-circle {
-        width: 160px !important;
-        height: 160px !important;
-    }
-    .st-key-history-content .match-score-circle::before {
         width: 132px !important;
         height: 132px !important;
     }
-    .st-key-history-content .match-score-number {
-        font-size: 44px !important;
+
+    .st-key-history-content .match-score-circle::before {
+        width: 110px !important;
+        height: 110px !important;
     }
-    .st-key-history-content [class*="st-key-history-chatgpt-"],
-    .st-key-history-content [class*="st-key-history-gemini-"] {
-        padding: 16px 12px 8px !important;
-        border-radius: 16px !important;
-    }
-    .st-key-history-content .model-heading {
-        font-size: 21px !important;
+
+    .st-key-history-content .match-score-number { font-size: 35px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .st-key-history-content .match-score-circle { animation: none !important; }
+
+    [class*="st-key-history-card-"],
+    .st-key-history-back-home button,
+    .st-key-history-new-analysis button {
+        transition: none !important;
     }
 }
+

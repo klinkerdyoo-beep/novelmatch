@@ -323,28 +323,47 @@ with st.container(key="history-content"):
                     )
 
                 with st.expander("View Details", expanded=False):
-                    # Shared novel information appears once above both model analyses.
-                    st.markdown('<div class="result-section-title">Novel Details</div>', unsafe_allow_html=True)
-                    detail_cover_col, detail_info_col = st.columns([0.75, 1.5], gap="large", vertical_alignment="top")
-                    with detail_cover_col:
-                        if cover_url:
-                            st.image(cover_url, use_container_width=True)
-                        else:
-                            st.markdown(
-                                '<div class="history-cover-placeholder"><span>📚</span><span>Book Cover</span></div>',
-                                unsafe_allow_html=True,
+                    with st.container(border=False, key=f"history-novel-details-card-{card_key}"):
+                        # Shared novel information appears once above both model analyses.
+                        st.markdown( '<div class="result-section-title">Novel Details</div>',unsafe_allow_html=True,)
+                        with st.container(key=f"history-novel-details-{card_key}"):
+                            detail_cover_col, detail_info_col = st.columns(
+                                [0.45, 2.55],
+                                gap="medium",
+                                vertical_alignment="top",
                             )
-                    with detail_info_col:
-                        st.markdown(
-                            f'<div class="result-book-title">{title}</div><div class="result-book-author">By {author}</div>',
-                            unsafe_allow_html=True,
-                        )
-                        st.markdown("**Genres**")
-                        st.write(", ".join(str(genre) for genre in genres) if genres else "No genres available.")
-                        st.markdown("**Synopsis**")
-                        st.write(synopsis or "No synopsis available.")
 
-                    st.divider()
+                            with detail_cover_col:
+                                if cover_url:
+                                    st.image(cover_url, width=130)
+                                else:
+                                    st.markdown(
+                                        """
+                                        <div class="history-cover-placeholder">
+                                            <span>📚</span>
+                                            <span>Book Cover</span>
+                                        </div>
+                                        """,
+                                        unsafe_allow_html=True,
+                                    )
+
+                            with detail_info_col:
+                                st.markdown(
+                                    f"""
+                                    <div class="result-book-title">{title}</div>
+                                    <div class="result-book-author">By {author}</div>
+                                    <div class="novel-detail-meta">
+                                        <strong>Genres:</strong> {genres_html or "No genres available."}
+                                    </div>
+                                    <div class="novel-detail-synopsis">
+                                        <strong>Synopsis:</strong><br>
+                                        {safe_text(synopsis or "No synopsis available.")}
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True,
+                                )
+
+                        st.divider()
 
                     # Model results are separate. New history records may store
                     # each model under item["chatgpt"] and item["gemini"].
@@ -361,14 +380,18 @@ with st.container(key="history-content"):
                         except (TypeError, ValueError):
                             return None
 
+
                     def render_model_panel(model_key, model_label, accent_class, fallback_legacy=False):
                         model_data = get_model_data(model_key)
+                        model_prefix = "history-chatgpt" if model_key == "chatgpt" else "history-gemini"
+
                         st.markdown(
                             f'<div class="model-heading {accent_class}">{model_label} Analysis</div>',
                             unsafe_allow_html=True,
                         )
 
-                        # Prefer this model's own saved fields.
+                        # Use this model's saved analysis only; legacy fields are
+                        # used for ChatGPT only when the record has no nested data.
                         this_score = model_score(
                             model_data,
                             item.get("score") if fallback_legacy else None,
@@ -400,10 +423,15 @@ with st.container(key="history-content"):
                             return
 
                         score_status_class = "status-high" if this_score >= 80 else "status-medium" if this_score >= 60 else "status-low"
-                        score_col, summary_col = st.columns([0.85, 1.4], gap="medium", vertical_alignment="center")
-                        with score_col:
+
+                        # Match Score + Overall Match Summary: same two-column
+                        # arrangement as chat.py, inside a tinted model card.
+                        with st.container(border=False, key=f"{model_prefix}-score-card-{card_key}"):
+
+                            # Match Score
                             st.markdown(
-                                f'''<div class="match-score-wrapper">
+                                f'''
+                                <div class="match-score-wrapper">
                                     <div class="match-score-circle" style="--score: {this_score * 3.6}deg;">
                                         <div class="match-score-inner">
                                             <div class="match-score-number">{this_score}</div>
@@ -412,65 +440,162 @@ with st.container(key="history-content"):
                                     </div>
                                     <div class="match-score-text">YOUR MATCH</div>
                                     <div class="match-status {score_status_class}">{safe_text(this_status)}</div>
-                                </div>''',
+                                </div>
+                                ''',
                                 unsafe_allow_html=True,
                             )
-                        with summary_col:
+
+                            # Overall Match Summary
                             st.markdown("### Overall Match Summary")
-                            st.write(this_summary or "No saved overall summary is available for this model.")
+                            st.markdown(
+                                f'<div class="result-summary">'
+                                f'{safe_text(this_summary or "No saved overall summary is available for this model.")}'
+                                f'</div>',
+                                unsafe_allow_html=True,
+                            )
+
                             if this_demo:
                                 st.caption("Demo content — not a verified AI evaluation.")
 
-                        st.markdown('<div class="result-section-title">Match Analysis</div>', unsafe_allow_html=True)
-                        match_col, mismatch_col = st.columns(2, gap="medium")
-                        with match_col:
-                            st.markdown("### ✓ Matches")
-                            if this_matches:
-                                for point in this_matches:
-                                    render_point(point, "result-positive", "Match")
-                            else:
-                                st.caption("No saved matching points available.")
-                        with mismatch_col:
-                            st.markdown("### ⚠ Mismatches")
-                            if this_mismatches:
-                                for point in this_mismatches:
-                                    render_point(point, "result-warning", "Mismatch")
-                            else:
-                                st.caption("No saved mismatches available.")
+                        # Match Analysis: side-by-side Matches and Mismatches.
+                        with st.container(border=False, key=f"{model_prefix}-match-analysis-card-{card_key}"):
+                            st.markdown('<div class="result-section-title">Match Analysis</div>', unsafe_allow_html=True)
+                            st.markdown(
+                                '<div class="result-muted">Review which aspects align with your preferences and which may not.</div>',
+                                unsafe_allow_html=True,
+                            )
+                            match_col, mismatch_col = st.columns(2, gap="large")
+                            with match_col:
+                                st.markdown("### ✓ Matches")
+                                if this_matches:
+                                    for point in this_matches:
+                                        render_point(point, "result-positive", "Match")
+                                else:
+                                    st.caption("No saved matching points available.")
+                            with mismatch_col:
+                                st.markdown("### ⚠ Mismatches")
+                                if this_mismatches:
+                                    for point in this_mismatches:
+                                        render_point(point, "result-warning", "Mismatch")
+                                else:
+                                    st.caption("No saved mismatches available.")
 
-                        st.markdown('<div class="result-section-title">Review Summary</div>', unsafe_allow_html=True)
-                        review_col1, review_col2, review_col3 = st.columns(3, gap="small")
-                        with review_col1:
-                            render_review_column("What Readers Like", as_list(this_reviews.get("positive")), "No saved positive review summary.")
-                        with review_col2:
-                            render_review_column("Criticisms", as_list(this_reviews.get("negative")), "No saved criticism summary.")
-                        with review_col3:
-                            render_review_column("Mixed Opinions", as_list(this_reviews.get("mixed")), "No saved mixed review summary.")
+                        # Review Summary: preserve the saved positive/negative/mixed lists.
+                        with st.container(border=False, key=f"{model_prefix}-review-summary-card-{card_key}"):
+                            st.markdown('<div class="result-section-title">Review Summary</div>', unsafe_allow_html=True)
+                            st.markdown("### What do readers say about this novel?")
+                            review_col1, review_col2, review_col3 = st.columns(3, gap="medium")
+                            with review_col1:
+                                render_review_column("What Readers Like", as_list(this_reviews.get("positive")), "No saved positive review summary.")
+                            with review_col2:
+                                render_review_column("Criticisms", as_list(this_reviews.get("negative")), "No saved criticism summary.")
+                            with review_col3:
+                                render_review_column("Mixed Opinions", as_list(this_reviews.get("mixed")), "No saved mixed review summary.")
 
-                        with st.expander("View Sources and Limitations", expanded=False):
-                            sources = as_list(model_data.get("sources", item.get("sources", []) if fallback_legacy else []))
-                            limitations = as_list(model_data.get("limitations", item.get("limitations", []) if fallback_legacy else []))
-                            st.markdown("### Data Sources")
-                            if sources:
-                                for source in sources:
-                                    if isinstance(source, dict):
-                                        source_title = safe_text(source.get("title", "Source"))
-                                        source_url = str(source.get("url", "")).strip()
-                                        if source_url.startswith(("https://", "http://")):
-                                            st.markdown(f"- [{source_title}]({escape(source_url, quote=True)})")
+                        # Sources and limitations remain attached to their own model.
+                        with st.container(
+                            border=False,
+                            key=f"{model_prefix}-source-card-{card_key}",
+                        ):
+                            with st.expander("View Sources and Limitations", expanded=False):
+                                sources = as_list(
+                                    model_data.get(
+                                        "sources",
+                                        item.get("sources", []) if fallback_legacy else [],
+                                    )
+                                )
+                                limitations = as_list(
+                                    model_data.get(
+                                        "limitations",
+                                        item.get("limitations", []) if fallback_legacy else [],
+                                    )
+                                )
+
+                                # Data Sources
+                                st.markdown("### Data Sources")
+
+                                if sources:
+                                    for source in sources:
+                                        if isinstance(source, dict):
+                                            source_title = safe_text(source.get("title", "Source"))
+                                            source_url = str(source.get("url", "")).strip()
+
+                                            if source_url.startswith(("https://", "http://")):
+                                                st.markdown(
+                                                    f"- [{source_title}]"
+                                                    f"({escape(source_url, quote=True)})"
+                                                )
+                                            else:
+                                                st.markdown(f"- {source_title}")
                                         else:
-                                            st.markdown(f"- {source_title}")
+                                            st.markdown(f"- {safe_text(source)}")
+                                else:
+                                    st.markdown(
+                                        "- **Book information:** Google Books API / Open Library API"
+                                    )
+                                    st.markdown("- **Reader reviews:** To be connected")
+
+                                    if model_key == "gemini":
+                                        st.markdown(
+                                            "- **AI analysis:** Illustrative mock data; "
+                                            "Gemini API not connected yet"
+                                        )
                                     else:
-                                        st.markdown(f"- {safe_text(source)}")
-                            else:
-                                st.caption("No saved sources available.")
-                            st.markdown("### Limitations")
-                            if limitations:
-                                for limitation in limitations:
-                                    st.markdown(f"- {safe_text(limitation)}")
-                            else:
-                                st.markdown("- Book metadata and review coverage may be incomplete.")
-                                st.markdown("- Scores should be treated as estimates, not definitive predictions.")
+                                        st.markdown(
+                                            "- **AI analysis:** Illustrative mock data; "
+                                            "not a verified AI-generated result"
+                                        )
+
+
+
+                                # Review Data Overview
+                                st.markdown("### Review Data Overview")
+
+                                st.markdown(
+                                    "Review counts, review excerpts, and source links will be "
+                                    "displayed after the review retrieval pipeline has been implemented."
+                                )
+
+
+
+                                # Limitations
+                                st.markdown("### Limitations")
+
+                                if limitations:
+                                    for limitation in limitations:
+                                        st.markdown(f"- {safe_text(limitation)}")
+                                else:
+                                    if model_key == "gemini":
+                                        st.markdown(
+                                            "- The displayed Gemini score and analysis are mock data, "
+                                            "not model-generated results."
+                                        )
+                                    else:
+                                        st.markdown(
+                                            "- The displayed score and analysis are illustrative "
+                                            "mock data, not verified AI-generated results."
+                                        )
+
+                                    st.markdown(
+                                        "- Book metadata may be incomplete or differ between sources."
+                                    )
+                                    st.markdown(
+                                        "- Reviews may not represent every reader's experience."
+                                    )
+                                    st.markdown(
+                                        "- Results depend on the quality of the information and "
+                                        "prompt supplied to the model."
+                                    )
+
+
+
+                                # Review Sources
+                                st.markdown("### Review Sources")
+
+                                st.markdown(
+                                    "Individual review links will be displayed here when real review "
+                                    "sources are available."
+                                )
 
                     chatgpt_col, gemini_col = st.columns(2, gap="large", vertical_alignment="top")
                     with chatgpt_col:
