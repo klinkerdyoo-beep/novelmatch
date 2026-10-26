@@ -31,120 +31,76 @@ for css_file in css_files:
 # Navbar
 # =========================================================
 
+PAGE_HOME = "main.py"
+PAGE_PREFERENCES = "pages/preferences.py"
+PAGE_ACCOUNT = "pages/account.py"
+PAGE_HISTORY = "pages/history.py"
+PAGE_LOGIN = "pages/login.py"
+
+
+def logout():
+    st.session_state.clear()
+    st.switch_page(PAGE_LOGIN)
 
 
 def navbar():
-    username = st.session_state.get(
-        "username",
-        ""
-    )
 
-    # -----------------------------------------------------
-    # Logged In
-    # -----------------------------------------------------
+    username = st.session_state.get("username", "")
 
-    if username:
+    with st.container(key="navbar"):
 
-        account_html = f"""
-        <div class="nav-account">
+        col_logo, col_space, col_pref, col_account = st.columns(
+            [2, 6, 1.5, 2],
+            vertical_alignment="center",
+        )
 
-            <div class="nav-account-trigger">
-                <span>{username}</span>
-                <span class="nav-account-arrow">⌄</span>
-            </div>
+        with col_logo:
+            with st.container(key="nav_logo"):
+                st.html(
+                    f"""
+                    <img
+                        src="data:image/png;base64,{logo}"
+                        class="nav-logo"
+                        alt="Novel Match"
+                    />
+                    """
+                )
+                st.page_link(PAGE_HOME, label="Home")
 
-            <div class="nav-account-dropdown">
+        with col_pref:
+            with st.container(key="nav_pref"):
+                st.page_link(PAGE_PREFERENCES, label="Preferences")
 
-                <div class="account-welcome">
-                    <span>Welcome,</span>
-                    <strong>{username}</strong>
-                </div>
+        # ---------------- Account ----------------
+        with col_account:
 
-                <div class="account-divider"></div>
+            if username:
+                with st.popover(username, use_container_width=True):
 
-                <a
-                    href="?nav=account"
-                    target="_self"
-                    class="account-menu-item"
-                >
-                    <span>My Account</span>
-                </a>
+                    st.markdown(
+                        f"""
+                        <div class="account-welcome">
+                            <span>Welcome,</span>
+                            <strong>{username}</strong>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
 
-                <a
-                    href="?nav=history"
-                    target="_self"
-                    class="account-menu-item"
-                >
-                    <span>Your Search History</span>
-                </a>
+                    st.divider()
 
-                <div class="account-divider"></div>
+                    st.page_link(PAGE_ACCOUNT, label="My Account")
+                    st.page_link(PAGE_HISTORY, label="Your Search History")
 
-                <a
-                    href="pages/logout.py"
-                    target="_self"
-                    class="account-menu-item account-logout"
-                >
-                    <span>Log Out</span>
-                </a>
+                    st.divider()
 
-            </div>
+                    st.button(
+                        "Log Out",
+                        on_click=logout,
+                        key="nav_logout",
+                        use_container_width=True,
+                    )
 
-        </div>
-        """
-
-    # -----------------------------------------------------
-    # Logged Out
-    # -----------------------------------------------------
-
-    else:
-
-        account_html = """
-        <a
-            href="pages/login.py"
-            target="_self"
-            class="nav-button nav-login-button"
-        >
-            Log in
-        </a>
-        """
-
-
-    # =====================================================
-    # Navbar HTML
-    # =====================================================
-
-    st.html(
-        f"""
-        <div class="navbar">
-
-            <a
-                href="pages/home.py"
-                target="_self"
-                class="nav-logo-link"
-            >
-                <img
-                    src="data:image/png;base64,{logo}"
-                    class="nav-logo"
-                    alt="Novel Match"
-                />
-            </a>
-
-
-            <div class="nav-actions">
-
-                <a
-                    href="pages/preferences.py"
-                    target="_self"
-                    class="nav-button"
-                >
-                    Preferences
-                </a>
-
-                {account_html}
-
-            </div>
-
-        </div>
-        """
-    )
+            else:
+                with st.container(key="nav_login"):
+                    st.page_link(PAGE_LOGIN, label="Log in")

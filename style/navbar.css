@@ -2,7 +2,8 @@
    Navbar
    ========================================================= */
 
-.navbar {
+.navbar,
+.st-key-navbar {
     width: 100%;
     height: 68px;
 
@@ -42,7 +43,8 @@
    Logo
    ========================================================= */
 
-.nav-logo {
+.nav-logo,
+.st-nav_logo {
     width: 140px;
     height: auto;
 
@@ -53,7 +55,8 @@
         filter 0.2s ease;
 }
 
-.nav-logo:hover {
+.nav-logo:hover,
+.st-nav_logo:hover {
     transform: translateY(-1px);
 
     filter:
@@ -65,7 +68,8 @@
    Navigation Actions
    ========================================================= */
 
-.nav-actions {
+.nav-actions,
+.st-nav_actions {
     display: flex;
     align-items: center;
 
@@ -77,7 +81,8 @@
    Shared Nav Button
    ========================================================= */
 
-.nav-button {
+.nav-button,
+.st-nav_button {
     height: 40px;
 
     display: flex;
@@ -105,7 +110,7 @@
         border-color 0.2s ease;
 }
 
-.nav-preferences{
+.st-nav_button {
     min-width: 150px;
 
     color: white;
@@ -123,7 +128,7 @@
         0 6px 16px rgba(50, 163, 168, 0.18);
 }
 
-.nav-login-button {
+.st-nav_button {
     height: 40px;
 
     display: flex;
@@ -156,8 +161,7 @@
    Preferences
    ========================================================= */
 
-.nav-preferences,
-.nav-button {
+.st-nav_button {
     min-width: 150px;
 
     color: white ;
@@ -175,8 +179,7 @@
         0 6px 16px rgba(50, 163, 168, 0.18);
 }
 
-.nav-preferences:hover,
-.nav-button:hover {
+.st-nav_button:hover {
     background: linear-gradient(
         120deg,
         #3AAEB3,
@@ -193,7 +196,7 @@
    Login Button
    ========================================================= */
 
-.nav-login-button {
+.st-nav_button {
     min-width: 110px;
 
     color: #333;
@@ -210,7 +213,7 @@
         0 5px 15px rgba(0, 0, 0, 0.06);
 }
 
-.nav-login-button:hover {
+.st-nav_button:hover {
     background: rgba(255, 255, 255, 0.72);
 
     border-color: rgba(255, 255, 255, 0.9);
@@ -220,9 +223,10 @@
         0 7px 18px rgba(0, 0, 0, 0.08);
 }
 
-.nav-login-button:active,
-.nav-button:active,
-.nav-preferences:active {
+
+.st-nav_button:active,
+.st-nav_button:active,
+.st-nav_button:active {
     transform: scale(0.96);
 }
 
@@ -230,7 +234,7 @@
    Account
    ========================================================= */
 
-.nav-account {
+.st-nav_account {
     position: relative;
 
     height: 40px;
@@ -244,7 +248,7 @@
    Account Trigger
    ========================================================= */
 
-.nav-account-trigger {
+.st-nav_account-trigger {
     height: 40px;
 
     display: flex;
@@ -285,7 +289,8 @@
 }
 
 
-.nav-account-trigger:hover {
+
+.st-nav_account-trigger:hover {
     background: rgba(255, 255, 255, 0.72);
 
     box-shadow:
@@ -298,7 +303,7 @@
    Account Arrow
    ========================================================= */
 
-.nav-account-arrow {
+.st-nav_account-arrow {
     font-size: 15px;
 
     transition:
@@ -306,7 +311,7 @@
 }
 
 
-.nav-account:hover .nav-account-arrow {
+.st-nav_account:hover .st-nav_account-arrow {
     transform: rotate(180deg);
 }
 
@@ -315,7 +320,7 @@
    Account Dropdown
    ========================================================= */
 
-.nav-account-dropdown {
+.st-nav_account-dropdown {
     position: absolute;
 
     top: calc(100% + 10px);
@@ -357,7 +362,7 @@
    Show Dropdown
    ========================================================= */
 
-.nav-account:hover .nav-account-dropdown {
+.st-nav_account:hover .st-nav_account-dropdown {
     opacity: 1;
     visibility: visible;
 
@@ -369,7 +374,7 @@
    Welcome
    ========================================================= */
 
-.account-welcome {
+.st-nav_account .st-nav_account-welcome {
     display: flex;
     flex-direction: column;
 
@@ -379,7 +384,8 @@
 }
 
 
-.account-welcome span {
+
+.st-nav_account .st-nav_account-welcome span {
     font-family: "Barlow", sans-serif;
 
     font-size: 13px;
@@ -389,7 +395,7 @@
 }
 
 
-.account-welcome strong {
+.st-nav_account .st-nav_account-welcome strong {
     font-family: "Barlow", sans-serif;
 
     font-size: 19px;
@@ -403,7 +409,7 @@
    Dropdown Divider
    ========================================================= */
 
-.account-divider {
+.st-nav_account .st-nav_account-divider {
     height: 1px;
 
     margin: 6px 8px;
@@ -416,7 +422,7 @@
    Dropdown Menu Item
    ========================================================= */
 
-.account-menu-item {
+.st-nav_account .st-nav_account-menu-item {
     width: 100%;
     min-height: 42px;
 
@@ -443,7 +449,8 @@
 }
 
 
-.account-menu-item:hover {
+
+.st-nav_account .st-nav_account-menu-item:hover {
     background: rgba(246, 228, 182, 0.42);
 
     padding-left: 18px;
@@ -454,11 +461,11 @@
    Logout
    ========================================================= */
 
-.account-logout {
+.st-nav_account .account-logout {
     color: #8b4d4d;
 }
 
 
-.account-logout:hover {
+.st-nav_account .account-logout:hover {
     background: rgba(139, 77, 77, 0.08);
 }

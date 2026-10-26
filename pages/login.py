@@ -94,6 +94,7 @@ with st.container(key="login-content"):
             placeholder="Enter your username or email...",
             key="login-username-or-email"
         )
+        
 
         password = st.text_input(
             "Password",
@@ -124,7 +125,7 @@ with st.container(key="login-content"):
                 try:
                     result = login(username_or_email.strip(), password)
                 except NovelMatchAPIError as exc:
-                    st.error(str(exc))
+                    st.error("username or password is invalid")
                 else:
                     st.session_state.logged_in = True
                     st.session_state.access_token = result["access_token"]

@@ -80,5 +80,16 @@ def get_preferences(token: str) -> dict[str, Any]:
     return _request("GET", "/preferences", token=token)
 
 
-def analyze_novel(payload: dict[str, Any]) -> dict[str, Any]:
-    return _request("POST", "/analysis", json=payload)
+def analyze_novel(payload: dict[str, Any], token: str | None = None) -> dict[str, Any]:
+    return _request("POST", "/analysis", json=payload, token=token)
+
+def get_novel_info(novel_id: str, token: str) -> dict[str, Any]:
+    return _request("GET", f"/novels/{novel_id}", token=token)
+
+
+def get_analysis_novel(novel_id: str, token: str) -> dict[str, Any]:
+    return _request("GET", f"/analysis/{novel_id}", token=token)
+
+
+get_analyze_novel = get_analysis_novel
+

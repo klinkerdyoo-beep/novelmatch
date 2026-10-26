@@ -168,7 +168,7 @@ with st.container(key="login-content"):
                 )
 
             elif not password.strip():
-
+                
                 st.warning(
                     "Please create a password."
                 )
@@ -192,7 +192,7 @@ with st.container(key="login-content"):
                         st.session_state.access_token = result["access_token"]
                         st.session_state.user = result["user"]
                         st.session_state.user_id = result["user"]["id"]
-                        st.session_state.user_name = name
+                        st.session_state.username = name
                         st.session_state.user_email = email
                         st.switch_page("pages/preferences.py")
 

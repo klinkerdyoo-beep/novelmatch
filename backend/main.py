@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 import os
 from typing import Any
@@ -9,6 +10,8 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from pydantic import BaseModel, Field
 from postgrest.exceptions import APIError
 from supabase import Client, create_client
+
+logger = logging.getLogger(__name__)
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
@@ -178,8 +181,7 @@ async def analyze_novel(
     user: dict[str, Any] = Depends(require_user),
 ) -> dict[str, Any]:
     user_id = user.get("id")
-    
-    
+    supabase.postgrest.auth(user["_access_token"])
     try:
         # Step 1: ดึง Preference ของ User จาก Database อัตโนมัติ
         pref_res = supabase.table("user_preferences").select("*").eq("user_id", user_id).execute()
@@ -220,18 +222,32 @@ async def analyze_novel(
         gemini_task = asyncio.to_thread(GeminiAIService().analyze, **payload)
         gpt_oss_task = asyncio.to_thread(_analyze_with_gpt_oss, payload)
 
-        gemini_raw, gpt_raw = await asyncio.gather(gemini_task, gpt_oss_task)
+        gemini_res, gpt_res = await asyncio.gather(
+            gemini_task, gpt_oss_task, return_exceptions=True
+        )
 
         # 4. ตรวจสอบและจัดการผลลัพธ์ของแต่ละโมเดล
+        # ตรวจสอบ Gemini: หาก Gemini เกิด error ให้ raise ออกมา
+        if isinstance(gemini_res, Exception):
+            raise gemini_res
+
         # ประมวลผลผลลัพธ์ของ Gemini
-        gemini_output = gemini_raw.model_dump()
+        gemini_output = gemini_res.model_dump()
         validate_analysis_evidence(gemini_output, payload)
         final_gemini = merge_analysis_limitations(gemini_output, payload)
 
-        # ประมวลผลผลลัพธ์ของ GPT-OSS
-        gpt_output = gpt_raw.model_dump()
-        validate_analysis_evidence(gpt_output, payload)
-        final_gpt = merge_analysis_limitations(gpt_output, payload)
+        # ประมวลผลผลลัพธ์ของ GPT-OSS (ถ้าเจอ Timeout 504 หรือ Error ให้ข้ามเพื่อแสดงผลเฉพาะ Gemini)
+        final_gpt = None
+        if not isinstance(gpt_res, Exception):
+            try:
+                gpt_output = gpt_res.model_dump()
+                validate_analysis_evidence(gpt_output, payload)
+                final_gpt = merge_analysis_limitations(gpt_output, payload)
+            except Exception as exc:
+                logger.warning("Error processing GPT-OSS output: %s", exc)
+                final_gpt = None
+        else:
+            logger.warning("GPT-OSS model failed or timed out (504): %s", gpt_res)
 
         # Step 3: บันทึกนิยายลงตาราง comparison_novels (ถ้ามีแล้วใช้ของเดิม ถ้ายังไม่มีให้สร้างใหม่)
         novel_res = (
@@ -242,6 +258,10 @@ async def analyze_novel(
             .limit(1)
             .execute()
         )
+        meta = research.metadata if hasattr(research, "metadata") else (research.get("metadata") if isinstance(research, dict) else None)
+        meta_genres = (getattr(meta, "genres", None) if not isinstance(meta, dict) else meta.get("genres")) or []
+        meta_cover = getattr(meta, "cover_url", None) if not isinstance(meta, dict) else meta.get("cover_url")
+
         if novel_res.data:
             novel_id = novel_res.data[0]["id"]
         else:
@@ -251,8 +271,8 @@ async def analyze_novel(
                     "title": request.title,
                     "author": request.author,
                     "synopsis": request.synopsis,
-                    "genre": request.genre or research.get("metadata", {}).get("genres", []),
-                    "book_cover": request.book_cover or research.get("metadata", {}).get("cover_url"),
+                    "genre": request.genre or meta_genres,
+                    "book_cover": request.book_cover or meta_cover,
                 })
                 .execute()
             )
@@ -277,27 +297,31 @@ async def analyze_novel(
             ],
         }
 
-        gpt_record = {
-            "user_id": user_id,
-            "novel_id": novel_id,
-            "score": final_gpt.get("match_score"),
-            "matches": final_gpt.get("matches", []),
-            "mismatches": final_gpt.get("mismatches", []),
-            "limitations": final_gpt.get("limitations", []),
-            "matches_level": final_gpt.get("match_level"),
-            "matches_summary": f"[GPT-OSS] {final_gpt.get('summary', '')}",
-            "data_sources": final_gpt.get("sources", []),
-            "review_summary": final_gpt.get("review_summary", {}),
-            "review_overview": final_gpt.get("summary"),
-            "review_sources": [
-                s for s in final_gpt.get("sources", [])
-                if "review" in str(s.get("evidence_id", ""))
-            ],
-        }
-    
-        history_res = supabase.table("match_history").insert([gemini_record, gpt_record]).execute()
+        records_to_insert = [gemini_record]
 
-        # ส่ง ID ทั้ง 2 แถวและผลการวิเคราะห์กลับให้ Frontend
+        if final_gpt:
+            gpt_record = {
+                "user_id": user_id,
+                "novel_id": novel_id,
+                "score": final_gpt.get("match_score"),
+                "matches": final_gpt.get("matches", []),
+                "mismatches": final_gpt.get("mismatches", []),
+                "limitations": final_gpt.get("limitations", []),
+                "matches_level": final_gpt.get("match_level"),
+                "matches_summary": f"[GPT-OSS] {final_gpt.get('summary', '')}",
+                "data_sources": final_gpt.get("sources", []),
+                "review_summary": final_gpt.get("review_summary", {}),
+                "review_overview": final_gpt.get("summary"),
+                "review_sources": [
+                    s for s in final_gpt.get("sources", [])
+                    if "review" in str(s.get("evidence_id", ""))
+                ],
+            }
+            records_to_insert.append(gpt_record)
+    
+        history_res = supabase.table("match_history").insert(records_to_insert).execute()
+
+        # ส่ง ID แถวและผลการวิเคราะห์กลับให้ Frontend
         return {
             "match_history_ids": [row["id"] for row in (history_res.data or [])],
             "novel_id": novel_id,
@@ -418,7 +442,6 @@ def _analyze_with_gpt_oss(payload: dict[str, Any]) -> MatchAnalysis:
     )
     return GPTOSSService(client=client, model=model).analyze(**payload)
 
-
 @app.get("/")
 def read_root() -> dict[str, str]:
     return {"message": "NovelMatch backend is running"}
@@ -507,6 +530,30 @@ async def get_novels(
             detail=exc.message or "Supabase could not read novels.",
         ) from exc
     return {"data": response.data}
+
+
+@app.get("/novels/{novel_id}")
+async def get_novel(
+    novel_id: str,
+    user: dict[str, Any] = Depends(require_user),
+) -> dict[str, Any]:
+    supabase.postgrest.auth(user["_access_token"])
+    try:
+        response = (
+            supabase.table("comparison_novels")
+            .select("id,title,synopsis,author,genre,book_cover")
+            .eq("id", novel_id)
+            .execute()
+        )
+    except APIError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=exc.message or "Supabase could not read the novel.",
+        ) from exc
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Novel not found.")
+    return {"data": response.data[0]}
+
 
 
 

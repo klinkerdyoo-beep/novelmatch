@@ -88,7 +88,7 @@ st.html(
 
 
                 <div class="hero-action">
-
+                
                     <a
                         class="hero-button"
                         href="/preferences"

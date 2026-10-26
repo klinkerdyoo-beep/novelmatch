@@ -238,5 +238,6 @@ with st.container(key="novel-content"):
 
                 else:
                     st.session_state.novel_completed = True
-
+                    st.session_state.analysis_result = None
                     st.switch_page("pages/preview.py")
+                    
