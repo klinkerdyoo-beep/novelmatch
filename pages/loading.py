@@ -1,7 +1,6 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import base64
-from html import escape
 import time
 from components.navbar import navbar
 
@@ -52,28 +51,45 @@ st.markdown(
 )
 
 # =========================================================
-# Error Messages
+# Mock Data
 # =========================================================
 
-error_messages = {
-    "ANALYSIS_FAILED": {
-        "title": "Analysis Failed",
-        "description": (
-            "Something went wrong while analyzing this novel."
-        ),
-        "suggestion": (
-            "Please try another novel to get your personalized analysis."
-        ),
-    },
-    "TIMEOUT": {
-        "title": "Analysis Taking Too Long",
-        "description": (
-            "The analysis took longer than expected to complete."
-        ),
-        "suggestion": (
-            "Please try again or choose another novel."
-        ),
-    },
+MOCK_NOVEL_DATA = {
+    "title": "The Midnight Library",
+    "author": "Matt Haig",
+    "synopsis": (
+        "Between life and death there is a library, "
+        "where each book offers a chance to experience "
+        "a different version of life."
+    ),
+    "genres": ["Fantasy", "Fiction", "Drama"],
+}
+
+MOCK_REVIEW_DATA = {
+    "average_rating": 4.2,
+    "review_count": 1250,
+    "summary": (
+        "Readers appreciate the imaginative concept, "
+        "emotional storytelling, and exploration of life choices."
+    ),
+}
+
+MOCK_ANALYSIS_RESULT = {
+    "match_score": 87,
+    "match_level": "High Match",
+    "matched_traits": [
+        "Thought-provoking story",
+        "Character-driven narrative",
+        "Fantasy elements",
+    ],
+    "mismatch_points": [
+        "Some sections have a slower pace",
+    ],
+    "reasoning": (
+        "This novel may suit readers who enjoy imaginative "
+        "stories, meaningful character development, and "
+        "reflection on life choices."
+    ),
 }
 
 # =========================================================
@@ -98,7 +114,6 @@ def render_animation(
     error_message=None,
     error_title=None,
     error_suggestion=None,
-    limitations=None,
 ):
     if is_error:
         gif_post_id = "18453366"
@@ -136,28 +151,6 @@ def render_animation(
         else ""
     )
 
-    # Display limitations only when analysis fails.
-    limitations = limitations if isinstance(limitations, list) else []
-
-    limitations_html = ""
-
-    if is_error and limitations:
-        limitation_items = "".join(
-            f"<li>{escape(limitation.strip())}</li>"
-            for limitation in limitations
-            if isinstance(limitation, str) and limitation.strip()
-        )
-
-        if limitation_items:
-            limitations_html = f"""
-                <div class="nm-limitations">
-                    <p class="nm-limitations-title">Limitations</p>
-                    <ul>
-                        {limitation_items}
-                    </ul>
-                </div>
-            """
-
     dots_html = (
         ""
         if is_error
@@ -176,7 +169,6 @@ def render_animation(
         <html>
         <head>
             <meta charset="UTF-8">
-
             <style>
                 * {{
                     box-sizing: border-box;
@@ -232,42 +224,6 @@ def render_animation(
                     line-height: 1.8;
                 }}
 
-                .nm-limitations {{
-                    width: 100%;
-                    max-width: 550px;
-                    max-height: none;
-                    height: auto;
-                    overflow: visible;
-                    box-sizing: border-box;
-
-                    margin: 20px auto 0;
-                    padding: 16px 20px;
-
-                    text-align: left;
-                    border-radius: 16px;
-                    background: rgba(255, 255, 255, 0.72);
-                }}
-
-                .nm-limitations-title {{
-                    margin: 0 0 8px;
-                    color: #172957;
-                    font-size: 14px;
-                    font-weight: 600;
-                }}
-
-                .nm-limitations ul {{
-                    margin: 8px 0 0;
-                    padding-left: 24px;
-                }}
-
-                .nm-limitations li {{
-                    margin-bottom: 6px;
-                    line-height: 1.5;
-                }}
-
-                .nm-limitations li:last-child {{
-                    margin-bottom: 0;
-                }}
                 .nm-dots {{
                     display: flex;
                     gap: 8px;
@@ -296,7 +252,6 @@ def render_animation(
                         transform: translateY(0);
                         opacity: .4;
                     }}
-
                     30% {{
                         transform: translateY(-5px);
                         opacity: 1;
@@ -307,7 +262,6 @@ def render_animation(
                     .nm-title {{
                         font-size: 23px;
                     }}
-
                     .nm-gif {{
                         width: 220px;
                     }}
@@ -323,7 +277,6 @@ def render_animation(
 
         <body>
             <div class="nm-loading">
-
                 <div class="nm-gif">
                     <div
                         class="tenor-gif-embed"
@@ -336,28 +289,63 @@ def render_animation(
                 </div>
 
                 <h1 class="nm-title">{title}</h1>
-
                 <p class="nm-description">{description}</p>
-
-                {limitations_html}
-
                 {suggestion_html}
-
                 {dots_html}
-
             </div>
 
             <script async src="https://tenor.com/embed.js"></script>
         </body>
         </html>
         """,
-        height=(
-            min(900, max(600, 560 + len(limitations) * 35))
-            if is_error and limitations
-            else 520
-        ),
+        height=520,
         scrolling=False,
     )
+
+# =========================================================
+# Error Messages
+# =========================================================
+
+error_messages = {
+    "INSUFFICIENT_DATA": {
+        "title": "Not Enough Information",
+        "description": (
+            "We couldn't find enough information about this novel "
+            "to complete the analysis."
+        ),
+        "suggestion": (
+            "Try another novel with a more complete title, author name, "
+            "or more available reviews."
+        ),
+    },
+    "NOVEL_NOT_FOUND": {
+        "title": "Novel Not Found",
+        "description": (
+            "We couldn't find this novel in our available sources."
+        ),
+        "suggestion": (
+            "Check the novel title and author name, or try another novel."
+        ),
+    },
+    "ANALYSIS_FAILED": {
+        "title": "Analysis Failed",
+        "description": (
+            "Something went wrong while analyzing this novel."
+        ),
+        "suggestion": (
+            "Please try another novel to get your personalized analysis."
+        ),
+    },
+    "SERVICE_UNAVAILABLE": {
+        "title": "Service Temporarily Unavailable",
+        "description": (
+            "The AI analysis service is temporarily unavailable."
+        ),
+        "suggestion": (
+            "Please try another novel later."
+        ),
+    },
+}
 
 # =========================================================
 # Session State
@@ -391,26 +379,13 @@ with st.container(key="loading-page"):
         "DEV ONLY — Remove the test button before production."
     )
 
-    test_error_type = st.selectbox(
-        "Select Error Type",
-        ["ANALYSIS_FAILED", "TIMEOUT"],
-        key="test-error-type",
-    )
-
-    if st.button("🧪 Test Error State", key="test-analysis-error"):
+    if st.button(
+        "🧪 Test Error State",
+        key="test-analysis-error",
+    ):
         st.session_state["analysis_error"] = True
         st.session_state["analysis_complete"] = False
-        st.session_state["analysis_error_type"] = test_error_type
-
-        if test_error_type == "ANALYSIS_FAILED":
-            st.session_state["limitations"] = [
-                "Limited user reviews were available for this novel.",
-                "Some character details could not be verified.",
-                "The analysis may not reflect every aspect of the story.",
-            ]
-        else:
-            st.session_state.pop("limitations", None)
-
+        st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
         st.rerun()
 
     # -----------------------------------------------------
@@ -429,15 +404,11 @@ with st.container(key="loading-page"):
             error_messages["ANALYSIS_FAILED"],
         )
 
-        # Get limitations from session state.
-        limitations = st.session_state.get("limitations", [])
-
         render_animation(
             is_error=True,
             error_message=error_info["description"],
             error_title=error_info["title"],
             error_suggestion=error_info["suggestion"],
-            limitations=limitations if error_type == "ANALYSIS_FAILED" else [],
         )
 
         if st.button(
@@ -450,15 +421,16 @@ with st.container(key="loading-page"):
             st.session_state["analysis_complete"] = False
             st.session_state["analysis_started"] = False
 
+            # Clear the previous novel's analysis data.
             for key in (
                 "novel_data",
                 "review_data",
                 "analysis_result",
-                "limitations",
                 "analysis_error_type",
             ):
                 st.session_state.pop(key, None)
 
+            # Return to the novel selection/input page.
             st.switch_page("pages/novel.py")
 
     # -----------------------------------------------------

@@ -253,4 +253,8 @@ with st.container(key="preview-content"):
                     use_container_width=True,
                     key="preview_continue"
                 ):
-                    st.switch_page("pages/chat.py")
+                    st.session_state["analysis_complete"] = False
+                    st.session_state["analysis_error"] = False
+                    st.session_state.pop("analysis_result", None)
+                    st.session_state.pop("limitations", None)
+                    st.switch_page("pages/loading.py")
