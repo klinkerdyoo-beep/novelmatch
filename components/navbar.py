@@ -27,9 +27,71 @@ for css_file in css_files:
         )
 
 
+import json
+from datetime import datetime, timedelta
+import extra_streamlit_components as stx
+
 # =========================================================
-# Navbar
+# Cookie Session Manager
 # =========================================================
+
+COOKIE_NAME = "novelmatch_session"
+cookie_manager = stx.CookieManager(key="novelmatch_cookie_manager")
+
+
+def save_session_to_cookies(
+    access_token: str,
+    username: str,
+    user_id,
+    days: int = 7,
+) -> None:
+    """Save user authentication credentials to browser cookies."""
+    payload = json.dumps({
+        "access_token": access_token,
+        "username": username,
+        "user_id": str(user_id),
+    })
+    try:
+        cookie_manager.set(
+            COOKIE_NAME,
+            payload,
+            expires_at=datetime.now() + timedelta(days=days),
+            key="save_auth_cookie",
+        )
+    except Exception:
+        pass
+
+
+def restore_session_from_cookies() -> bool:
+    """Restore session_state from browser cookies if not already authenticated."""
+    if st.session_state.get("access_token") and st.session_state.get("username"):
+        return True
+
+    try:
+        raw = cookie_manager.get(COOKIE_NAME)
+        if not raw:
+            return False
+
+        data = json.loads(raw) if isinstance(raw, str) else raw
+        if isinstance(data, dict) and data.get("access_token"):
+            st.session_state["access_token"] = data["access_token"]
+            st.session_state["username"] = data.get("username", "")
+            st.session_state["user_id"] = data.get("user_id", "")
+            st.session_state["logged_in"] = True
+            return True
+    except Exception:
+        pass
+
+    return False
+
+
+def clear_session_cookies() -> None:
+    """Remove authentication cookie on logout."""
+    try:
+        cookie_manager.delete(COOKIE_NAME, key="clear_auth_cookie")
+    except Exception:
+        pass
+
 
 PAGE_HOME = "main.py"
 PAGE_PREFERENCES = "pages/preferences.py"
@@ -39,11 +101,13 @@ PAGE_LOGIN = "pages/login.py"
 
 
 def logout():
+    clear_session_cookies()
     st.session_state.clear()
     st.switch_page(PAGE_LOGIN)
 
 
 def navbar():
+    restore_session_from_cookies()
 
     username = st.session_state.get("username", "")
 

@@ -23,7 +23,7 @@ def _request(
     token: str | None = None,
     timeout: float | None = None,
 ) -> dict[str, Any]:
-    base_url = os.getenv("NOVELMATCH_API_URL", "http://localhost:8000").rstrip("/")
+    base_url = os.getenv("NOVELMATCH_API_URL", "https://novel-api.fastapicloud.dev")
     headers = {"Accept": "application/json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
@@ -81,7 +81,7 @@ def get_preferences(token: str) -> dict[str, Any]:
 
 
 def analyze_novel(payload: dict[str, Any], token: str | None = None) -> dict[str, Any]:
-    return _request("POST", "/analysis", json=payload, token=token)
+    return _request("POST", "/analysis", json=payload, token=token, timeout=90.0)
 
 def get_novel_info(novel_id: str, token: str) -> dict[str, Any]:
     return _request("GET", f"/novels/{novel_id}", token=token)
@@ -92,4 +92,9 @@ def get_analysis_novel(novel_id: str, token: str) -> dict[str, Any]:
 
 
 get_analyze_novel = get_analysis_novel
+
+
+def get_user_history(token: str) -> dict[str, Any]:
+    return _request("GET", "/history", token=token)
+
 

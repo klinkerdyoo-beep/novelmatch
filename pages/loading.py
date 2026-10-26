@@ -3,6 +3,11 @@ import streamlit.components.v1 as components
 import base64
 import time
 from components.navbar import navbar
+from components.api_client import (
+    NovelMatchAPIError,
+    analyze_novel,
+    get_novel_info,
+)
 
 st.set_page_config(
     page_title="Finding Your Novel Match | NovelMatch",
@@ -404,34 +409,48 @@ with st.container(key="loading-page"):
             error_messages["ANALYSIS_FAILED"],
         )
 
+        custom_err_msg = st.session_state.get("analysis_error_message") or error_info["description"]
+
         render_animation(
             is_error=True,
-            error_message=error_info["description"],
+            error_message=custom_err_msg,
             error_title=error_info["title"],
             error_suggestion=error_info["suggestion"],
         )
 
-        if st.button(
-            "Try Another Novel",
-            type="primary",
-            use_container_width=True,
-            key="try-another-novel",
-        ):
-            st.session_state["analysis_error"] = False
-            st.session_state["analysis_complete"] = False
-            st.session_state["analysis_started"] = False
-
-            # Clear the previous novel's analysis data.
-            for key in (
-                "novel_data",
-                "review_data",
-                "analysis_result",
-                "analysis_error_type",
+        col_retry, col_novel = st.columns(2)
+        with col_retry:
+            if st.button(
+                "🔄 Try Again",
+                use_container_width=True,
+                key="retry-analysis",
             ):
-                st.session_state.pop(key, None)
+                st.session_state["analysis_error"] = False
+                st.session_state["analysis_complete"] = False
+                st.session_state["analysis_started"] = False
+                st.rerun()
 
-            # Return to the novel selection/input page.
-            st.switch_page("pages/novel.py")
+        with col_novel:
+            if st.button(
+                "Try Another Novel",
+                type="primary",
+                use_container_width=True,
+                key="try-another-novel",
+            ):
+                st.session_state["analysis_error"] = False
+                st.session_state["analysis_complete"] = False
+                st.session_state["analysis_started"] = False
+
+                # Clear previous novel analysis data
+                for key in (
+                    "novel_data",
+                    "review_data",
+                    "analysis_result",
+                    "analysis_error_type",
+                ):
+                    st.session_state.pop(key, None)
+
+                st.switch_page("pages/novel.py")
 
     # -----------------------------------------------------
     # Navigate to Chat
@@ -441,8 +460,78 @@ with st.container(key="loading-page"):
         st.switch_page("pages/chat.py")
 
     # -----------------------------------------------------
-    # Normal Loading State
+    # Normal Loading State & AI Processing
     # -----------------------------------------------------
 
     else:
         render_animation(is_error=False)
+
+        token = st.session_state.get("access_token")
+        if not token:
+            st.warning("Session expired or not logged in.")
+            st.switch_page("pages/login.py")
+            st.stop()
+
+        novel_title = st.session_state.get("novel_title", "").strip()
+        novel_author = st.session_state.get("novel_author", "").strip()
+        novel_synopsis = st.session_state.get("novel_synopsis", "").strip()
+        novel_genres = st.session_state.get("novel_genres", [])
+        novel_id = st.session_state.get("novel_id")
+
+        # If title is missing but novel_id exists, fetch novel info
+        if novel_id and not novel_title:
+            try:
+                res = get_novel_info(str(novel_id), token=token)
+                data = res.get("data", {})
+                novel_title = data.get("title", "")
+                novel_author = data.get("author", "")
+                novel_synopsis = data.get("synopsis", "")
+                novel_genres = data.get("genre", [])
+                st.session_state["novel_title"] = novel_title
+                st.session_state["novel_author"] = novel_author
+                st.session_state["novel_synopsis"] = novel_synopsis
+                st.session_state["novel_genres"] = novel_genres
+            except NovelMatchAPIError:
+                pass
+
+        if not novel_title or not novel_author:
+            st.session_state["analysis_error"] = True
+            st.session_state["analysis_error_type"] = "INSUFFICIENT_DATA"
+            st.rerun()
+
+        try:
+            payload = {
+                "title": novel_title,
+                "author": novel_author,
+                "synopsis": novel_synopsis,
+                "genre": novel_genres,
+            }
+            resp = analyze_novel(payload, token=token)
+            st.session_state["analysis_result"] = resp.get("results", {})
+            st.session_state["novel_id"] = resp.get("novel_id")
+            st.session_state["analysis_complete"] = True
+            st.session_state["analysis_error"] = False
+            st.switch_page("pages/chat.py")
+
+        except NovelMatchAPIError as exc:
+            err_text = str(exc).lower()
+            if "not found" in err_text:
+                st.session_state["analysis_error_type"] = "NOVEL_NOT_FOUND"
+            elif "unavailable" in err_text or "connection" in err_text:
+                st.session_state["analysis_error_type"] = "SERVICE_UNAVAILABLE"
+            elif "not enough" in err_text or "insufficient" in err_text:
+                st.session_state["analysis_error_type"] = "INSUFFICIENT_DATA"
+            else:
+                st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
+
+            st.session_state["analysis_error_message"] = str(exc)
+            st.session_state["analysis_error"] = True
+            st.session_state["analysis_complete"] = False
+            st.rerun()
+
+        except Exception as exc:
+            st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
+            st.session_state["analysis_error_message"] = str(exc)
+            st.session_state["analysis_error"] = True
+            st.session_state["analysis_complete"] = False
+            st.rerun()

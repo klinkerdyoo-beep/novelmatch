@@ -1,7 +1,7 @@
 import streamlit as st
 import base64
 
-from components.navbar import navbar
+from components.navbar import navbar, save_session_to_cookies
 from components.api_client import NovelMatchAPIError, login, signup
 
 
@@ -194,6 +194,12 @@ with st.container(key="login-content"):
                         st.session_state.user_id = result["user"]["id"]
                         st.session_state.username = name
                         st.session_state.user_email = email
+
+                        save_session_to_cookies(
+                            result["access_token"],
+                            name,
+                            result["user"]["id"],
+                        )
                         st.switch_page("pages/preferences.py")
 
 

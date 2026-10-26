@@ -7,8 +7,7 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-
-# Virtual environments
+.fastapicloud/
 .venv/
 venv/
 env/

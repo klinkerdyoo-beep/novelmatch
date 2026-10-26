@@ -172,7 +172,79 @@ class AnalysisRequest(BaseModel):
     book_cover: str | None = Field(default=None, description="URL รูปปก")
     genre: list[str] = Field(default_factory=list, description="หมวดหมู่นิยาย")
     # provider: Literal["gemini", "gpt_oss"]
+@app.get("/history")
+async def get_user_match_history(user: dict[str, Any] = Depends(require_user)):
+    user_id = user.get("id")
+    supabase.postgrest.auth(user["_access_token"])
+    
+    try:
+        res = (
+            supabase.table("match_history")
+            .select("*")
+            .eq("user_id", user_id)
+            .order("id", desc=True)
+            .execute()
+        )
+        records = res.data or []
+    except Exception as exc:
+        logger.error("Error querying match_history: %s", exc)
+        records = []
 
+    # 2. ดึงข้อมูลนิยายจาก comparison_novels ตาม novel_ids
+    novel_ids = list({r["novel_id"] for r in records if r.get("novel_id") is not None})
+    novel_map = {}
+    if novel_ids:
+        try:
+            novels_res = (
+                supabase.table("comparison_novels")
+                .select("id,title,author,book_cover,synopsis,genre")
+                .in_("id", novel_ids)
+                .execute()
+            )
+            for n in (novels_res.data or []):
+                novel_map[n["id"]] = n
+        except Exception as exc:
+            logger.error("Error querying comparison_novels: %s", exc)
+
+    grouped = {}
+    for r in records:
+        nid = r.get("novel_id")
+        novel_info = novel_map.get(nid, {})
+        if nid not in grouped:
+            grouped[nid] = {
+                "id": nid,
+                "title": novel_info.get("title", "Untitled"),
+                "author": novel_info.get("author", "Unknown"),
+                "cover_url": novel_info.get("book_cover", ""),
+                "synopsis": novel_info.get("synopsis", ""),
+                "genres": novel_info.get("genre") or [],
+                "chatgpt": None,
+                "gemini": None,
+            }
+        
+        # แยกตามโมเดล
+        summary_tag = str(r.get("matches_summary") or "")
+        cleaned_summary = (r.get("review_overview") or summary_tag).replace("[GPT-OSS] ", "").replace("[Gemini] ", "")
+        model_data = {
+            "score": r.get("score"),
+            "status": r.get("matches_level"),
+            "overall_summary": cleaned_summary,
+            "matches": r.get("matches") or [],
+            "mismatches": r.get("mismatches") or [],
+            "review_summary": r.get("review_summary") or {},
+            "sources": r.get("data_sources") or [],
+            "limitations": r.get("limitations") or [],
+        }
+        if "[GPT-OSS]" in summary_tag or "gpt" in summary_tag.lower():
+            if grouped[nid]["chatgpt"] is None or (grouped[nid]["chatgpt"].get("score") is None and model_data.get("score") is not None):
+                grouped[nid]["chatgpt"] = model_data
+        else:
+            if grouped[nid]["gemini"] is None or (grouped[nid]["gemini"].get("score") is None and model_data.get("score") is not None):
+                grouped[nid]["gemini"] = model_data
+
+    return {"data": list(grouped.values())}
+
+    
 
 # --- Endpoint /analysis ---
 @app.post("/analysis")

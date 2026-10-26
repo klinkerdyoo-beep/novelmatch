@@ -1,7 +1,6 @@
 import streamlit as st
 import base64
-
-from components.navbar import navbar
+from components.navbar import navbar, save_session_to_cookies
 from components.popup.login_success_popup import login_success_popup
 from components.api_client import NovelMatchAPIError, login
 
@@ -13,7 +12,6 @@ st.set_page_config(
     page_title="Log In | Novel Match",
     layout="wide"
 )
-
 
 # =========================================================
 # CSS
@@ -34,6 +32,9 @@ for css_file in css_files:
 
 
 navbar()
+
+if st.session_state.get("access_token"):
+    st.switch_page("main.py")
 
 
 # =========================================================
@@ -132,6 +133,13 @@ with st.container(key="login-content"):
                     st.session_state.user = result["user"]
                     st.session_state.user_id = result["user"]["id"]
                     st.session_state.username = username_or_email
+
+                    save_session_to_cookies(
+                        result["access_token"],
+                        username_or_email,
+                        result["user"]["id"],
+                    )
+                    
                     login_success_popup()
 
 
