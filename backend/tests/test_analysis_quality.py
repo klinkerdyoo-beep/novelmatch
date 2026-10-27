@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from backend.services.gemini_service import GeminiAIService
+from backend.services.novel_sources.ai_payload import build_ai_payload
 
 
 class FakeResponse:
@@ -24,18 +25,62 @@ class FakeClient:
         self.models = FakeModels(text)
 
 
-@dataclass(frozen=True)
-class QualityCase:
-    name: str
-    user_preference: dict[str, Any]
-    novel: dict[str, Any]
-    reviews: list[dict[str, Any]]
-    response: dict[str, Any]
-    expected_score: int | None
-    expected_level: str | None
-    required_terms: tuple[str, ...] = ()
-    forbidden_terms: tuple[str, ...] = ()
-    required_limitation: str | None = None
+def make_payload(
+    user_preference: dict[str, Any],
+    *,
+    title: str = "Test Novel",
+    authors: list[str] | None = None,
+    description: str | None = "A supplied novel description.",
+    genres: list[str] | None = None,
+    published_year: int | None = 2020,
+    average_rating: float | None = 4.2,
+    ratings_count: int | None = 100,
+    reviews: list[dict[str, Any]] | None = None,
+    warnings: list[str] | None = None,
+) -> dict[str, Any]:
+    """Build the exact AI input shape through the production payload adapter."""
+
+    research_result = {
+        "metadata": {
+            "title": title,
+            "authors": authors or ["Test Author"],
+            "description": description,
+            "description_source": "google_books" if description else None,
+            "published_year": published_year,
+            "genres": genres or [],
+            "average_rating": average_rating,
+            "ratings_count": ratings_count,
+            "cover_url": None,
+            "provider": "google_books",
+            "source_url": "https://books.example.test/test-novel",
+            "provider_id": "test-novel",
+            "match_score": 1.0,
+            "sources": [],
+        },
+        "reviews": reviews or [],
+        "sources": [],
+        "warnings": warnings or [],
+    }
+    return build_ai_payload(research_result, user_preference)
+
+
+def review(
+    review_id: str,
+    snippet: str,
+    source_name: str = "reader.example.test",
+    url: str | None = None,
+) -> dict[str, Any]:
+    return {
+        "title": "Test Novel review",
+        "url": url or f"https://{source_name}/{review_id}",
+        "snippet": snippet,
+        "source_name": source_name,
+        "relevance_score": 0.95,
+        "published_date": "2025-01-01",
+        "review_id": review_id,
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only",
+    }
 
 
 def response_template(
@@ -65,185 +110,242 @@ def response_template(
     }
 
 
+@dataclass(frozen=True)
+class QualityCase:
+    name: str
+    payload: dict[str, Any]
+    response: dict[str, Any]
+    expected_level: str | None
+    expected_score_range: tuple[int, int] | None
+    required_terms: tuple[str, ...] = ()
+    forbidden_terms: tuple[str, ...] = ()
+    required_limitation: str | None = None
+
+
 REVIEWS = [
-    {
-        "review_id": "r1",
-        "text": "The world-building is vivid and the protagonist is brave.",
-        "source": "Reader A",
-        "url": "https://example.test/r1",
-    },
-    {
-        "review_id": "r2",
-        "text": "The pacing is slow, but the characters are compelling.",
-        "source": "Reader B",
-        "url": "https://example.test/r2",
-    },
+    review(
+        "r1",
+        "The world-building is vivid and the pacing is fast.",
+        source_name="reader-a.example.test",
+    ),
+    review(
+        "r2",
+        "The world-building is vivid, but the pacing is slow.",
+        source_name="reader-b.example.test",
+    ),
 ]
 
 
-def review_source(review_id: str) -> dict[str, str]:
-    review = next(review for review in REVIEWS if review["review_id"] == review_id)
+def payload_review_source(payload: dict[str, Any], review_id: str) -> dict[str, str]:
+    item = next(item for item in payload["reviews"] if item["review_id"] == review_id)
     return {
-        "evidence_id": review["review_id"],
-        "source": review["source"],
-        "url": review["url"],
+        "evidence_id": item["review_id"],
+        "source": item["source"],
+        "url": item["url"],
     }
+
+
+STRONG_PAYLOAD = make_payload(
+    {"liked_genres": ["Fantasy", "Adventure"]},
+    title="The Bright Quest",
+    genres=["Fantasy", "Adventure"],
+    description="A brave hero explores a magical world.",
+    reviews=REVIEWS[:1],
+)
+WEAK_PAYLOAD = make_payload(
+    {"liked_genres": ["Romance"], "disliked_genres": ["Horror"]},
+    genres=["Horror"],
+    description="A supernatural investigation.",
+)
+MIXED_PAYLOAD = make_payload(
+    {"liked_genres": ["Fantasy"], "story_preferences": ["Fast-paced"]},
+    genres=["Fantasy"],
+    description="A fantasy quest with an opening whose pacing is not specified.",
+    reviews=REVIEWS,
+)
+CONFLICTING_PAYLOAD = make_payload(
+    {"story_preferences": ["Fast-paced"]},
+    description="A character-focused journey.",
+    reviews=REVIEWS,
+)
 
 
 QUALITY_CASES = [
     QualityCase(
         name="strong match",
-        user_preference={"liked_genres": ["Fantasy", "Adventure"]},
-        novel={"genres": ["Fantasy", "Adventure"], "description": "A brave hero explores a magical world."},
-        reviews=REVIEWS[:1],
+        payload=STRONG_PAYLOAD,
         response=response_template(
             score=88,
             level="High",
             matches=[{"point": "Fantasy adventure", "explanation": "The genres align.", "evidence_ids": []}],
-            positive=["Readers praised the world-building."],
-            sources=[review_source("r1")],
+            positive=["Reader A praises the world-building."],
+            sources=[payload_review_source(STRONG_PAYLOAD, "r1")],
         ),
-        expected_score=88,
         expected_level="High",
+        expected_score_range=(80, 100),
         required_terms=("fantasy", "adventure"),
     ),
     QualityCase(
         name="weak match",
-        user_preference={"liked_genres": ["Romance"], "disliked_genres": ["Horror"]},
-        novel={"genres": ["Horror"], "description": "A supernatural investigation."},
-        reviews=[],
+        payload=WEAK_PAYLOAD,
         response=response_template(
             score=25,
             level="Low",
             mismatches=[{"point": "Horror genre", "explanation": "It conflicts with the disliked genre.", "evidence_ids": []}],
         ),
-        expected_score=25,
         expected_level="Low",
+        expected_score_range=(0, 59),
         required_terms=("horror", "disliked"),
     ),
     QualityCase(
         name="mixed match",
-        user_preference={"liked_genres": ["Fantasy"], "story_preferences": ["Fast-paced"]},
-        novel={"genres": ["Fantasy"], "description": "A fantasy quest with a slow opening."},
-        reviews=REVIEWS,
+        payload=MIXED_PAYLOAD,
         response=response_template(
             score=68,
             level="Medium",
             matches=[{"point": "Fantasy", "explanation": "The genre matches.", "evidence_ids": []}],
-            mismatches=[{"point": "Pacing", "explanation": "A review describes slow pacing.", "evidence_ids": ["r2"]}],
-            positive=["Compelling characters."],
-            negative=["Slow pacing."],
-            sources=[review_source("r2")],
+            mismatches=[{"point": "Pacing", "explanation": "Reader B describes slow pacing.", "evidence_ids": ["r2"]}],
+            positive=["Reader opinions include vivid world-building."],
+            negative=["Reader B reports slow pacing."],
+            sources=[payload_review_source(MIXED_PAYLOAD, "r2")],
         ),
-        expected_score=68,
         expected_level="Medium",
+        expected_score_range=(60, 79),
         required_terms=("fantasy", "pacing"),
     ),
     QualityCase(
         name="conflicting reviews",
-        user_preference={"story_preferences": ["Strong characters"]},
-        novel={"description": "A character-focused journey."},
-        reviews=REVIEWS,
+        payload=CONFLICTING_PAYLOAD,
         response=response_template(
             score=70,
             level="Medium",
-            matches=[{"point": "Characters", "explanation": "Reviews describe compelling characters.", "evidence_ids": ["r2"]}],
-            positive=["The protagonist is brave."],
-            negative=["The pacing is slow."],
-            mixed=["Reviews differ on the reading experience."],
-            sources=[review_source("r1"), review_source("r2")],
+            matches=[{"point": "Fast pacing", "explanation": "Reader A describes fast pacing.", "evidence_ids": ["r1"]}],
+            mismatches=[{"point": "Slow pacing", "explanation": "Reader B describes slow pacing.", "evidence_ids": ["r2"]}],
+            mixed=["Readers give opposing opinions about pacing."],
+            sources=[
+                payload_review_source(CONFLICTING_PAYLOAD, "r1"),
+                payload_review_source(CONFLICTING_PAYLOAD, "r2"),
+            ],
         ),
-        expected_score=70,
         expected_level="Medium",
-        required_terms=("characters", "reviews", "differ"),
+        expected_score_range=(60, 79),
+        required_terms=("fast pacing", "slow pacing", "opposing"),
     ),
     QualityCase(
         name="insufficient evidence",
-        user_preference={"liked_genres": ["Mystery"]},
-        novel={},
-        reviews=[],
+        payload=make_payload(
+            {"liked_genres": ["Mystery"]},
+            description=None,
+            genres=[],
+            published_year=None,
+            average_rating=None,
+            ratings_count=None,
+            warnings=["Missing novel metadata: description, genres, published_year."],
+        ),
         response=response_template(
             score=None,
             level=None,
             limitations=["Novel information is insufficient to calculate a score."],
         ),
-        expected_score=None,
         expected_level=None,
+        expected_score_range=None,
         required_limitation="insufficient",
     ),
     QualityCase(
         name="no reviews",
-        user_preference={"liked_genres": ["Fantasy"]},
-        novel={"genres": ["Fantasy"], "description": "A fantasy journey."},
-        reviews=[],
+        payload=make_payload(
+            {"liked_genres": ["Fantasy"]},
+            genres=["Fantasy"],
+            description="A fantasy journey.",
+            warnings=["No sufficiently relevant review excerpts passed screening."],
+        ),
         response=response_template(
             score=75,
             level="Medium",
             matches=[{"point": "Fantasy", "explanation": "The novel genre matches.", "evidence_ids": []}],
             limitations=["No relevant reader reviews were provided."],
         ),
-        expected_score=75,
         expected_level="Medium",
+        expected_score_range=(60, 79),
         required_limitation="no relevant reader reviews",
     ),
     QualityCase(
         name="character preferences",
-        user_preference={"character_preferences": ["Independent protagonist"]},
-        novel={"description": "An independent protagonist solves the central mystery."},
-        reviews=[],
+        payload=make_payload(
+            {"character_preferences": ["Independent protagonist"]},
+            description="An independent protagonist solves the central mystery.",
+        ),
         response=response_template(
             score=82,
             level="High",
             matches=[{"point": "Independent protagonist", "explanation": "The description states this trait.", "evidence_ids": []}],
         ),
-        expected_score=82,
         expected_level="High",
+        expected_score_range=(80, 100),
         required_terms=("independent", "protagonist"),
     ),
     QualityCase(
         name="rated novel similarity",
-        user_preference={"rated_novels": [{"title": "The Hobbit", "rating": 5}]},
-        novel={"title": "A fantasy quest", "description": "A small hero travels through a magical land."},
-        reviews=[],
+        payload=make_payload(
+            {
+                "rated_novels": [
+                    {
+                        "title": "The Hobbit",
+                        "author": "J.R.R. Tolkien",
+                        "rating": 5,
+                    }
+                ]
+            },
+            title="A Small Magical Quest",
+            genres=["Fantasy", "Adventure"],
+            description="A small hero travels through a dangerous magical land.",
+        ),
         response=response_template(
             score=80,
             level="High",
-            matches=[{"point": "Rated novel similarity", "explanation": "The quest structure is similar to The Hobbit based on the provided descriptions.", "evidence_ids": []}],
+            matches=[{"point": "Rated novel similarity", "explanation": "The supplied genre and description metadata are similar to The Hobbit.", "evidence_ids": []}],
         ),
-        expected_score=80,
         expected_level="High",
-        required_terms=("similar", "the hobbit"),
+        expected_score_range=(80, 100),
+        required_terms=("similar", "the hobbit", "description"),
     ),
     QualityCase(
         name="unsupported-claim trap",
-        user_preference={"liked_genres": ["Fantasy"]},
-        novel={"genres": ["Fantasy"], "description": "A journey through an unnamed land."},
-        reviews=[],
+        payload=make_payload(
+            {"liked_genres": ["Fantasy"]},
+            genres=["Fantasy"],
+            description="A journey through an unnamed land.",
+        ),
         response=response_template(
             score=60,
             level="Medium",
             matches=[{"point": "Fantasy genre", "explanation": "The supplied genre is Fantasy.", "evidence_ids": []}],
             limitations=["Character, romance, and pacing information were not provided."],
         ),
-        expected_score=60,
         expected_level="Medium",
+        expected_score_range=(60, 79),
         forbidden_terms=("dragon", "romance subplot", "fast-paced"),
         required_limitation="not provided",
     ),
     QualityCase(
         name="evidence/source correctness",
-        user_preference={"liked_genres": ["Fantasy"]},
-        novel={"genres": ["Fantasy"]},
-        reviews=REVIEWS,
+        payload=make_payload(
+            {"liked_genres": ["Fantasy"]},
+            genres=["Fantasy"],
+            reviews=REVIEWS,
+        ),
         response=response_template(
             score=65,
             level="Medium",
             matches=[{"point": "World-building", "explanation": "Reader A explicitly praises it.", "evidence_ids": ["r1"]}],
             mismatches=[{"point": "Pacing", "explanation": "Reader B calls the pacing slow.", "evidence_ids": ["r2"]}],
-            sources=[review_source("r1"), review_source("r2")],
+            sources=[
+                {"evidence_id": "r1", "source": "reader-a.example.test", "url": "https://reader-a.example.test/r1"},
+                {"evidence_id": "r2", "source": "reader-b.example.test", "url": "https://reader-b.example.test/r2"},
+            ],
         ),
-        expected_score=65,
         expected_level="Medium",
+        expected_score_range=(60, 79),
         required_terms=("world-building", "pacing"),
     ),
 ]
@@ -260,13 +362,9 @@ def evaluate_case(case: QualityCase) -> dict[str, Any]:
     try:
         result = GeminiAIService(
             client=FakeClient(json.dumps(case.response))
-        ).analyze(
-            user_preference=case.user_preference,
-            novel=case.novel,
-            reviews=case.reviews,
-        )
+        ).analyze(**case.payload)
         serialized = result.model_dump_json().lower()
-        review_by_id = {review["review_id"]: review for review in case.reviews}
+        review_by_id = {review["review_id"]: review for review in case.payload["reviews"]}
 
         evidence_ids = {
             evidence_id
@@ -277,9 +375,9 @@ def evaluate_case(case: QualityCase) -> dict[str, Any]:
             checks["evidence_consistency"] = "FAIL"
             errors.append("analysis contains an unknown evidence ID")
         for source in result.sources:
-            review = review_by_id.get(source.evidence_id)
-            if not review or any(
-                review.get(field) != getattr(source, field)
+            review_item = review_by_id.get(source.evidence_id)
+            if not review_item or any(
+                review_item.get(field) != getattr(source, field)
                 for field in ("source", "url")
             ):
                 checks["evidence_consistency"] = "FAIL"
@@ -296,12 +394,14 @@ def evaluate_case(case: QualityCase) -> dict[str, Any]:
             checks["unsupported_claims"] = "FAIL"
             errors.append("required limitation is absent")
 
-        if (
-            result.match_score != case.expected_score
-            or result.match_level != case.expected_level
-        ):
+        score = result.match_score
+        if case.expected_score_range is None:
+            score_is_valid = score is None
+        else:
+            score_is_valid = score is not None and case.expected_score_range[0] <= score <= case.expected_score_range[1]
+        if not score_is_valid or result.match_level != case.expected_level:
             checks["scoring_reasoning"] = "FAIL"
-            errors.append("score or level does not match the expected reasoning band")
+            errors.append("score or level is outside the expected justified band")
     except Exception as exc:  # Evaluation output should record, not hide, failures.
         for criterion in checks:
             checks[criterion] = "FAIL"

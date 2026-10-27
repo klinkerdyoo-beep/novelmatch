@@ -1,8 +1,8 @@
 import streamlit as st
 import base64
-
-from components.navbar import navbar
+from components.navbar import navbar, save_session_to_cookies
 from components.popup.login_success_popup import login_success_popup
+from components.api_client import NovelMatchAPIError, login
 
 # =========================================================
 # Page Config
@@ -12,7 +12,6 @@ st.set_page_config(
     page_title="Log In | Novel Match",
     layout="wide"
 )
-
 
 # =========================================================
 # CSS
@@ -33,6 +32,9 @@ for css_file in css_files:
 
 
 navbar()
+
+if st.session_state.get("access_token"):
+    st.switch_page("main.py")
 
 
 # =========================================================
@@ -93,6 +95,7 @@ with st.container(key="login-content"):
             placeholder="Enter your username or email...",
             key="login-username-or-email"
         )
+        
 
         password = st.text_input(
             "Password",
@@ -120,12 +123,24 @@ with st.container(key="login-content"):
                 st.warning("Please enter your password.")
 
             else:
-                # TODO: Validate username and password with the database
-                st.session_state.logged_in = True
-                st.session_state.username = username_or_email
+                try:
+                    result = login(username_or_email.strip(), password)
+                except NovelMatchAPIError as exc:
+                    st.error("username or password is invalid")
+                else:
+                    st.session_state.logged_in = True
+                    st.session_state.access_token = result["access_token"]
+                    st.session_state.user = result["user"]
+                    st.session_state.user_id = result["user"]["id"]
+                    st.session_state.username = username_or_email
 
-                # Show the popup after successful login
-                login_success_popup()
+                    save_session_to_cookies(
+                        result["access_token"],
+                        username_or_email,
+                        result["user"]["id"],
+                    )
+                    
+                    login_success_popup()
 
 
         # -------------------------------------------------

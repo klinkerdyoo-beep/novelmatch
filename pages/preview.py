@@ -1,5 +1,6 @@
 import streamlit as st
 import base64
+from components.api_client import NovelMatchAPIError, get_preferences
 
 from components.navbar import navbar
 
@@ -81,6 +82,27 @@ def show_text(title, value, empty_message="Not provided."):
         st.write(value)
     else:
         st.caption(empty_message)
+
+
+token = st.session_state.get("access_token")
+if token and not st.session_state.get("preferences_loaded", False):
+    try:
+        preferences_response = get_preferences(token)
+    except NovelMatchAPIError as exc:
+        st.error(f"Could not load your preferences: {exc}")
+    else:
+        saved = preferences_response.get("preferences", {})
+        genres = saved.get("genre_preferences", {})
+        characters = saved.get("character_preferences", {})
+        stories = saved.get("story_element_preferences", {})
+        st.session_state.enjoyed_genres = genres.get("enjoyed_genres", [])
+        st.session_state.disliked_genres = genres.get("disliked_genres", [])
+        st.session_state.enjoyed_character = characters.get("enjoyed_character", [])
+        st.session_state.liked_character = characters.get("liked_character", "")
+        st.session_state.disliked_character = characters.get("disliked_character", "")
+        st.session_state.enjoyed_story = stories.get("liked_story", [])
+        st.session_state.disliked_story = stories.get("disliked_story", [])
+        st.session_state.preferences_loaded = True
 
 
 # =========================================================
@@ -183,7 +205,7 @@ with st.container(key="preview-content"):
 
             show_list(
                 "Genres You Enjoy",
-                st.session_state.get("favorite_genres", [])
+                st.session_state.get("enjoyed_genres", [])
             )
 
             show_list(
@@ -199,17 +221,17 @@ with st.container(key="preview-content"):
 
             show_list(
                 "Character Traits You Enjoy",
-                st.session_state.get("enjoy_characters", [])
+                st.session_state.get("enjoyed_character", [])
             )
 
             show_text(
                 "Describe a Character You Like",
-                st.session_state.get("liked_characters", "")
+                st.session_state.get("liked_character", "")
             )
 
             show_text(
                 "Describe Traits You Dislike",
-                st.session_state.get("disliked_character_description", "")
+                st.session_state.get("disliked_character", "")
             )
 
             # -------------------------------------------------
@@ -220,12 +242,12 @@ with st.container(key="preview-content"):
 
             show_list(
                 "Story Elements You Enjoy",
-                st.session_state.get("liked_stories", [])
+                st.session_state.get("enjoyed_story", [])
             )
 
             show_list(
                 "Story Elements You Prefer to Avoid",
-                st.session_state.get("disliked_stories", [])
+                st.session_state.get("disliked_story", [])
             )
 
             st.divider()
@@ -255,6 +277,6 @@ with st.container(key="preview-content"):
                 ):
                     st.session_state["analysis_complete"] = False
                     st.session_state["analysis_error"] = False
+                    st.session_state["analysis_started"] = False
                     st.session_state.pop("analysis_result", None)
-                    st.session_state.pop("limitations", None)
                     st.switch_page("pages/loading.py")

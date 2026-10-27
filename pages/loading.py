@@ -1,8 +1,14 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import base64
+from html import escape
 import time
 from components.navbar import navbar
+from components.api_client import (
+    NovelMatchAPIError,
+    analyze_novel,
+    get_novel_info,
+)
 
 st.set_page_config(
     page_title="Finding Your Novel Match | NovelMatch",
@@ -114,6 +120,7 @@ def render_animation(
     error_message=None,
     error_title=None,
     error_suggestion=None,
+    limitations=None,
 ):
     if is_error:
         gif_post_id = "18453366"
@@ -150,6 +157,28 @@ def render_animation(
         if suggestion
         else ""
     )
+
+    # Display limitations only when analysis fails.
+    limitations = limitations if isinstance(limitations, list) else []
+
+    limitations_html = ""
+
+    if is_error and limitations:
+        limitation_items = "".join(
+            f"<li>{escape(limitation.strip())}</li>"
+            for limitation in limitations
+            if isinstance(limitation, str) and limitation.strip()
+        )
+
+        if limitation_items:
+            limitations_html = f"""
+                <div class="nm-limitations">
+                    <p class="nm-limitations-title">Limitations</p>
+                    <ul>
+                        {limitation_items}
+                    </ul>
+                </div>
+            """
 
     dots_html = (
         ""
@@ -224,6 +253,43 @@ def render_animation(
                     line-height: 1.8;
                 }}
 
+                .nm-limitations {{
+                    width: 100%;
+                    max-width: 550px;
+                    max-height: none;
+                    height: auto;
+                    overflow: visible;
+                    box-sizing: border-box;
+
+                    margin: 20px auto 0;
+                    padding: 16px 20px;
+
+                    text-align: left;
+                    border-radius: 16px;
+                    background: rgba(255, 255, 255, 0.72);
+                }}
+
+                .nm-limitations-title {{
+                    margin: 0 0 8px;
+                    color: #172957;
+                    font-size: 14px;
+                    font-weight: 600;
+                }}
+
+                .nm-limitations ul {{
+                    margin: 8px 0 0;
+                    padding-left: 24px;
+                }}
+
+                .nm-limitations li {{
+                    margin-bottom: 6px;
+                    line-height: 1.5;
+                }}
+
+                .nm-limitations li:last-child {{
+                    margin-bottom: 0;
+                }}
+
                 .nm-dots {{
                     display: flex;
                     gap: 8px;
@@ -290,6 +356,7 @@ def render_animation(
 
                 <h1 class="nm-title">{title}</h1>
                 <p class="nm-description">{description}</p>
+                {limitations_html}
                 {suggestion_html}
                 {dots_html}
             </div>
@@ -298,7 +365,11 @@ def render_animation(
         </body>
         </html>
         """,
-        height=520,
+        height=(
+            min(900, max(600, 560 + len(limitations) * 35))
+            if is_error and limitations
+            else 520
+        ),
         scrolling=False,
     )
 
@@ -307,6 +378,24 @@ def render_animation(
 # =========================================================
 
 error_messages = {
+    "ANALYSIS_FAILED": {
+        "title": "Analysis Failed",
+        "description": (
+            "Something went wrong while analyzing this novel."
+        ),
+        "suggestion": (
+            "Please try another novel to get your personalized analysis."
+        ),
+    },
+    "TIMEOUT": {
+        "title": "Analysis Taking Too Long",
+        "description": (
+            "The analysis took longer than expected to complete."
+        ),
+        "suggestion": (
+            "Please try again or choose another novel."
+        ),
+    },
     "INSUFFICIENT_DATA": {
         "title": "Not Enough Information",
         "description": (
@@ -325,15 +414,6 @@ error_messages = {
         ),
         "suggestion": (
             "Check the novel title and author name, or try another novel."
-        ),
-    },
-    "ANALYSIS_FAILED": {
-        "title": "Analysis Failed",
-        "description": (
-            "Something went wrong while analyzing this novel."
-        ),
-        "suggestion": (
-            "Please try another novel to get your personalized analysis."
         ),
     },
     "SERVICE_UNAVAILABLE": {
@@ -379,14 +459,33 @@ with st.container(key="loading-page"):
         "DEV ONLY — Remove the test button before production."
     )
 
-    if st.button(
-        "🧪 Test Error State",
-        key="test-analysis-error",
-    ):
-        st.session_state["analysis_error"] = True
-        st.session_state["analysis_complete"] = False
-        st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
-        st.rerun()
+    # test_error_type = st.selectbox(
+    #     "Select Error Type",
+    #     [
+    #         "ANALYSIS_FAILED",
+    #         "TIMEOUT",
+    #         "INSUFFICIENT_DATA",
+    #         "NOVEL_NOT_FOUND",
+    #         "SERVICE_UNAVAILABLE",
+    #     ],
+    #     key="test-error-type",
+    # )
+
+    # if st.button("🧪 Test Error State", key="test-analysis-error"):
+    #     st.session_state["analysis_error"] = True
+    #     st.session_state["analysis_complete"] = False
+    #     st.session_state["analysis_error_type"] = test_error_type
+
+    #     if test_error_type == "ANALYSIS_FAILED":
+    #         st.session_state["limitations"] = [
+    #             "Limited user reviews were available for this novel.",
+    #             "Some character details could not be verified.",
+    #             "The analysis may not reflect every aspect of the story.",
+    #         ]
+    #     else:
+    #         st.session_state.pop("limitations", None)
+
+    #     st.rerun()
 
     # -----------------------------------------------------
     # Error State
@@ -404,34 +503,52 @@ with st.container(key="loading-page"):
             error_messages["ANALYSIS_FAILED"],
         )
 
+        custom_err_msg = st.session_state.get("analysis_error_message") or error_info["description"]
+        limitations = st.session_state.get("limitations", [])
+
         render_animation(
             is_error=True,
-            error_message=error_info["description"],
+            error_message=custom_err_msg,
             error_title=error_info["title"],
             error_suggestion=error_info["suggestion"],
+            limitations=limitations if error_type == "ANALYSIS_FAILED" else [],
         )
 
-        if st.button(
-            "Try Another Novel",
-            type="primary",
-            use_container_width=True,
-            key="try-another-novel",
-        ):
-            st.session_state["analysis_error"] = False
-            st.session_state["analysis_complete"] = False
-            st.session_state["analysis_started"] = False
-
-            # Clear the previous novel's analysis data.
-            for key in (
-                "novel_data",
-                "review_data",
-                "analysis_result",
-                "analysis_error_type",
+        col_retry, col_novel = st.columns(2)
+        with col_retry:
+            if st.button(
+                "🔄 Try Again",
+                use_container_width=True,
+                key="retry-analysis",
             ):
-                st.session_state.pop(key, None)
+                st.session_state["analysis_error"] = False
+                st.session_state["analysis_complete"] = False
+                st.session_state["analysis_started"] = False
+                st.rerun()
 
-            # Return to the novel selection/input page.
-            st.switch_page("pages/novel.py")
+        with col_novel:
+            if st.button(
+                "Try Another Novel",
+                type="primary",
+                use_container_width=True,
+                key="try-another-novel",
+            ):
+                st.session_state["analysis_error"] = False
+                st.session_state["analysis_complete"] = False
+                st.session_state["analysis_started"] = False
+
+                # Clear previous novel analysis data
+                for key in (
+                    "novel_data",
+                    "review_data",
+                    "analysis_result",
+                    "limitations",
+                    "analysis_error_type",
+                    "analysis_error_message",
+                ):
+                    st.session_state.pop(key, None)
+
+                st.switch_page("pages/novel.py")
 
     # -----------------------------------------------------
     # Navigate to Chat
@@ -441,8 +558,114 @@ with st.container(key="loading-page"):
         st.switch_page("pages/chat.py")
 
     # -----------------------------------------------------
-    # Normal Loading State
+    # Normal Loading State & AI Processing
     # -----------------------------------------------------
 
     else:
         render_animation(is_error=False)
+
+        token = st.session_state.get("access_token")
+        if not token:
+            st.warning("Session expired or not logged in.")
+            st.switch_page("pages/login.py")
+            st.stop()
+
+        novel_title = st.session_state.get("novel_title", "").strip()
+        novel_author = st.session_state.get("novel_author", "").strip()
+        novel_synopsis = st.session_state.get("novel_synopsis", "").strip()
+        novel_genres = st.session_state.get("novel_genres", [])
+        novel_id = st.session_state.get("novel_id")
+
+        # If title is missing but novel_id exists, fetch novel info
+        if novel_id and not novel_title:
+            try:
+                res = get_novel_info(str(novel_id), token=token)
+                data = res.get("data", {})
+                novel_title = data.get("title", "")
+                novel_author = data.get("author", "")
+                novel_synopsis = data.get("synopsis", "")
+                novel_genres = data.get("genre", [])
+                st.session_state["novel_title"] = novel_title
+                st.session_state["novel_author"] = novel_author
+                st.session_state["novel_synopsis"] = novel_synopsis
+                st.session_state["novel_genres"] = novel_genres
+            except NovelMatchAPIError:
+                pass
+
+        if not novel_title or not novel_author:
+            st.session_state["analysis_error"] = True
+            st.session_state["analysis_error_type"] = "INSUFFICIENT_DATA"
+            st.rerun()
+
+        try:
+            payload = {
+                "title": novel_title,
+                "author": novel_author,
+                "synopsis": novel_synopsis,
+                "genre": novel_genres,
+            }
+            resp = analyze_novel(payload, token=token)
+            results = resp.get("results", {})
+            st.session_state["analysis_result"] = results
+            st.session_state["novel_id"] = resp.get("novel_id")
+
+            # Check if match score is 0 or invalid
+            gemini_score = (results.get("gemini") or {}).get("match_score")
+            gpt_score = (results.get("gpt_oss") or {}).get("match_score")
+            direct_score = results.get("match_score")
+
+            scores = []
+            for s in (gemini_score, gpt_score, direct_score):
+                if s is not None:
+                    try:
+                        scores.append(int(s))
+                    except (ValueError, TypeError):
+                        pass
+
+            max_score = max(scores) if scores else 0
+
+            if max_score <= 0:
+                st.session_state["analysis_error"] = True
+                st.session_state["analysis_complete"] = False
+                st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
+                st.session_state["analysis_error_message"] = (
+                    "Match score is 0. We couldn't find enough information "
+                    "to calculate a compatibility score for this novel."
+                )
+                gemini_limits = (results.get("gemini") or {}).get("limitations") or []
+                direct_limits = results.get("limitations") or []
+                st.session_state["limitations"] = gemini_limits or direct_limits
+                st.rerun()
+
+            st.session_state["analysis_complete"] = True
+            st.session_state["analysis_error"] = False
+            st.switch_page("pages/chat.py")
+
+        except NovelMatchAPIError as exc:
+            err_text = str(exc).lower()
+            if "timeout" in err_text or "504" in err_text or "timed out" in err_text:
+                st.session_state["analysis_error_type"] = "TIMEOUT"
+            elif "not found" in err_text:
+                st.session_state["analysis_error_type"] = "NOVEL_NOT_FOUND"
+            elif "unavailable" in err_text or "connection" in err_text:
+                st.session_state["analysis_error_type"] = "SERVICE_UNAVAILABLE"
+            elif "not enough" in err_text or "insufficient" in err_text:
+                st.session_state["analysis_error_type"] = "INSUFFICIENT_DATA"
+            else:
+                st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
+
+            st.session_state["analysis_error_message"] = str(exc)
+            st.session_state["analysis_error"] = True
+            st.session_state["analysis_complete"] = False
+            st.rerun()
+
+        except Exception as exc:
+            err_text = str(exc).lower()
+            if "timeout" in err_text or "504" in err_text or "timed out" in err_text:
+                st.session_state["analysis_error_type"] = "TIMEOUT"
+            else:
+                st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
+            st.session_state["analysis_error_message"] = str(exc)
+            st.session_state["analysis_error"] = True
+            st.session_state["analysis_complete"] = False
+            st.rerun()

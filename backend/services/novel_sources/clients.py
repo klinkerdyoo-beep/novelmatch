@@ -213,14 +213,20 @@ class TavilyReviewsClient:
         self,
         client: httpx.AsyncClient,
         api_key: str,
-        include_domains: Sequence[str] = ("mebmarket.com", "pantip.com", "novel.dek-d.com"),
+        include_domains: Sequence[str] = (
+            "mebmarket.com",
+            "pantip.com",
+            "novel.dek-d.com",
+            "app.thestorygraph.com",
+            "goodreads.com",
+        ),
     ) -> None:
         self.client = client
         self.api_key = api_key
         self.include_domains = list(include_domains)
 
     async def search(self, title: str, author: str, limit: int = 5) -> list[ReviewSource]:
-        query = f'รีวิว นิยาย "{title}"'
+        query = f'book reader reviews "{title}" รีวิว'
         if author.strip():
             query += f' "{author}"'
         payload: dict[str, Any] = {

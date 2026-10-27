@@ -1,0 +1,213 @@
+{
+  "input": {
+    "target_novel": {
+      "title": "Crime and Punishment",
+      "author": "Fyodor Dostoevsky",
+      "synopsis": "A former student in Saint Petersburg commits a murder under the belief that he is an extraordinary being above ordinary morality, only to face psychological guilt, intense interrogations, and a path toward moral redemption."
+    },
+    "user_preferences": {
+      "genre_preferences": {
+        "liked_genres": [
+          "Drama",
+          "Mystery"
+        ],
+        "disliked_genres": [
+          "Comedy"
+        ]
+      },
+      "character_preferences": {
+        "liked_traits": [
+          "Intelligent",
+          "Calm"
+        ],
+        "liked_character_description": "ชอบนักสืบที่มีจิตวิทยาสูง ช่างวิเคราะห์ ใช้เหตุผล และอ่านใจคนเก่ง",
+        "disliked_character_description": "ไม่ชอบคนที่ยกยอตัวเองว่าเหนือผู้อื่นแล้วหาความชอบธรรมให้การทำบาป"
+      },
+      "story_element_preferences": {
+        "liked_elements": [
+          "Complex story",
+          "Character-driven"
+        ],
+        "disliked_elements": [
+          "Light-hearted"
+        ]
+      }
+    }
+  },
+  "research": {
+    "metadata": {
+      "title": "Crime and Punishment",
+      "authors": [
+        "Fyodor Dostoevsky"
+      ],
+      "description": "Hailed by Washington Post Book World as “the best [translation] currently available\" when it was first published, this second edition of Crime and Punishment has been updated in honor of the 200th anniversary of Dostoevsky’s birth. • ONE OF TIME MAGAZINE'S 100 BEST MYSTERY AND THRILLER BOOKS OF ALL TIME With the same suppleness, energy, and range of voices that won their translation of The Brothers Karamazov the PEN/Book-of-the-Month Club Prize, Richard Pevear and Larissa Volokhonsky offer a brilliant translation of Crime and Punishment, Dostoevsky's astounding pyschological thriller, newly revised for his bicentenniel. In Crime and Punishment, when Raskolnikov, an impoverished student living in the St. Petersburg of the tsars, commits an act of murder and theft, he sets into motion a story that is almost unequalled in world literature for its excruciating suspense, its atmospheric vividness, and its depth of characterization and vision. Dostoevsky’s drama of sin, guilt, and redemption transforms the sordid story of an old woman’s murder into the nineteenth century’s profoundest and most compelling philosophical novel.",
+      "description_source": "google_books",
+      "publisher": "Vintage",
+      "published_year": 2012,
+      "genres": [
+        "Fiction"
+      ],
+      "average_rating": null,
+      "ratings_count": null,
+      "cover_url": "http://books.google.com/books/content?id=U5NhxE67JjMC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api",
+      "provider": "google_books",
+      "source_url": "https://play.google.com/store/books/details?id=U5NhxE67JjMC&source=gbs_api",
+      "provider_id": "U5NhxE67JjMC",
+      "match_score": 1.0,
+      "sources": [
+        {
+          "provider": "google_books",
+          "url": "https://play.google.com/store/books/details?id=U5NhxE67JjMC&source=gbs_api",
+          "fields": [
+            "title",
+            "authors",
+            "publisher",
+            "published_year",
+            "genres",
+            "cover_url",
+            "description"
+          ]
+        }
+      ]
+    },
+    "reviews": [
+      {
+        "title": "Works of Fyodor Dostoevsky: Crime and Punishment, The Idiot, The Brothers Karamazov, The Gambler, The Devils, The Adolescent & more by Fyodor Dostoevsky | Goodreads",
+        "url": "https://www.goodreads.com/book/show/11168810-works-of-fyodor-dostoevsky",
+        "snippet": "fine-literature russian-soviet-writers Margaret 114 reviews June 9, 2011 Crime and Punishment by Dostoyevsky (Don't ever read the Constance Garrett translation) is a book that will thrill you, irritate you, and entertain you. The murder scene is the best one I have every read, and I love murder stories. I actually was hoping he could escape the murder room. Every time I read this book, I get sweaty palms as he waiting to leave the murder. Dawn 13 reviews August 8, 2011 [...] Elizabeth (Alaska) 1,652 reviews568 followers January 26, 2013 Reviews and ratings under individual titles. For Crime and Punishment, see my review here: Crime and Punishment kindle twenty-first-century 1 review March 7, 2013 Great book! After I read it I watched the Peter Lorre version of the movie. He nailed it! brunobabashay cid 2 reviews February 7, 2015 My 5th time reading this book. Displaying 1 - 29 of 29 reviews ## Join the discussion a discussiona question [...] ## Ratings & Reviews What do you think? Rate this book ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.57 637 ratings30 reviews 5 stars 431 (67%) 4 stars 150 (23%) 3 stars 43 (6%) 2 stars 11 (1%) 1 star 2 (<1%) Displaying 1 - 29 of 29 reviews Linden 2,300 reviews1 follower November 30, 2022",
+        "source_name": "goodreads.com",
+        "relevance_score": 0.8364614,
+        "published_date": null,
+        "review_id": "review-e5949234ee2e1c6e",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      },
+      {
+        "title": "Crime and Punishment by Fyodor Dostoevsky | Goodreads",
+        "url": "https://www.goodreads.com/book/show/29779253-crime-and-punishment",
+        "snippet": "Cozy Reading Jump to ratings and reviews Rate this book # Crime and Punishment ### Fyodor Dostoevsky, Richard Pevear (Translator), Larissa Volokhonsky (Translator) 1,168,553 ratings59,714 reviews Rate this book [...] ## Ratings & Reviews What do you think? Rate this book ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.29 1,168,553 ratings59,714 reviews 5 stars 621,924 (53%) 4 stars 346,657 (29%) 3 stars 139,583 (11%) 2 stars 40,938 (3%) 1 star 19,451 (1%) Displaying 1 - 30 of 59,492 reviews Matt 1,093 reviews32.1k followers December 29, 2009",
+        "source_name": "goodreads.com",
+        "relevance_score": 0.82391036,
+        "published_date": null,
+        "review_id": "review-5c9bd5a2a899a787",
+        "evidence_type": "review_excerpt_candidate",
+        "verification_status": "heuristic_only"
+      }
+    ],
+    "warnings": [
+      "Missing novel metadata: average_rating, ratings_count.",
+      "Excluded 8 review search results (8 no opinion signal).",
+      "Review evidence consists of search excerpts screened by title, author and opinion keywords; full pages and reader authorship have not been verified. Excerpts may be incomplete or promotional."
+    ]
+  },
+  "ai_payload": {
+    "user_preference": {
+      "liked_genres": [
+        "Drama",
+        "Mystery"
+      ],
+      "disliked_genres": [
+        "Comedy"
+      ],
+      "character_preferences": [
+        "Likes: Intelligent",
+        "Likes: Calm",
+        "Likes: ชอบนักสืบที่มีจิตวิทยาสูง ช่างวิเคราะห์ ใช้เหตุผล และอ่านใจคนเก่ง",
+        "Dislikes: ไม่ชอบคนที่ยกยอตัวเองว่าเหนือผู้อื่นแล้วหาความชอบธรรมให้การทำบาป"
+      ],
+      "story_preferences": [
+        "Likes: Complex story",
+        "Likes: Character-driven",
+        "Dislikes: Light-hearted"
+      ],
+      "rated_novels": []
+    },
+    "novel": {
+      "title": "Crime and Punishment",
+      "author": [
+        "Fyodor Dostoevsky"
+      ],
+      "genres": [
+        "Fiction"
+      ],
+      "description": "Hailed by Washington Post Book World as “the best [translation] currently available\" when it was first published, this second edition of Crime and Punishment has been updated in honor of the 200th anniversary of Dostoevsky’s birth. • ONE OF TIME MAGAZINE'S 100 BEST MYSTERY AND THRILLER BOOKS OF ALL TIME With the same suppleness, energy, and range of voices that won their translation of The Brothers Karamazov the PEN/Book-of-the-Month Club Prize, Richard Pevear and Larissa Volokhonsky offer a brilliant translation of Crime and Punishment, Dostoevsky's astounding pyschological thriller, newly revised for his bicentenniel. In Crime and Punishment, when Raskolnikov, an impoverished student living in the St. Petersburg of the tsars, commits an act of murder and theft, he sets into motion a story that is almost unequalled in world literature for its excruciating suspense, its atmospheric vividness, and its depth of characterization and vision. Dostoevsky’s drama of sin, guilt, and redemption transforms the sordid story of an old woman’s murder into the nineteenth century’s profoundest and most compelling philosophical novel.",
+      "publisher": "Vintage",
+      "published_date": "2012",
+      "rating": null,
+      "rating_count": null
+    },
+    "reviews": [
+      {
+        "review_id": "review-e5949234ee2e1c6e",
+        "text": "fine-literature russian-soviet-writers Margaret 114 reviews June 9, 2011 Crime and Punishment by Dostoyevsky (Don't ever read the Constance Garrett translation) is a book that will thrill you, irritate you, and entertain you. The murder scene is the best one I have every read, and I love murder stories. I actually was hoping he could escape the murder room. Every time I read this book, I get sweaty palms as he waiting to leave the murder. Dawn 13 reviews August 8, 2011 [...] Elizabeth (Alaska) 1,652 reviews568 followers January 26, 2013 Reviews and ratings under individual titles. For Crime and Punishment, see my review here: Crime and Punishment kindle twenty-first-century 1 review March 7, 2013 Great book! After I read it I watched the Peter Lorre version of the movie. He nailed it! brunobabashay cid 2 reviews February 7, 2015 My 5th time reading this book. Displaying 1 - 29 of 29 reviews ## Join the discussion a discussiona question [...] ## Ratings & Reviews What do you think? Rate this book ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.57 637 ratings30 reviews 5 stars 431 (67%) 4 stars 150 (23%) 3 stars 43 (6%) 2 stars 11 (1%) 1 star 2 (<1%) Displaying 1 - 29 of 29 reviews Linden 2,300 reviews1 follower November 30, 2022",
+        "rating": null,
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/book/show/11168810-works-of-fyodor-dostoevsky"
+      },
+      {
+        "review_id": "review-5c9bd5a2a899a787",
+        "text": "Cozy Reading Jump to ratings and reviews Rate this book # Crime and Punishment ### Fyodor Dostoevsky, Richard Pevear (Translator), Larissa Volokhonsky (Translator) 1,168,553 ratings59,714 reviews Rate this book [...] ## Ratings & Reviews What do you think? Rate this book ### Friends & Following Create a free account to discover what your friends think of this book! ### Community Reviews 4.29 1,168,553 ratings59,714 reviews 5 stars 621,924 (53%) 4 stars 346,657 (29%) 3 stars 139,583 (11%) 2 stars 40,938 (3%) 1 star 19,451 (1%) Displaying 1 - 30 of 59,492 reviews Matt 1,093 reviews32.1k followers December 29, 2009",
+        "rating": null,
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/book/show/29779253-crime-and-punishment"
+      }
+    ]
+  },
+  "gpt_analysis": {
+    "match_score": 57,
+    "match_level": "Low",
+    "summary": "Crime and Punishment aligns with the user’s preference for mystery and complex, character-driven stories, but falls short on the user’s desire for calm, non-arrogant, highly analytical detective characters. The novel’s genre and narrative depth provide a moderate match, while character traits and alignment with the user’s specific personality preferences create significant mismatches.",
+    "matches": [
+      {
+        "point": "Genre includes mystery and thriller elements",
+        "explanation": "The novel is described as a mystery and thriller, matching the user’s liked genre of Mystery.",
+        "evidence_ids": [
+          "review-5c9bd5a2a899a787"
+        ]
+      },
+      {
+        "point": "Story is complex and character-driven",
+        "explanation": "The description highlights a complex, psychological thriller with deep characterization, aligning with the user’s preference for complex, character-driven stories.",
+        "evidence_ids": [
+          "review-5c9bd5a2a899a787"
+        ]
+      }
+    ],
+    "mismatches": [
+      {
+        "point": "Main character is not calm or a detective",
+        "explanation": "Raskolnikov is portrayed as troubled and self-righteous rather than calm and a high-psychology detective, conflicting with the user’s character preferences.",
+        "evidence_ids": []
+      },
+      {
+        "point": "Character exhibits arrogance",
+        "explanation": "The novel’s protagonist displays self-righteous tendencies, which the user dislikes.",
+        "evidence_ids": []
+      }
+    ],
+    "review_summary": {
+      "positive": [
+        "High ratings and praise for suspense and murder scenes",
+        "Positive remarks about the translation quality and psychological depth"
+      ],
+      "negative": [],
+      "mixed": []
+    },
+    "sources": [
+      {
+        "evidence_id": "review-5c9bd5a2a899a787",
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/book/show/29779253-crime-and-punishment"
+      },
+      {
+        "evidence_id": "review-e5949234ee2e1c6e",
+        "source": "goodreads.com",
+        "url": "https://www.goodreads.com/book/show/11168810-works-of-fyodor-dostoevsky"
+      }
+    ],
+    "limitations": [
+      "No explicit evidence about the protagonist’s calmness or detective skills in the provided reviews.",
+      "User’s rated novels list is empty, so similarity cannot be evaluated."
+    ]
+  }
+}

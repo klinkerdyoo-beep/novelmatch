@@ -7,8 +7,7 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-
-# Virtual environments
+.fastapicloud/
 .venv/
 venv/
 env/
@@ -32,3 +31,6 @@ htmlcov/
 .idea/
 .DS_Store
 Thumbs.db
+# Ignore evaluation results
+.evaluation_results.json
+.testcase.json
