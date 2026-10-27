@@ -53,8 +53,8 @@ def _request(
     return payload
 
 
-def login(email: str, password: str) -> dict[str, Any]:
-    return _request("POST", "/auth/login", json={"email": email, "password": password})
+def login(username_or_email: str, password: str) -> dict[str, Any]:
+    return _request("POST", "/auth/login", json={"email": username_or_email, "password": password})
 
 def get_user_info(token: str) -> dict[str, Any]:
     return _request("GET", "/auth/me", token=token)

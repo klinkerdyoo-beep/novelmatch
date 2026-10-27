@@ -132,11 +132,13 @@ with st.container(key="login-content"):
                     st.session_state.access_token = result["access_token"]
                     st.session_state.user = result["user"]
                     st.session_state.user_id = result["user"]["id"]
-                    st.session_state.username = username_or_email
+                    user_meta = result.get("user", {}).get("user_metadata", {})
+                    display_name = user_meta.get("name") or username_or_email.strip()
+                    st.session_state.username = display_name
 
                     save_session_to_cookies(
                         result["access_token"],
-                        username_or_email,
+                        display_name,
                         result["user"]["id"],
                     )
                     

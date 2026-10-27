@@ -455,10 +455,31 @@ async def signup(request: SignupRequest) -> dict[str, Any]:
 
 @app.post("/auth/login")
 async def login(request: AuthCredentials) -> dict[str, Any]:
+    identifier = request.email.strip()
+    target_email = identifier
+
+    # If identifier is not an email (does not contain '@'), look up email from public.users
+    if "@" not in identifier:
+        try:
+            res = (
+                supabase.table("users")
+                .select("email")
+                .ilike("username", identifier)
+                .execute()
+            )
+            if res.data and res.data[0].get("email"):
+                target_email = res.data[0]["email"]
+            else:
+                raise HTTPException(status_code=400, detail="Invalid username or password.")
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail="Could not resolve username.") from exc
+
     return await _supabase_request(
         "POST",
         "/token?grant_type=password",
-        json={"email": request.email, "password": request.password},
+        json={"email": target_email, "password": request.password},
     )
 
 
