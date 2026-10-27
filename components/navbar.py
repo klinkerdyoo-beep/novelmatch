@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import base64
 import json
 from datetime import datetime, timedelta
@@ -24,6 +25,7 @@ def save_session_to_cookies(
     days: int = 7,
 ) -> None:
     """Save user authentication credentials to browser cookies."""
+    st.session_state.pop("logged_out", None)
     payload = json.dumps({
         "access_token": access_token,
         "username": username,
@@ -43,6 +45,9 @@ def save_session_to_cookies(
 
 def restore_session_from_cookies() -> bool:
     """Restore session_state from browser cookies if not already authenticated."""
+    if st.session_state.get("logged_out"):
+        return False
+
     if st.session_state.get("access_token") and st.session_state.get("username"):
         return True
 
@@ -70,7 +75,28 @@ def clear_session_cookies() -> None:
     """Remove authentication cookie on logout."""
     try:
         cookie_mgr = get_cookie_manager()
+        cookie_mgr.set(
+            COOKIE_NAME,
+            "",
+            path="/",
+            expires_at=datetime.now() - timedelta(days=1),
+            max_age=0,
+            key="clear_cookie_set",
+        )
         cookie_mgr.delete(COOKIE_NAME, key="clear_auth_cookie")
+    except Exception:
+        pass
+    try:
+        components.html(
+            f"""
+            <script>
+                window.parent.document.cookie = "{COOKIE_NAME}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+                window.document.cookie = "{COOKIE_NAME}=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT;";
+            </script>
+            """,
+            height=0,
+            width=0,
+        )
     except Exception:
         pass
 
@@ -83,8 +109,14 @@ PAGE_LOGIN = "pages/login.py"
 
 
 def logout():
+    # Revoke token on Supabase so other browsers can't reuse it
+    token = st.session_state.get("access_token")
+    if token:
+        from components.api_client import logout_user
+        logout_user(token)
     clear_session_cookies()
     st.session_state.clear()
+    st.session_state["logged_out"] = True
     st.switch_page(PAGE_LOGIN)
 
 
@@ -117,7 +149,17 @@ for css_file in css_files:
 # 3. ฟังก์ชัน Navbar (ประกาศให้สมบูรณ์ในก้อนเดียว)
 # =========================================================
 def navbar():
-    restore_session_from_cookies()
+    if st.session_state.get("logged_out"):
+        clear_session_cookies()
+    else:
+        restored = restore_session_from_cookies()
+        # CookieManager loads async — on the first cycle after refresh it may
+        # return empty.  Do exactly ONE rerun so it has time to sync cookies.
+        if not restored and not st.session_state.get("_cookie_retry_done"):
+            st.session_state["_cookie_retry_done"] = True
+            st.rerun()
+        st.session_state.pop("_cookie_retry_done", None)
+
     username = st.session_state.get("username", "")
 
     with st.container(key="navbar"):

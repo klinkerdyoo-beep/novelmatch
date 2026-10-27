@@ -98,3 +98,9 @@ def get_user_history(token: str) -> dict[str, Any]:
     return _request("GET", "/history", token=token)
 
 
+def logout_user(token: str) -> None:
+    """Call backend to revoke the Supabase session (invalidates the token everywhere)."""
+    try:
+        _request("POST", "/auth/logout", token=token)
+    except NovelMatchAPIError:
+        pass

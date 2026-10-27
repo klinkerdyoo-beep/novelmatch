@@ -33,7 +33,7 @@ for css_file in css_files:
 
 navbar()
 
-if st.session_state.get("access_token"):
+if not st.session_state.get("logged_out") and st.session_state.get("access_token"):
     st.switch_page("main.py")
 
 
