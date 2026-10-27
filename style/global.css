@@ -32,3 +32,31 @@ body {
 .footer-title  {
     font-family: "Barlow", sans-serif;
 }
+
+/* =========================================================
+   Preferences Step - Clean Large White Text (No Border/Background)
+   ========================================================= */
+.preferences-step,
+.preview-step,
+.novel-step {
+    display: block !important;
+
+    /* ปรับระยะห่างด้านบน */
+    margin-top: 24px !important;
+    padding: 0 !important;
+
+    /* ลบกรอบและพื้นหลังออกทั้งหมด */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+
+    /* ตัวอักษรสีขาว ขนาดใหญ่ */
+    font-family: "Barlow", sans-serif !important;
+    font-size: 60px !important;          /* เพิ่มขนาดตัวหนังสือให้ใหญ่จุใจ */
+    font-weight: 300 !important;         /* ความหนาเน้นสไตล์เรียบหรู คล้ายกับ Title หน้า Home */
+    color: #FFFFFF !important;           /* สีขาว */
+    letter-spacing: 0.5px !important;    /* ระยะห่างตัวอักษรพอดีๆ */
+    
+    /* เพิ่มเงาบางๆ เพื่อให้ตัวหนังสือสีขาวอ่านง่าย ชัดเจนบนทุกพื้นหลัง */
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25) !important;
+}
