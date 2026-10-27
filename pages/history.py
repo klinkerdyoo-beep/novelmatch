@@ -193,7 +193,7 @@ with st.container(key="history-content"):
             genres_html = "".join(
                 f'<span class="history-genre">{safe_text(genre)}</span>' for genre in genres
             )
-            card_key = safe_text(item.get("id", index))
+            card_key = safe_text(f"{item.get('id', index)}_{index}")
 
             with st.container(border=True, key=f"history-card-{card_key}"):
                 cover_col, info_col, score_col = st.columns([0.85, 3.1, 1.15], vertical_alignment="center")

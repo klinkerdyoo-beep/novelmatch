@@ -200,24 +200,17 @@ async def get_user_match_history(user: dict[str, Any] = Depends(require_user)):
         except Exception as exc:
             logger.error("Error querying comparison_novels: %s", exc)
 
-    grouped = {}
+    sessions = []
+    current_session = None
+
     for r in records:
         nid = r.get("novel_id")
         novel_info = novel_map.get(nid, {})
-        if nid not in grouped:
-            grouped[nid] = {
-                "id": nid,
-                "title": novel_info.get("title", "Untitled"),
-                "author": novel_info.get("author", "Unknown"),
-                "cover_url": novel_info.get("book_cover", ""),
-                "synopsis": novel_info.get("synopsis", ""),
-                "genres": novel_info.get("genre") or [],
-                "chatgpt": None,
-                "gemini": None,
-            }
-        
 
         summary_tag = str(r.get("matches_summary") or "")
+        is_gpt = "[GPT-OSS]" in summary_tag or "gpt" in summary_tag.lower()
+        model_type = "chatgpt" if is_gpt else "gemini"
+
         cleaned_summary = (r.get("review_overview") or summary_tag).replace("[GPT-OSS] ", "").replace("[Gemini] ", "")
         model_data = {
             "score": r.get("score"),
@@ -229,16 +222,43 @@ async def get_user_match_history(user: dict[str, Any] = Depends(require_user)):
             "sources": r.get("data_sources") or [],
             "limitations": r.get("limitations") or [],
         }
-        if "[GPT-OSS]" in summary_tag or "gpt" in summary_tag.lower():
-            if grouped[nid]["chatgpt"] is None or (grouped[nid]["chatgpt"].get("score") is None and model_data.get("score") is not None):
-                grouped[nid]["chatgpt"] = model_data
+
+        rec_id = r.get("id")
+
+        # Merge with current_session if it's the same novel analysis run:
+        # same novel_id, model slot is free, and IDs were created in the same batch
+        can_merge = (
+            current_session is not None
+            and current_session["novel_id"] == nid
+            and current_session[model_type] is None
+            and rec_id is not None
+            and current_session.get("_last_id") is not None
+            and abs(current_session["_last_id"] - rec_id) <= 2
+        )
+
+        if can_merge:
+            current_session[model_type] = model_data
+            current_session["_last_id"] = rec_id
         else:
-            if grouped[nid]["gemini"] is None or (grouped[nid]["gemini"].get("score") is None and model_data.get("score") is not None):
-                grouped[nid]["gemini"] = model_data
+            current_session = {
+                "id": rec_id,
+                "novel_id": nid,
+                "title": novel_info.get("title", "Untitled"),
+                "author": novel_info.get("author", "Unknown"),
+                "cover_url": novel_info.get("book_cover", ""),
+                "synopsis": novel_info.get("synopsis", ""),
+                "genres": novel_info.get("genre") or [],
+                "chatgpt": model_data if model_type == "chatgpt" else None,
+                "gemini": model_data if model_type == "gemini" else None,
+                "_last_id": rec_id,
+            }
+            sessions.append(current_session)
 
-    return {"data": list(grouped.values())}
+    for s in sessions:
+        s.pop("_last_id", None)
 
-    
+    return {"data": sessions}
+
 
 # --- Endpoint /analysis ---
 @app.post("/analysis")
@@ -311,7 +331,7 @@ async def analyze_novel(
 
         novel_res = (
             supabase.table("comparison_novels")
-            .select("id")
+            .select("id,title,author,synopsis,genre,book_cover")
             .eq("title", request.title)
             .eq("author", request.author)
             .limit(1)
@@ -320,18 +340,37 @@ async def analyze_novel(
         meta = research.metadata if hasattr(research, "metadata") else (research.get("metadata") if isinstance(research, dict) else None)
         meta_genres = (getattr(meta, "genres", None) if not isinstance(meta, dict) else meta.get("genres")) or []
         meta_cover = getattr(meta, "cover_url", None) if not isinstance(meta, dict) else meta.get("cover_url")
+        resolved_cover = request.book_cover or meta_cover
+        resolved_synopsis = request.synopsis
+        resolved_genre = request.genre or meta_genres
 
         if novel_res.data:
-            novel_id = novel_res.data[0]["id"]
+            existing_novel = novel_res.data[0]
+            novel_id = existing_novel["id"]
+            
+            # If the existing novel is missing cover, synopsis, or genre, update with newly resolved values
+            updates = {}
+            if resolved_cover and not existing_novel.get("book_cover"):
+                updates["book_cover"] = resolved_cover
+            if resolved_synopsis and not existing_novel.get("synopsis"):
+                updates["synopsis"] = resolved_synopsis
+            if resolved_genre and not existing_novel.get("genre"):
+                updates["genre"] = resolved_genre
+            
+            if updates:
+                try:
+                    supabase.table("comparison_novels").update(updates).eq("id", novel_id).execute()
+                except Exception as exc:
+                    logger.warning("Could not update novel metadata: %s", exc)
         else:
             novel_insert = (
                 supabase.table("comparison_novels")
                 .insert({
                     "title": request.title,
                     "author": request.author,
-                    "synopsis": request.synopsis,
-                    "genre": request.genre or meta_genres,
-                    "book_cover": request.book_cover or meta_cover,
+                    "synopsis": resolved_synopsis,
+                    "genre": resolved_genre,
+                    "book_cover": resolved_cover,
                 })
                 .execute()
             )
