@@ -463,6 +463,7 @@ async def login(request: AuthCredentials) -> dict[str, Any]:
     # If identifier is not an email (does not contain '@'), look up email from public.users
     if "@" not in identifier:
         try:
+            supabase.postgrest.auth(os.environ.get("SUPABASE_ANON_KEY", ""))
             res = (
                 supabase.table("users")
                 .select("email")
