@@ -1,40 +1,12 @@
 import streamlit as st
 import base64
-
-
-# =========================================================
-# Logo
-# =========================================================
-
-with open("assets/logo.png", "rb") as f:
-    logo = base64.b64encode(f.read()).decode()
-
-
-# =========================================================
-# CSS
-# =========================================================
-
-css_files = [
-    "style/global.css",
-    "style/navbar.css",
-]
-
-for css_file in css_files:
-    with open(css_file, encoding="utf-8") as f:
-        st.markdown(
-            f"<style>{f.read()}</style>",
-            unsafe_allow_html=True
-        )
-
-
 import json
 from datetime import datetime, timedelta
 import extra_streamlit_components as stx
 
 # =========================================================
-# Cookie Session Manager
+# 1. Cookie Session Manager & Helpers
 # =========================================================
-
 COOKIE_NAME = "novelmatch_session"
 cookie_manager = stx.CookieManager(key="novelmatch_cookie_manager")
 
@@ -106,13 +78,39 @@ def logout():
     st.switch_page(PAGE_LOGIN)
 
 
+# =========================================================
+# 2. โหลด Logo และ CSS
+# =========================================================
+try:
+    with open("assets/logo.png", "rb") as f:
+        logo = base64.b64encode(f.read()).decode()
+except Exception:
+    logo = ""
+
+css_files = [
+    "style/global.css",
+    "style/navbar.css",
+]
+
+for css_file in css_files:
+    try:
+        with open(css_file, encoding="utf-8") as f:
+            st.markdown(
+                f"<style>{f.read()}</style>",
+                unsafe_allow_html=True
+            )
+    except Exception:
+        pass
+
+
+# =========================================================
+# 3. ฟังก์ชัน Navbar (ประกาศให้สมบูรณ์ในก้อนเดียว)
+# =========================================================
 def navbar():
     restore_session_from_cookies()
-
     username = st.session_state.get("username", "")
 
     with st.container(key="navbar"):
-
         col_logo, col_space, col_pref, col_account = st.columns(
             [2.2, 5.8, 1.8, 2.2],
             vertical_alignment="center",
@@ -122,14 +120,15 @@ def navbar():
             with st.container(key="nav_logo"):
                 st.html(
                     f"""
-                    <img
-                        src="data:image/png;base64,{logo}"
-                        class="nav-logo"
-                        alt="Novel Match"
-                    />
+                    <a href="/" target="_self" class="nav-logo-link">
+                        <img
+                            src="data:image/png;base64,{logo}"
+                            class="nav-logo"
+                            alt="Novel Match"
+                        />
+                    </a>
                     """
                 )
-                st.page_link(PAGE_HOME, label="")
 
         with col_pref:
             with st.container(key="nav_pref"):
@@ -137,11 +136,9 @@ def navbar():
 
         # ---------------- Account ----------------
         with col_account:
-
             if username:
                 with st.container(key="nav_account"):
                     with st.popover(username, use_container_width=True):
-
                         st.markdown(
                             f"""
                             <div class="account-welcome">
@@ -165,7 +162,6 @@ def navbar():
                             key="nav_logout",
                             use_container_width=True,
                         )
-
             else:
                 with st.container(key="nav_login"):
                     st.page_link(PAGE_LOGIN, label="Log in", use_container_width=True)

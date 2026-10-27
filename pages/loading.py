@@ -448,44 +448,6 @@ if "analysis_started" not in st.session_state:
 
 with st.container(key="loading-page"):
 
-    # -----------------------------------------------------
-    # TEST BUTTON
-    # IMPORTANT:
-    # Remove this button before production.
-    # It is only for testing the error UI.
-    # -----------------------------------------------------
-
-    st.caption(
-        "DEV ONLY — Remove the test button before production."
-    )
-
-    # test_error_type = st.selectbox(
-    #     "Select Error Type",
-    #     [
-    #         "ANALYSIS_FAILED",
-    #         "TIMEOUT",
-    #         "INSUFFICIENT_DATA",
-    #         "NOVEL_NOT_FOUND",
-    #         "SERVICE_UNAVAILABLE",
-    #     ],
-    #     key="test-error-type",
-    # )
-
-    # if st.button("🧪 Test Error State", key="test-analysis-error"):
-    #     st.session_state["analysis_error"] = True
-    #     st.session_state["analysis_complete"] = False
-    #     st.session_state["analysis_error_type"] = test_error_type
-
-    #     if test_error_type == "ANALYSIS_FAILED":
-    #         st.session_state["limitations"] = [
-    #             "Limited user reviews were available for this novel.",
-    #             "Some character details could not be verified.",
-    #             "The analysis may not reflect every aspect of the story.",
-    #         ]
-    #     else:
-    #         st.session_state.pop("limitations", None)
-
-    #     st.rerun()
 
     # -----------------------------------------------------
     # Error State
