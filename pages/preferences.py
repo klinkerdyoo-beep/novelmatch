@@ -3,7 +3,7 @@ import base64
 
 from components.navbar import navbar
 from components.popup.login_required_popup import login_required_popup
-from components.api_client import NovelMatchAPIError, save_preferences
+from components.api_client import NovelMatchAPIError, save_preferences, get_preferences
 
 
 # =========================================================
@@ -64,32 +64,6 @@ st.markdown(
 
 
 # =========================================================
-# Session State
-# =========================================================
-
-if "enjoyed_genres" not in st.session_state:
-    st.session_state.enjoyed_genres = []
-
-if "disliked_genres" not in st.session_state:
-    st.session_state.disliked_genres = []
-
-if "liked_character" not in st.session_state:
-    st.session_state.liked_character = ""
-
-if "enjoyed_character" not in st.session_state:
-    st.session_state.enjoyed_character = []
-
-if "disliked_character" not in st.session_state:
-    st.session_state.disliked_character = ""
-
-if "enjoyed_story" not in st.session_state:
-    st.session_state.enjoyed_story = []
-
-if "disliked_story" not in st.session_state:
-    st.session_state.disliked_story = []
-
-
-# =========================================================
 # Data
 # =========================================================
 
@@ -132,6 +106,58 @@ story_preferences = [
     "Light-hearted",
     "Unexpected twists",
 ]
+
+
+# =========================================================
+# Session State
+# =========================================================
+
+token = st.session_state.get("access_token")
+if token and not st.session_state.get("preferences_loaded", False):
+    try:
+        preferences_response = get_preferences(token)
+        saved = preferences_response.get("preferences", {})
+        genre_prefs = saved.get("genre_preferences", {})
+        char_prefs = saved.get("character_preferences", {})
+        story_prefs = saved.get("story_element_preferences", {})
+
+        st.session_state.enjoyed_genres = [g for g in genre_prefs.get("enjoyed_genres", []) if g in genres]
+        st.session_state.disliked_genres = [g for g in genre_prefs.get("disliked_genres", []) if g in genres]
+        st.session_state.enjoyed_character = [c for c in char_prefs.get("enjoyed_character", []) if c in characters]
+        st.session_state.liked_character = char_prefs.get("liked_character") or ""
+        st.session_state.disliked_character = char_prefs.get("disliked_character") or ""
+        st.session_state.enjoyed_story = [s for s in story_prefs.get("liked_story", []) if s in story_preferences]
+        st.session_state.disliked_story = [s for s in story_prefs.get("disliked_story", []) if s in story_preferences]
+
+        if any([
+            st.session_state.enjoyed_genres,
+            st.session_state.disliked_genres,
+            st.session_state.enjoyed_character,
+            st.session_state.liked_character,
+            st.session_state.disliked_character,
+            st.session_state.enjoyed_story,
+            st.session_state.disliked_story,
+        ]):
+            st.session_state.preferences_completed = True
+
+        st.session_state.preferences_loaded = True
+    except NovelMatchAPIError:
+        pass
+
+if "enjoyed_genres" not in st.session_state:
+    st.session_state.enjoyed_genres = []
+if "disliked_genres" not in st.session_state:
+    st.session_state.disliked_genres = []
+if "enjoyed_character" not in st.session_state:
+    st.session_state.enjoyed_character = []
+if "liked_character" not in st.session_state:
+    st.session_state.liked_character = ""
+if "disliked_character" not in st.session_state:
+    st.session_state.disliked_character = ""
+if "enjoyed_story" not in st.session_state:
+    st.session_state.enjoyed_story = []
+if "disliked_story" not in st.session_state:
+    st.session_state.disliked_story = []
 
 
 # =========================================================
@@ -203,7 +229,6 @@ with st.container(key="preferences-content"):
                 default=st.session_state.enjoyed_genres,
                 placeholder="Select genres...",
                 label_visibility="collapsed",
-                key="favorite_genres_select",
             )
 
             st.session_state.enjoyed_genres = favorite_genres
@@ -216,7 +241,6 @@ with st.container(key="preferences-content"):
                 default=st.session_state.disliked_genres,
                 placeholder="Select genres...",
                 label_visibility="collapsed",
-                key="disliked_genres_select",
             )
 
             st.session_state.disliked_genres = disliked_genres
@@ -237,7 +261,6 @@ with st.container(key="preferences-content"):
                 default=st.session_state.enjoyed_character,
                 placeholder="Select character traits...",
                 label_visibility="collapsed",
-                key="enjoy_characters_select",
             )
 
             st.session_state.enjoyed_character = enjoy_characters
@@ -245,13 +268,12 @@ with st.container(key="preferences-content"):
             # Question 2: Ideal Character
             st.markdown("#### What do you like about a character?")
             st.caption("Describe the personality, behavior, or character development you enjoy.")
-            liked_characters  = st.text_area(
+            liked_characters = st.text_area(
                 "Liked Character Description",
                 placeholder="Describe a character you enjoy reading about...",
                 height=100,
                 label_visibility="collapsed",
                 value=st.session_state.liked_character,
-                key="liked_character_input",
             )
             st.session_state.liked_character = liked_characters
 
@@ -266,7 +288,6 @@ with st.container(key="preferences-content"):
                 height=100,
                 label_visibility="collapsed",
                 value=st.session_state.disliked_character,
-                key="disliked_character_input",
             )
             st.session_state.disliked_character = disliked_character_description
 
@@ -287,7 +308,6 @@ with st.container(key="preferences-content"):
                 default=st.session_state.enjoyed_story,
                 placeholder="Select story preferences...",
                 label_visibility="collapsed",
-                key="liked_stories_select",
             )
 
             st.session_state.enjoyed_story = liked_stories
@@ -300,7 +320,6 @@ with st.container(key="preferences-content"):
                 default=st.session_state.disliked_story,
                 placeholder="Select story preferences...",
                 label_visibility="collapsed",
-                key="disliked_stories_select",
             )
 
             st.session_state.disliked_story = disliked_stories
@@ -321,6 +340,37 @@ with st.container(key="preferences-content"):
                 if not token:
                     st.error("Your session has expired. Please log in again.")
                 else:
+                    # genre preference
+                    if (favorite_genres[:] == disliked_genres[:]):
+                        st.error("Enter different genres for 'enjoyed' and 'disliked' preferences.")
+                        st.stop()
+                    if (favorite_genres[:] == []):
+                        st.error("Please provide liked genre preferences.")
+                        st.stop()
+                    if (disliked_genres[:] == []):
+                        st.error("Please provide disliked genre preferences.")
+                        st.stop()
+
+                    # character preference
+                    if (enjoy_characters[:] == [] and liked_characters.strip() == "" and disliked_character_description.strip() == ""):
+                        st.error("Please provide at least one character preference.")
+                        st.stop()
+
+                    if (enjoy_characters[:] == disliked_character_description[:]):
+                        st.error("Enter different character traits for 'enjoyed' and 'disliked' preferences.")
+                        st.stop()
+
+                    # story preference
+                    if (liked_stories[:] == disliked_stories[:]):
+                        st.error("Enter different story elements for 'liked' and 'disliked' preferences.")
+                        st.stop()
+                    if (liked_stories[:] == []):
+                        st.error("Please provide liked story preferences.")
+                        st.stop()
+                    if (disliked_stories[:] == []):
+                        st.error("Please provide disliked story preferences.")
+                        st.stop()
+
                     payload = {
                         "genre_preferences": {
                             "enjoyed_genres": favorite_genres,
@@ -343,11 +393,6 @@ with st.container(key="preferences-content"):
                     else:
                         st.session_state.preferences_completed = True
                         st.switch_page("pages/novel.py")
-                if favorite_genres[:] == disliked_genres[:]:
-                    st.warning("Enter different genres for 'enjoyed' and 'disliked' preferences.")
-                if enjoy_characters[:] == disliked_character_description[:]:
-                    st.warning("Enter different character traits for 'enjoyed' and 'disliked' preferences.")
-                if liked_stories[:] == disliked_stories[:]:
-                    st.warning("Enter different story elements for 'liked' and 'disliked' preferences.")
+
 if not st.session_state.get("logged_in", False):
     login_required_popup()
