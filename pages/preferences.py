@@ -417,6 +417,5 @@ with st.container(key="preferences-content"):
                         st.session_state.preferences_completed = True
                         st.switch_page("pages/novel.py")
 
-# Pop-up check if not logged in
 if not st.session_state.get("logged_in", False):
     login_required_popup()

@@ -8,7 +8,13 @@ import extra_streamlit_components as stx
 # 1. Cookie Session Manager & Helpers
 # =========================================================
 COOKIE_NAME = "novelmatch_session"
-cookie_manager = stx.CookieManager(key="novelmatch_cookie_manager")
+
+
+def get_cookie_manager():
+    """Get or create session-isolated CookieManager instance."""
+    if "cookie_manager" not in st.session_state:
+        st.session_state["cookie_manager"] = stx.CookieManager(key="novelmatch_cookie_manager")
+    return st.session_state["cookie_manager"]
 
 
 def save_session_to_cookies(
@@ -24,7 +30,8 @@ def save_session_to_cookies(
         "user_id": str(user_id),
     })
     try:
-        cookie_manager.set(
+        cookie_mgr = get_cookie_manager()
+        cookie_mgr.set(
             COOKIE_NAME,
             payload,
             expires_at=datetime.now() + timedelta(days=days),
@@ -40,7 +47,9 @@ def restore_session_from_cookies() -> bool:
         return True
 
     try:
-        raw = cookie_manager.get(COOKIE_NAME)
+        cookie_mgr = get_cookie_manager()
+        cookies = cookie_mgr.get_all(key="get_all_cookies")
+        raw = (cookies or {}).get(COOKIE_NAME) or cookie_mgr.get(COOKIE_NAME)
         if not raw:
             return False
 
@@ -60,7 +69,8 @@ def restore_session_from_cookies() -> bool:
 def clear_session_cookies() -> None:
     """Remove authentication cookie on logout."""
     try:
-        cookie_manager.delete(COOKIE_NAME, key="clear_auth_cookie")
+        cookie_mgr = get_cookie_manager()
+        cookie_mgr.delete(COOKIE_NAME, key="clear_auth_cookie")
     except Exception:
         pass
 

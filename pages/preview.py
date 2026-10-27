@@ -85,11 +85,11 @@ def show_text(title, value, empty_message="Not provided."):
 
 
 token = st.session_state.get("access_token")
-if token and not st.session_state.get("preferences_loaded", False):
+if token:
     try:
         preferences_response = get_preferences(token)
-    except NovelMatchAPIError as exc:
-        st.error(f"Could not load your preferences: {exc}")
+    except NovelMatchAPIError:
+        pass
     else:
         saved = preferences_response.get("preferences", {})
         genres = saved.get("genre_preferences", {})

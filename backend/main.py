@@ -482,7 +482,7 @@ def read_root() -> dict[str, str]:
 
 @app.post("/auth/signup")
 async def signup(request: SignupRequest) -> dict[str, Any]:
-    return await _supabase_request(
+    res = await _supabase_request(
         "POST",
         "/signup",
         json={
@@ -491,6 +491,16 @@ async def signup(request: SignupRequest) -> dict[str, Any]:
             "data": {"name": request.name},
         },
     )
+    # Sync new user to public.users table so they can log in via username
+    try:
+        supabase.table("users").insert({
+            "username": request.name,
+            "email": request.email,
+            "password": "",
+        }).execute()
+    except Exception as exc:
+        logger.warning("Could not insert to public.users on signup: %s", exc)
+    return res
 
 
 
@@ -501,22 +511,35 @@ async def login(request: AuthCredentials) -> dict[str, Any]:
 
     # If identifier is not an email (does not contain '@'), look up email from public.users
     if "@" not in identifier:
+        found_email = None
+
+        # 1. Try RPC function if configured in Supabase (bypasses RLS safely)
         try:
-            supabase.postgrest.auth(os.environ.get("SUPABASE_ANON_KEY", ""))
-            res = (
-                supabase.table("users")
-                .select("email")
-                .ilike("username", identifier)
-                .execute()
-            )
-            if res.data and res.data[0].get("email"):
-                target_email = res.data[0]["email"]
-            else:
-                raise HTTPException(status_code=400, detail="Invalid username or password.")
-        except HTTPException:
-            raise
-        except Exception as exc:
-            raise HTTPException(status_code=400, detail="Could not resolve username.") from exc
+            rpc_res = supabase.rpc("get_email_by_username", {"p_username": identifier}).execute()
+            if rpc_res.data:
+                found_email = str(rpc_res.data).strip()
+        except Exception:
+            pass
+
+        # 2. Fallback to direct query on public.users
+        if not found_email:
+            try:
+                supabase.postgrest.auth(os.environ.get("SUPABASE_ANON_KEY", ""))
+                res = (
+                    supabase.table("users")
+                    .select("email")
+                    .ilike("username", identifier)
+                    .execute()
+                )
+                if res.data and res.data[0].get("email"):
+                    found_email = res.data[0]["email"]
+            except Exception:
+                pass
+
+        if not found_email:
+            raise HTTPException(status_code=400, detail="Invalid username or password.")
+
+        target_email = found_email
 
     return await _supabase_request(
         "POST",
