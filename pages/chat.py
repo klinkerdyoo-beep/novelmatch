@@ -90,16 +90,26 @@ novel_genres = st.session_state.get("novel_genres", [])
 novel_cover_url = st.session_state.get("novel_cover_url", "")
 novel_id = st.session_state.get("novel_id")
 
-# If novel_id is present but novel title is missing, fetch from backend
-if novel_id and not novel_title:
+# If novel_id is present, make sure we have the cover and all novel details
+if novel_id and (not novel_cover_url or not novel_title):
     try:
         novel_res = get_novel_info(str(novel_id), token=token)
         novel_data = novel_res.get("data", {})
-        novel_title = novel_data.get("title")
-        novel_author = novel_data.get("author")
-        novel_synopsis = novel_data.get("synopsis", "")
-        novel_genres = novel_data.get("genre", [])
-        novel_cover_url = novel_data.get("book_cover", "")
+        if not novel_title:
+            novel_title = novel_data.get("title", "")
+            st.session_state["novel_title"] = novel_title
+        if not novel_author:
+            novel_author = novel_data.get("author", "")
+            st.session_state["novel_author"] = novel_author
+        if not novel_synopsis:
+            novel_synopsis = novel_data.get("synopsis", "")
+            st.session_state["novel_synopsis"] = novel_synopsis
+        if not novel_genres:
+            novel_genres = novel_data.get("genre", [])
+            st.session_state["novel_genres"] = novel_genres
+        if not novel_cover_url:
+            novel_cover_url = novel_data.get("book_cover", "") or novel_data.get("cover_url", "")
+            st.session_state["novel_cover_url"] = novel_cover_url
     except NovelMatchAPIError:
         pass
 

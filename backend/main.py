@@ -383,6 +383,8 @@ async def analyze_novel(
             "match_history_ids": [row["id"] for row in (history_res.data or [])],
             "novel_id": novel_id,
             "novel_title": request.title,
+            "book_cover": request.book_cover or meta_cover,
+            "cover_url": request.book_cover or meta_cover,
             "results": {
                 "gemini": final_gemini,
                 "gpt_oss": final_gpt,
