@@ -227,6 +227,19 @@ gemini_score = gemini_data.get("match_score", 0)
 gemini_is_demo = False
 gemini_score = int(gemini_score or 0)
 
+direct_score = int(analysis_result.get("match_score") or 0)
+
+if max(chatgpt_score, gemini_score, direct_score) <= 0:
+    st.session_state["analysis_error"] = True
+    st.session_state["analysis_complete"] = False
+    st.session_state["analysis_error_type"] = "ANALYSIS_FAILED"
+    st.session_state["analysis_error_message"] = (
+        "Match score is 0. We couldn't find enough information "
+        "to calculate a compatibility score for this novel."
+    )
+    st.switch_page("pages/loading.py")
+    st.stop()
+
 if gemini_score >= 80:
     gemini_status = gemini_data.get("match_level") or "Great Match"
     gemini_status_class = "status-high"

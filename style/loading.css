@@ -1,7 +1,8 @@
-
 /* =========================================================
    NovelMatch Loading Page
+   Font: Barlow
    ========================================================= */
+
 
 /* =========================================================
    Page Wrapper
@@ -9,115 +10,8 @@
 
 .st-key-loading-page {
     width: min(760px, calc(100% - 32px));
-    margin: 100px auto 48px;
-    padding: 24px;
-
-    color: #172957;
-    font-family: "Barlow", sans-serif;
-
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.72);
-    box-shadow: 0 12px 40px rgba(23, 41, 87, 0.08);
-
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
-}
-
-/* =========================================================
-   Brand
-   ========================================================= */
-
-.loading-brand {
-    margin-bottom: 12px;
-    text-align: center;
-}
-
-.loading-brand-name {
-    color: #172957;
-    font-size: 36px;
-    font-weight: 600;
-    letter-spacing: -1px;
-}
-
-.loading-brand-name span {
-    color: #32A3A8;
-}
-
-.loading-brand-caption {
-    margin-top: 4px;
-    color: #8195AC;
-    font-size: 11px;
-    letter-spacing: 3px;
-}
-
-/* =========================================================
-   Hero
-   ========================================================= */
-
-.loading-hero {
-    padding: 24px 0 28px;
-    text-align: center;
-}
-
-.loading-hero h1 {
-    margin: 24px 0 10px;
-    color: #172957;
-    font-size: clamp(28px, 4vw, 36px);
-    font-weight: 600;
-    line-height: 1.3;
-}
-
-.loading-hero p {
-    max-width: 600px;
-    margin: 0 auto;
-    color: #7488A1;
-    font-size: 16px;
-    line-height: 1.7;
-}
-
-/* =========================================================
-   Loading Card
-   Used by st.container(border=True)
-   ========================================================= */
-
-.st-key-loading-page [data-testid="stVerticalBlockBorderWrapper"] {
-    border: 1px solid rgba(255, 255, 255, 0.95);
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 12px 35px rgba(23, 41, 87, 0.07);
-
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
-}
-
-/* =========================================================
-   Loading Content
-   ========================================================= */
-
-.st-key-loading-page [data-testid="stMarkdownContainer"] p {
-    line-height: 1.65;
-}
-
-.st-key-loading-page [data-testid="stCaptionContainer"] {
-    color: #8195AC;
-    font-size: 13px;
-}
-
-```css
-/* =========================================================
-   NovelMatch Loading Page
-   Typography aligned with chat.css
-   ========================================================= */
-
-/* =========================================================
-   Page Wrapper
-   ========================================================= */
-
-.st-key-loading-page {
-    width: min(760px, calc(100% - 32px));
-    margin: 100px auto 48px;
-    padding: 24px;
+    margin: 48px auto 32px;
+    padding: 20px 24px;
     box-sizing: border-box;
 
     color: #172957;
@@ -126,6 +20,7 @@
 
     border: 1px solid rgba(255, 255, 255, 0.85);
     border-radius: 28px;
+
     background: rgba(255, 255, 255, 0.72);
     box-shadow: 0 12px 40px rgba(23, 41, 87, 0.08);
 
@@ -133,9 +28,10 @@
     backdrop-filter: blur(18px);
 }
 
+
 /* =========================================================
    Typography
-   Apply Barlow consistently throughout the page.
+   Shared Barlow Design Language
    ========================================================= */
 
 .st-key-loading-page,
@@ -151,82 +47,11 @@
     font-family: "Barlow", sans-serif;
 }
 
-/* =========================================================
-   Brand
-   ========================================================= */
-
-.loading-brand {
-    margin-bottom: 12px;
-    text-align: center;
-}
-
-.loading-brand-name {
-    color: #172957;
-    font-size: 36px;
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -1px;
-}
-
-.loading-brand-name span {
-    color: #32A3A8;
-    font-weight: 600;
-}
-
-.loading-brand-caption {
-    margin-top: 4px;
-    color: #8195AC;
-    font-size: 11px;
+.st-key-loading-page {
     font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 3px;
 }
 
-/* =========================================================
-   Hero
-   ========================================================= */
-
-.loading-hero {
-    padding: 24px 0 28px;
-    text-align: center;
-}
-
-.loading-hero h1 {
-    margin: 24px 0 10px;
-    color: #172957;
-    font-size: clamp(28px, 4vw, 36px);
-    font-weight: 600;
-    line-height: 1.3;
-    letter-spacing: -0.5px;
-}
-
-.loading-hero p {
-    max-width: 600px;
-    margin: 0 auto;
-    color: #7488A1;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 1.7;
-}
-
-/* =========================================================
-   Loading Card
-   Used by st.container(border=True)
-   ========================================================= */
-
-.st-key-loading-page [data-testid="stVerticalBlockBorderWrapper"] {
-    border: 1px solid rgba(255, 255, 255, 0.95);
-    border-radius: 28px;
-    background: rgba(255, 255, 255, 0.82);
-    box-shadow: 0 12px 35px rgba(23, 41, 87, 0.07);
-
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
-}
-
-/* =========================================================
-   Streamlit Content
-   ========================================================= */
+/* Markdown Content */
 
 .st-key-loading-page [data-testid="stMarkdownContainer"] {
     color: #172957;
@@ -238,52 +63,145 @@
     color: inherit;
     font-size: inherit;
     font-weight: inherit;
-    line-height: 1.65;
+    line-height: 1.5;
 }
+
+/* Caption */
 
 .st-key-loading-page [data-testid="stCaptionContainer"] {
     color: #8195AC;
     font-size: 13px;
-    font-weight: 400;
-    line-height: 1.6;
+    font-weight: 300;
+    line-height: 1.5;
 }
+
+
+/* =========================================================
+   Brand
+   ========================================================= */
+
+.loading-brand {
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.loading-brand-name {
+    color: #172957;
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: -1px;
+}
+
+.loading-brand-name span {
+    color: #32A3A8;
+    font-weight: 500;
+}
+
+.loading-brand-caption {
+    margin-top: 4px;
+
+    color: #8195AC;
+
+    font-size: 11px;
+    font-weight: 300;
+    line-height: 1.5;
+    letter-spacing: 3px;
+}
+
+
+/* =========================================================
+   Hero
+   ========================================================= */
+
+.loading-hero {
+    padding: 12px 0 16px;
+    text-align: center;
+}
+
+.loading-hero h1 {
+    margin: 16px 0 8px;
+
+    color: #172957;
+
+    font-size: clamp(26px, 4vw, 32px);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+
+.loading-hero p {
+    max-width: 560px;
+    margin: 0 auto;
+
+    color: #7488A1;
+
+    font-size: 16px;
+    font-weight: 300;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   Loading Card
+   Used by st.container(border=True)
+   ========================================================= */
+
+.st-key-loading-page [data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+
+    background: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 12px 35px rgba(23, 41, 87, 0.07);
+
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+}
+
 
 /* =========================================================
    Buttons
    ========================================================= */
 
 .st-key-loading-page .stButton > button {
+    min-height: 44px;
+    padding: 10px 20px;
+
     font-family: "Barlow", sans-serif;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 16px;
+    font-weight: 400;
+
+    border-radius: 12px;
 }
+
 
 /* =========================================================
    Responsive
    ========================================================= */
 
 @media (max-width: 768px) {
+
     .st-key-loading-page {
-        width: calc(100% - 32px);
-        margin: 48px auto 32px;
-        padding: 20px;
-        border-radius: 24px;
+        width: calc(100% - 24px);
+        margin: 24px auto;
+        padding: 16px;
+        border-radius: 22px;
     }
 
     .loading-brand-name {
-        font-size: 30px;
-    }
-
-    .loading-hero {
-        padding: 20px 0 24px;
-    }
-
-    .loading-hero h1 {
         font-size: 28px;
     }
 
+    .loading-hero {
+        padding: 8px 0 12px;
+    }
+
+    .loading-hero h1 {
+        margin-top: 12px;
+        font-size: 26px;
+    }
+
     .loading-hero p {
-        font-size: 15px;
+        font-size: 14px;
     }
 }
-```

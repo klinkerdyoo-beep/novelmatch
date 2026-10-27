@@ -341,10 +341,31 @@
     color: var(--chatgpt-accent);
 }
 
-.st-key-score-card .match-status {
-    background: rgba(37, 99, 235, 0.10);
-    border-color: rgba(37, 99, 235, 0.22);
-    color: var(--chatgpt-accent);
+
+/* =========================================================
+   Match Status — Color by Score
+   Great Match = Green | Good Match = Yellow | Low Match = Red
+   ========================================================= */
+
+/* Great Match: 80–100 */
+.match-status.status-high {
+    color: #15803D !important;
+    background: rgba(34, 197, 94, 0.12) !important;
+    border-color: rgba(34, 197, 94, 0.25) !important;
+}
+
+/* Good Match: 60–79 */
+.match-status.status-medium {
+    color: #A16207 !important;
+    background: rgba(234, 179, 8, 0.13) !important;
+    border-color: rgba(234, 179, 8, 0.28) !important;
+}
+
+/* Low Match: Below 60 */
+.match-status.status-low {
+    color: #B91C1C !important;
+    background: rgba(239, 68, 68, 0.10) !important;
+    border-color: rgba(239, 68, 68, 0.25) !important;
 }
 
 .st-key-match-analysis-card .result-section-title,

@@ -114,7 +114,7 @@ def navbar():
     with st.container(key="navbar"):
 
         col_logo, col_space, col_pref, col_account = st.columns(
-            [2, 6, 1.5, 2],
+            [2.2, 5.8, 1.8, 2.2],
             vertical_alignment="center",
         )
 
@@ -129,42 +129,43 @@ def navbar():
                     />
                     """
                 )
-                st.page_link(PAGE_HOME, label="Home")
+                st.page_link(PAGE_HOME, label="")
 
         with col_pref:
             with st.container(key="nav_pref"):
-                st.page_link(PAGE_PREFERENCES, label="Preferences")
+                st.page_link(PAGE_PREFERENCES, label="Preferences", use_container_width=True)
 
         # ---------------- Account ----------------
         with col_account:
 
             if username:
-                with st.popover(username, use_container_width=True):
+                with st.container(key="nav_account"):
+                    with st.popover(username, use_container_width=True):
 
-                    st.markdown(
-                        f"""
-                        <div class="account-welcome">
-                            <span>Welcome,</span>
-                            <strong>{username}</strong>
-                        </div>
-                        """,
-                        unsafe_allow_html=True,
-                    )
+                        st.markdown(
+                            f"""
+                            <div class="account-welcome">
+                                <span>Welcome,</span>
+                                <strong>{username}</strong>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
 
-                    st.divider()
+                        st.divider()
 
-                    st.page_link(PAGE_ACCOUNT, label="My Account")
-                    st.page_link(PAGE_HISTORY, label="Your Search History")
+                        st.page_link(PAGE_ACCOUNT, label="My Account", use_container_width=True)
+                        st.page_link(PAGE_HISTORY, label="Your Search History", use_container_width=True)
 
-                    st.divider()
+                        st.divider()
 
-                    st.button(
-                        "Log Out",
-                        on_click=logout,
-                        key="nav_logout",
-                        use_container_width=True,
-                    )
+                        st.button(
+                            "Log Out",
+                            on_click=logout,
+                            key="nav_logout",
+                            use_container_width=True,
+                        )
 
             else:
                 with st.container(key="nav_login"):
-                    st.page_link(PAGE_LOGIN, label="Log in")
+                    st.page_link(PAGE_LOGIN, label="Log in", use_container_width=True)
